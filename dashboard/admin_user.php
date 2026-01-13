@@ -2,7 +2,6 @@
 include "../includes/auth.php";
 allow("Admin");
 include "../includes/db.php";
-include "../includes/header.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 $error = '';
@@ -88,18 +87,118 @@ $roles = $conn->query("SELECT * FROM roles");
 
 <!DOCTYPE html>
 <html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<!-- Google Fonts Link -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+
+<!-- Bootstrap CSS Link -->
+<link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+<!-- CSS -->
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Osward", sans-serif;
+}
+
+html,
+body {
+    background-color: #ececece8;
+}
+
+.col-md-3 {
+    min-height: 100vh;
+    background-color: #ececece8;
+    color: black;
+    box-shadow: inset 0 0 10px #aaaaaa;
+}
+
+h3,
+h4 {
+    font-weight: bold;
+}
+
+a.d-block,
+h5 {
+    text-decoration: none;
+    color: lightslategray;
+    padding-top: .7rem;
+    text-indent: 1.5rem;
+    padding-bottom: .7rem;
+}
+
+a:hover {
+    color: white;
+    background-color: #337ccfe2;
+    border-radius: 5px;
+}
+
+.col-md-9 {
+    background-color: #f5f5f5d2;
+}
+
+.col-md-2 {
+    width: 15vw;
+    border: 1px solid #d4d4d4;
+}
+
+h6 {
+    padding-top: .5rem;
+    margin-left: .5rem;
+}
+
+p {
+    color: lightslategray;
+}
+
+button {
+    margin-top: 1.5rem;
+}
+</style>
+</head>
 
 <body>
     <div class="container mt-4">
         <div class="row">
-            <div class="col-md-3 bg-light p-3 rounded">
-                <h5>Navigation</h5>
-                <a href="admin_user.php" class="d-block mb-2">Create User</a>
-                <a href="admin_user_view.php" class="d-block mb-2">View Users</a>
-                <a href="tasks.php" class="d-block mb-2">Tasks</a>
-                <a href="projects.php" class="d-block mb-2">Projects</a>
+            <div class="col-md-3 bg-light p-3 position-fixed">
+                <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
+                <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
                 <hr>
-                <a href="../public/logout.php" class="d-block text-danger">Logout</a>
+                <h5>Employee</h5>
+                <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
+                <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
+                <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
+                <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
+                <hr>
+
+                <div class="d-flex justify-content-center align-items-center mt-4">
+                    <span
+                        style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
+                        <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
+                    </span> &nbsp;&nbsp; &nbsp;&nbsp;
+                    <span class="me-3"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
+                        <font style="font-size: 13px; color: lightslategray;">
+                            <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
+                        </font>
+                    </span>
+                </div>
+                <center>
+                    <a href="../public/logout.php" type="submit"
+                        class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
+                        &nbsp; Logout
+                    </a>
+
+                </center>
             </div>
             <div class="col-md-7 offset-md-1">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -132,4 +231,3 @@ $roles = $conn->query("SELECT * FROM roles");
 </body>
 
 </html>
-<?php include "../includes/footer.php"; ?>
