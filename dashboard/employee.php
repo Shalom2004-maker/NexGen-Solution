@@ -40,7 +40,6 @@ allow("Employee");
         min-height: 100vh;
         background-color: #ececece8;
         color: black;
-        box-shadow: inset 0 0 10px #aaaaaa;
     }
 
     h3,
@@ -52,9 +51,9 @@ allow("Employee");
     h5 {
         text-decoration: none;
         color: lightslategray;
-        padding-top: .7rem;
+        padding-top: .5rem;
         text-indent: 1.5rem;
-        padding-bottom: .7rem;
+        padding-bottom: .5rem;
     }
 
     a:hover {
@@ -77,7 +76,11 @@ allow("Employee");
         margin-left: .5rem;
     }
 
-    p {
+    h5 {
+        font-size: 17px;
+    }
+
+    h5 p {
         color: lightslategray;
     }
 
@@ -90,39 +93,49 @@ allow("Employee");
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3 bg-light p-3 position-fixed">
-                <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
-                <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
-                <hr>
-                <h5>Employee</h5>
-                <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
-                <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
-                <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
-                <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
-                <hr>
-
-                <div class="d-flex justify-content-center align-items-center mt-4">
-                    <span
-                        style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
-                        <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
-                    </span> &nbsp;&nbsp; &nbsp;&nbsp;
-                    <span class="me-3"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
-                        <font style="font-size: 13px; color: lightslategray;">
-                            <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
-                        </font>
-                    </span>
+            <div class="col-md-3 bg-light p-3 position-fixed border-end">
+                <div class="d-block border-bottom position-fixed bg-light" style="width: 23.4vw;">
+                    <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
+                    <p style="margin-top: .5rem; padding-left: 1.5rem; color: lightslategray;">Employee Management</p>
                 </div>
-                <center>
-                    <a href="../public/logout.php" type="submit"
-                        class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
-                        &nbsp; Logout
-                    </a>
 
-                </center>
+                <div class="d-block position-relative"
+                    style="width: 23.4vw; margin-top: 7rem; overflow-y: auto; height: calc(100vh - 17rem);">
+                    <h5>Employee</h5>
+                    <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
+                    <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
+                    <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
+                    <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
+                </div>
+
+                <div class="d-block position-fixed bg-light border-top" style="width: 23.4vw;">
+                    <div class="d-flex border-top justify-content-center align-items-center">
+                        <span
+                            style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; margin-top: 1.5rem;
+                        display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
+                            <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
+                        </span> &nbsp;&nbsp; &nbsp;&nbsp;
+                        <span class="me-3"
+                            style="margin-top: 1.5rem;"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
+                            <font style="font-size: 13px; color: lightslategray;">
+                                <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
+                            </font>
+                        </span>
+                    </div>
+                    <center>
+                        <a href="../public/logout.php" type="submit"
+                            class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
+                            &nbsp; Logout
+                        </a>
+
+                    </center>
+                </div>
             </div>
-            <div class="col-md-9 mb-2 p-4 ms-auto" style="margin-left:25vw;">
+            <div class="col-md-9 mb-2 p-4 ms-auto" style="margin-left: 25vw;">
                 <h3 style="padding-left: 2.3rem;">Employee Dashboard</h3>
-                <p style="margin-top: .7rem; padding-left: 2.3rem;"> Welcome back, Employee. Here's what's happening
+                <p style="margin-top: .7rem; padding-left: 2.3rem; color: lightslategray"> Welcome back, Employee.
+                    Here's what's
+                    happening
                     today.</p>
                 <div class="row d-flex gap-4 justify-content-center pt-4">
                     <div class="col-md-2 bg-light rounded text-start shadow">
