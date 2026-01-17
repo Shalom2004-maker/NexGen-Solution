@@ -116,15 +116,11 @@ $roles = $conn->query("SELECT * FROM roles");
 }
 
 html,
-body {
+body,
+div.container-fluid {
     background-color: #ececece8;
-}
-
-.col-md-3 {
-    min-height: 100vh;
-    background-color: #ececece8;
-    color: black;
-    border-color: lightslategray;
+    padding-top: 0;
+    right: 0;
 }
 
 h3,
@@ -175,84 +171,183 @@ button {
 </style>
 </head>
 
-<body>
+<body class="bg-light">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 bg-light p-3 border-end">
-                <div class="d-block position-fixed border-bottom bg-light" style="width: 23.4vw;">
-                    <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
-                    <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
+        <div class="row d-flex">
+            <?php include 'admin_siderbar.php'; ?>
+            <div class="col-md-9 mb-2 p-4 ms-auto" style="margin-left: 25vw;">
+                <h3 style="padding-left: 2.3rem;">HR Dashboard</h3>
+                <p style="margin-top: .7rem; padding-left: 2.3rem; color: lightslategray"> Manage personnel, approvals,
+                    and payroll.</p>
+                <div class="d-md-flex justify-content-md-end me-4">
+                    <a class="btn btn-outline-primary bi bi-plus-circle btn-sm" href=" admin_create_employee.php">
+                        &nbsp;
+                        Add
+                        Employee</a>
                 </div>
-
-                <div class="d-block position-relative"
-                    style="margin-top: 7rem; margin-bottom: 8.5rem; overflow-y: auto; height: calc(100vh - 17rem);">
-                    <h5>Employee</h5>
-                    <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
-                    <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
-                    <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
-                    <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
-                    <h5>Project Leader</h5>
-                    <a href="leader.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Overview</a>
-                    <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; Tasks Assignment</a>
-                    <a href="leave_view.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Leave Review</a>
-                    <h5>HR</h5>
-                    <a href="hr.php" class="d-block mb-2 bi bi-people"> &nbsp;&nbsp; Employees</a>
-                    <a href="leave_view.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Leave Approvals</a>
-                    <a href="leader_payroll.php" class="d-block mb-2 bi bi-currency-dollar"> &nbsp;&nbsp; Process
-                        Payroll</a>
-                    <a href="inquiries_view.php" class="d-block mb-2 bi bi-person-circle"> &nbsp;&nbsp; Inquiries</a>
-
-                    <h5>Admin</h5>
-                    <a href="admin_user.php" class="d-block mb-2 bi bi-people"> &nbsp;&nbsp; System Users</a>
-
-                </div>
-                <div class="d-block position-fixed bg-light border-top" style="bottom: 0; width: 23.4vw;">
-                    <div class=" d-flex justify-content-center align-items-center mt-3">
-                        <span
-                            style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
-                            <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
-                        </span> &nbsp;&nbsp; &nbsp;&nbsp;
-                        <span class="me-3"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
-                            <font style="font-size: 13px; color: lightslategray;">
-                                <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
-                            </font>
-                        </span>
+                <div class="row d-flex gap-4 justify-content-center pt-4">
+                    <div class="col-md-2 bg-light rounded text-start shadow">
+                        <h6>Total Employees <span class="bi bi-people-fill"
+                                style="margin-left: 1rem; color: #337ccfe2;"></span></h6>
+                        <?php
+                        include "../includes/db.php";
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM employees");
+                        if ($stmt) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
+                            if ($count > 0) {
+                                echo "<p style=\"margin-top: .7rem; font-size: 14px; margin-left: .5rem;\">Active staff members</p>";
+                            } else {
+                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">No employees yet</p>";
+                            }
+                            $stmt->close();
+                        } else {
+                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        }
+                        ?>
                     </div>
-                    <center>
-                        <a href="../public/logout.php" type="submit"
-                            class="btn btn-outline-danger mb-3 w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
-                            &nbsp; Logout
-                        </a>
-
-                    </center>
+                    <div class="col-md-2 bg-light rounded text-start shadow">
+                        <h6>Completed Tasks <span class="bi bi-ui-checks"
+                                style="margin-left: .5rem; color: #00a938f3;"></span></h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = ?");
+                        if ($stmt) {
+                            $status = 'done';
+                            $stmt->bind_param('is', $id, $status);
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
+                            if ($count >= 1) {
+                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Requests needing approval</p>";
+                            }
+                            $stmt->close();
+                        } else {
+                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        }
+                        ?>
+                    </div>
+                    <div class="col-md-2 bg-light rounded text-start shadow">
+                        <h6>Pending Leaves<span class="bi bi-suitcase-lg-fill"
+                                style="margin-left: .7rem; color: #bc00e6f3;"></span>
+                        </h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4  style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
+                            if ($count >= 1) {
+                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Submitted Leave requests</p>";
+                            } else {
+                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">No leave requests yet</p>";
+                            }
+                            $stmt->close();
+                        } else {
+                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        }
+                        ?>
+                    </div>
+                    <div class="col-md-2 bg-light rounded text-start shadow">
+                        <h6>Latest Salaries <span class="bi bi-coin" style="margin-left: 1.3rem; color: orange;"></span>
+                        </h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) AS Latest_Salary FROM salary_slips;");
+                        if ($stmt) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4  style=\"margin-left: .5rem;\"><b>$" . "{$count}</b></h4>";
+                            if ($count >= 1) {
+                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">Salary credited</p>";
+                            } else {
+                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">No salary data</p>";
+                            }
+                            $stmt->close();
+                        } else {
+                            echo "<p  style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        }
+                        ?>
+                    </div>
+                    <div class="col-md-9 mb-2 p-4 d-flex gap-3 justify-content-center pt-4">
+                        <div class="col-md-8 rounded bg-light p-3 shadow border">
+                            <h4 class="mt-2 ml-2">Recent Tasks</h4>
+                            <?php
+                                $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
+                                if ($stmt) {
+                                    $stmt->bind_param('i', $id);
+                                    $stmt->execute();
+                                    $stmt->bind_result($title, $status, $created_at);
+                                    echo "<ul class=\"list-group list-group-flush shadow rounded mt-5\">";
+                                    while ($stmt->fetch()) {
+                                        $status_badge = '';
+                                        if ($status === 'in_progress') {
+                                            $status_badge = '<span class="badge bg-warning text-dark shadow">In Progress</span>';
+                                        } elseif ($status === 'done') {
+                                            $status_badge = '<span class="badge bg-success shadow">Completed</span>';
+                                        } else {
+                                            $status_badge = '<span class="badge bg-secondary shadow">To Do</span>';
+                                        }
+                                        echo "<li class=\"list-group-item d-flex justify-content-between align-items-center\">
+                                                <div>
+                                                    <strong>" . htmlspecialchars($title) . "</strong><br>
+                                                    <small>Due: " . htmlspecialchars($created_at ?? 'Not set') . "</small>
+                                                </div>
+                                                <div>" . $status_badge . "</div>
+                                              </li>";
+                                    }
+                                    echo "</ul>";
+                                    $stmt->close();
+                                } else {
+                                    echo "<p>DB error</p>";
+                                }
+                                ?>
+                        </div>
+                        <div class="col-md-8 rounded bg-light p-3 shadow border">
+                            <h4 class="mt-2 ml-2">My Leave Requests</h4>
+                            <?php 
+                            $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
+                            if ($stmt) {
+                                $stmt->bind_param('i', $id);
+                                $stmt->execute();
+                                $stmt->bind_result($reason, $start_date, $end_date, $status);
+                                echo "<ul class=\"list-group list-group-flush shadow rounded mt-5\">";
+                                while ($stmt->fetch()) {
+                                    $status_badge = '';
+                                    if ($status === 'pending') {
+                                        $status_badge = '<span class="badge bg-warning text-dark shadow">Pending</span>';
+                                    } elseif ($status === 'approved') {
+                                        $status_badge = '<span class="badge bg-success shadow">Approved</span>';
+                                    } else {
+                                        $status_badge = '<span class="badge bg-danger shadow">Rejected</span>';
+                                    }
+                                    echo "<li class=\"list-group-item d-flex justify-content-between align-items-center\">
+                                            <div>
+                                                <strong>" . htmlspecialchars($reason) . "</strong><br>
+                                                <small>" . htmlspecialchars($start_date ?? 'Not set') . " to " . htmlspecialchars($end_date ?? 'Not set') . "</small>
+                                            </div>
+                                            <div>" . $status_badge . "</div>
+                                          </li>";
+                                }
+                                echo "</ul>";
+                                $stmt->close();
+                            } else {
+                                echo "<p>DB error</p>";
+                            }
+                            ?>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-7 offset-md-1">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3>Create User</h3>
-                    <a href="admin_user_view.php" class="btn btn-secondary">View All Users</a>
-                </div>
-                <?php if ($error): ?>
-                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-                <?php endif; ?>
 
-                <form method="post">
-                    <input type="hidden" name="csrf_token"
-                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                    <input name="name" class="form-control" placeholder="Enter Name"
-                        value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required>
-                    <input name="email" type="email" class="form-control mt-2" placeholder="Enter Email"
-                        value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required>
-                    <input name="pass" type="password" class="form-control mt-2" placeholder="Put Password" required>
-                    <select name="role" class="form-control mt-2" required>
-                        <?php while ($r = $roles->fetch_assoc()) { ?>
-                        <option value="<?= $r["id"] ?>" <?= (isset($role) && $role == $r["id"]) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($r["role_name"]) ?></option>
-                        <?php } ?>
-                    </select>
-                    <button type="submit" class="btn btn-primary mt-3">Create</button>
-                </form>
-            </div>
         </div>
     </div>
 </body>

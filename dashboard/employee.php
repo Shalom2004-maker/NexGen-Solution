@@ -109,7 +109,7 @@ allow("Employee");
                 </div>
 
                 <div class="d-block position-fixed bg-light border-top" style="width: 23.4vw;">
-                    <div class="d-flex border-top justify-content-center align-items-center">
+                    <div class="d-flex justify-content-center align-items-center">
                         <span
                             style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; margin-top: 1.5rem;
                         display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
