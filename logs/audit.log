@@ -49,3 +49,5 @@
 [2026-01-11 18:05:30] ip=::1 user=4 action=leave_request msg=Leave request submitted by user 4
 [2026-01-12 19:41:02] ip=::1 user=1 action=task_status msg=Task 9 set to done
 [2026-01-12 19:41:06] ip=::1 user=1 action=task_status msg=Task 8 set to done
+[2026-01-18 13:11:38] ip=::1 user=1 action=user_update msg=Updated user admin@spycray.com (ID: 1)
+[2026-01-18 13:16:24] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 10

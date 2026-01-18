@@ -89,15 +89,15 @@ button {
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row d-flex">
+    <div class="container-fluid bg-light p-0">
+        <div class="row d-flex bg-light">
             <div class="col-md-3 bg-light p-3 border-end bg-white">
                 <div class="d-block position-fixed border-bottom bg-light" style="width: 23.4vw;">
                     <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
                     <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
                 </div>
 
-                <div class="d-block position-fixed"
+                <div class="d-block position-fixed bg-light border-end"
                     style="width: 23.4vw; height: calc(100vh - 16rem); margin-top: 6rem; margin-bottom: 7rem; overflow-y: auto;">
                     <h5>Employee</h5>
                     <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
