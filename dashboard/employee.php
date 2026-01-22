@@ -1,10 +1,11 @@
 <?php
 include "../includes/auth.php";
 allow("Employee");
+include "../includes/db.php";
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -19,292 +20,407 @@ allow("Employee");
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!-- CSS -->
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Osward", sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Osward", sans-serif;
+        }
 
-    html,
-    body {
-        background-color: #ececece8;
-    }
+        html,
+        body {
+            background-color: #ececece8;
+            min-height: 100vh;
+        }
 
-    .col-md-3 {
-        min-height: 100vh;
-        background-color: #ececece8;
-        color: black;
-    }
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    h3,
-    h4 {
-        font-weight: bold;
-    }
+        .main-content {
+            flex: 1;
+            background-color: #f5f5f5d2;
+            padding: 2rem;
+            overflow-y: auto;
+        }
 
-    a.d-block,
-    h5 {
-        text-decoration: none;
-        color: lightslategray;
-        padding-top: .5rem;
-        text-indent: 1.5rem;
-        padding-bottom: .5rem;
-    }
+        .page-header {
+            margin-bottom: 2rem;
+        }
 
-    a:hover {
-        color: white;
-        background-color: #337ccfe2;
-        border-radius: 5px;
-    }
+        .page-header h3 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
 
-    .col-md-9 {
-        background-color: #f5f5f5d2;
-    }
+        .page-header p {
+            color: lightslategray;
+            margin: 0;
+        }
 
-    .col-md-2 {
-        width: 15vw;
-        border: 1px solid #d4d4d4;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
 
-    h6 {
-        padding-top: .5rem;
-        margin-left: .5rem;
-    }
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
 
-    h5 {
-        font-size: 17px;
-    }
+        .stat-card h6 {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
 
-    h5 p {
-        color: lightslategray;
-    }
+        .stat-card h4 {
+            color: #337ccfe2;
+            margin-bottom: 0.5rem;
+        }
 
-    button {
-        margin-top: 1.5rem;
-    }
+        .stat-card p {
+            color: lightslategray;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .stat-icon {
+            float: right;
+            font-size: 1.5rem;
+            color: #337ccfe2;
+            margin-top: -2.5rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-container h4 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .list-group-item {
+            border: 1px solid #d4d4d4;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1040;
+            background-color: #337ccfe2;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+                padding-top: 3.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .card-container {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3rem;
+            }
+
+            .page-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card h6 {
+                font-size: 0.85rem;
+            }
+
+            .card-container {
+                padding: 0.75rem;
+            }
+
+            .card-container h4 {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 bg-light p-3 position-fixed border-end">
-                <div class="d-block border-bottom position-fixed bg-light" style="width: 23.4vw;">
-                    <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
-                    <p style="margin-top: .5rem; padding-left: 1.5rem; color: lightslategray;">Employee Management</p>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h3><i class="bi bi-speedometer2"></i> Employee Dashboard</h3>
+                <p>Welcome back, Employee. Here's what's happening today.</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h6>Pending Tasks <i class="bi bi-stopwatch-fill stat-icon"></i></h6>
+                    <?php
+                    $id = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 1;
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'in_progress' AND assigned_to = ?");
+                    if ($stmt) {
+                        $stmt->bind_param('i', $id);
+                        $stmt->execute();
+                        $stmt->bind_result($count);
+                        $stmt->fetch();
+                        $count = (int)($count ?? 0);
+                        echo "<h4>{$count}</h4>";
+                        echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
+                        $stmt->close();
+                    } else {
+                        echo "<p>DB error</p>";
+                    }
+                    ?>
                 </div>
 
-                <div class="d-block position-relative"
-                    style="width: 23.4vw; margin-top: 7rem; overflow-y: auto; height: calc(100vh - 17rem);">
-                    <h5>Employee</h5>
-                    <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
-                    <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
-                    <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
-                    <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
+                <div class="stat-card">
+                    <h6>Completed Tasks <i class="bi bi-ui-checks stat-icon"></i></h6>
+                    <?php
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
+                    if ($stmt) {
+                        $stmt->bind_param('i', $id);
+                        $stmt->execute();
+                        $stmt->bind_result($count);
+                        $stmt->fetch();
+                        $count = (int)($count ?? 0);
+                        echo "<h4>{$count}</h4>";
+                        echo "<p>" . ($count >= 1 ? "Great job!" : "No tasks completed yet") . "</p>";
+                        $stmt->close();
+                    } else {
+                        echo "<p>DB error</p>";
+                    }
+                    ?>
                 </div>
 
-                <div class="d-block position-fixed bg-light border-top" style="width: 23.4vw;">
-                    <div class="d-flex justify-content-center align-items-center">
-                        <span
-                            style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; margin-top: 1.5rem;
-                        display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
-                            <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
-                        </span> &nbsp;&nbsp; &nbsp;&nbsp;
-                        <span class="me-3"
-                            style="margin-top: 1.5rem;"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
-                            <font style="font-size: 13px; color: lightslategray;">
-                                <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
-                            </font>
-                        </span>
-                    </div>
-                    <center>
-                        <a href="../public/logout.php" type="submit"
-                            class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
-                            &nbsp; Logout
-                        </a>
+                <div class="stat-card">
+                    <h6>Leave Requests <i class="bi bi-suitcase-lg-fill stat-icon"></i></h6>
+                    <?php
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
+                    if ($stmt) {
+                        $stmt->bind_param('i', $id);
+                        $stmt->execute();
+                        $stmt->bind_result($count);
+                        $stmt->fetch();
+                        $count = (int)($count ?? 0);
+                        echo "<h4>{$count}</h4>";
+                        echo "<p>" . ($count >= 1 ? "Submitted leave requests" : "No leave requests yet") . "</p>";
+                        $stmt->close();
+                    } else {
+                        echo "<p>DB error</p>";
+                    }
+                    ?>
+                </div>
 
-                    </center>
+                <div class="stat-card">
+                    <h6>Latest Salaries <i class="bi bi-coin stat-icon"></i></h6>
+                    <?php
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips");
+                    if ($stmt) {
+                        $stmt->execute();
+                        $stmt->bind_result($count);
+                        $stmt->fetch();
+                        $count = (int)($count ?? 0);
+                        echo "<h4>$" . number_format($count) . "</h4>";
+                        echo "<p>" . ($count >= 1 ? "Salary credited" : "No salary data") . "</p>";
+                        $stmt->close();
+                    } else {
+                        echo "<p>DB error</p>";
+                    }
+                    ?>
                 </div>
             </div>
-            <div class="col-md-9 mb-2 p-4 ms-auto" style="margin-left: 25vw;">
-                <h3 style="padding-left: 2.3rem;">Employee Dashboard</h3>
-                <p style="margin-top: .7rem; padding-left: 2.3rem; color: lightslategray"> Welcome back, Employee.
-                    Here's what's
-                    happening
-                    today.</p>
-                <div class="row d-flex gap-4 justify-content-center pt-4">
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Pending Tasks <span class="bi bi-stopwatch-fill"
-                                style="margin-left: 1.5rem; color: #337ccfe2;"></span></h6>
-                        <?php
-                        include "../includes/db.php";
-                        $id = isset($_SESSION['id']) ? (int)$_SESSION['id'] : 1;
-                        $role = isset($_SESSION['role']) ? $_SESSION['role'] : $role;
-                        $stmt = $conn->prepare("SELECT COUNT(status) FROM tasks WHERE status = 'in_progress' AND assigned_to = ?");
-                        if ($stmt) {
-                            $stmt->bind_param('i', $id);
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count == 0) {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px; margin-left: .5rem;\">Tasks waiting for action</p>";
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <div class="card-container">
+                    <h4><i class="bi bi-list-check"></i> Recent Tasks</h4>
+                    <?php
+                    $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
+                    if ($stmt) {
+                        $stmt->bind_param('i', $id);
+                        $stmt->execute();
+                        $stmt->bind_result($title, $status, $created_at);
+                        $has_tasks = false;
+                        echo '<div class="list-group">';
+                        while ($stmt->fetch()) {
+                            $has_tasks = true;
+                            $status_badge = '';
+                            if ($status === 'in_progress') {
+                                $status_badge = '<span class="badge bg-warning text-dark">In Progress</span>';
+                            } elseif ($status === 'done') {
+                                $status_badge = '<span class="badge bg-success">Completed</span>';
                             } else {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Tasks pending</p>";
+                                $status_badge = '<span class="badge bg-secondary">To Do</span>';
                             }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                            echo '<div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>' . htmlspecialchars($title) . '</strong><br>
+                                        <small>Due: ' . htmlspecialchars($created_at ?? 'Not set') . '</small>
+                                    </div>
+                                    <div>' . $status_badge . '</div>
+                                  </div>';
                         }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Completed Tasks <span class="bi bi-ui-checks"
-                                style="margin-left: .5rem; color: #00a938f3;"></span></h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = ?");
-                        if ($stmt) {
-                            $status = 'done';
-                            $stmt->bind_param('is', $id, $status);
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Great job!</p>";
-                            } else {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">No tasks completed yet</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        if (!$has_tasks) {
+                            echo '<p class="text-muted">No tasks assigned yet.</p>';
                         }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Leave Requests <span class="bi bi-suitcase-lg-fill"
-                                style="margin-left: .7rem; color: #bc00e6f3;"></span>
-                        </h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
-                        if ($stmt) {
-                            $stmt->bind_param('i', $id);
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4  style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Submitted Leave requests</p>";
+                        echo '</div>';
+                        $stmt->close();
+                    } else {
+                        echo '<p>DB error</p>';
+                    }
+                    ?>
+                </div>
+
+                <div class="card-container">
+                    <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
+                    <?php
+                    $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY created_at DESC LIMIT 5");
+                    if ($stmt) {
+                        $stmt->bind_param('i', $id);
+                        $stmt->execute();
+                        $stmt->bind_result($reason, $start_date, $end_date, $status);
+                        $has_leaves = false;
+                        echo '<div class="list-group">';
+                        while ($stmt->fetch()) {
+                            $has_leaves = true;
+                            $status_badge = '';
+                            if ($status === 'pending') {
+                                $status_badge = '<span class="badge bg-warning text-dark">Pending</span>';
+                            } elseif ($status === 'approved') {
+                                $status_badge = '<span class="badge bg-success">Approved</span>';
                             } else {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">No leave requests yet</p>";
+                                $status_badge = '<span class="badge bg-danger">Rejected</span>';
                             }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                            echo '<div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>' . htmlspecialchars($reason) . '</strong><br>
+                                        <small>' . htmlspecialchars($start_date ?? 'Not set') . ' to ' . htmlspecialchars($end_date ?? 'Not set') . '</small>
+                                    </div>
+                                    <div>' . $status_badge . '</div>
+                                  </div>';
                         }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Latest Salaries <span class="bi bi-coin" style="margin-left: 1.3rem; color: orange;"></span>
-                        </h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT COUNT(*) AS Latest_Salary FROM salary_slips;");
-                        if ($stmt) {
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4  style=\"margin-left: .5rem;\"><b>$" . "{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">Salary credited</p>";
-                            } else {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">No salary data</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p  style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
+                        if (!$has_leaves) {
+                            echo '<p class="text-muted">No leave requests submitted yet.</p>';
                         }
-                        ?>
-                    </div>
-                    <div class="col-md-9 mb-2 p-4 d-flex gap-3 justify-content-center pt-4">
-                        <div class="col-md-8 rounded bg-light p-3 shadow border">
-                            <h4 class="mt-2 ml-2">Recent Tasks</h4>
-                            <?php
-                                $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
-                                if ($stmt) {
-                                    $stmt->bind_param('i', $id);
-                                    $stmt->execute();
-                                    $stmt->bind_result($title, $status, $created_at);
-                                    echo "<ul class=\"list-group list-group-flush shadow rounded mt-5\">";
-                                    while ($stmt->fetch()) {
-                                        $status_badge = '';
-                                        if ($status === 'in_progress') {
-                                            $status_badge = '<span class="badge bg-warning text-dark shadow">In Progress</span>';
-                                        } elseif ($status === 'done') {
-                                            $status_badge = '<span class="badge bg-success shadow">Completed</span>';
-                                        } else {
-                                            $status_badge = '<span class="badge bg-secondary shadow">To Do</span>';
-                                        }
-                                        echo "<li class=\"list-group-item d-flex justify-content-between align-items-center\">
-                                                <div>
-                                                    <strong>" . htmlspecialchars($title) . "</strong><br>
-                                                    <small>Due: " . htmlspecialchars($created_at ?? 'Not set') . "</small>
-                                                </div>
-                                                <div>" . $status_badge . "</div>
-                                              </li>";
-                                    }
-                                    echo "</ul>";
-                                    $stmt->close();
-                                } else {
-                                    echo "<p>DB error</p>";
-                                }
-                                ?>
-                        </div>
-                        <div class="col-md-8 rounded bg-light p-3 shadow border">
-                            <h4 class="mt-2 ml-2">My Leave Requests</h4>
-                            <?php 
-                            $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
-                            if ($stmt) {
-                                $stmt->bind_param('i', $id);
-                                $stmt->execute();
-                                $stmt->bind_result($reason, $start_date, $end_date, $status);
-                                echo "<ul class=\"list-group list-group-flush shadow rounded mt-5\">";
-                                while ($stmt->fetch()) {
-                                    $status_badge = '';
-                                    if ($status === 'pending') {
-                                        $status_badge = '<span class="badge bg-warning text-dark shadow">Pending</span>';
-                                    } elseif ($status === 'approved') {
-                                        $status_badge = '<span class="badge bg-success shadow">Approved</span>';
-                                    } else {
-                                        $status_badge = '<span class="badge bg-danger shadow">Rejected</span>';
-                                    }
-                                    echo "<li class=\"list-group-item d-flex justify-content-between align-items-center\">
-                                            <div>
-                                                <strong>" . htmlspecialchars($reason) . "</strong><br>
-                                                <small>" . htmlspecialchars($start_date ?? 'Not set') . " to " . htmlspecialchars($end_date ?? 'Not set') . "</small>
-                                            </div>
-                                            <div>" . $status_badge . "</div>
-                                          </li>";
-                                }
-                                echo "</ul>";
-                                $stmt->close();
-                            } else {
-                                echo "<p>DB error</p>";
-                            }
-                            ?>
-                        </div>
-                    </div>
+                        echo '</div>';
+                        $stmt->close();
+                    } else {
+                        echo '<p>DB error</p>';
+                    }
+                    ?>
                 </div>
             </div>
         </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', function() {
+                if (nexgenSidebar) {
+                    nexgenSidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (nexgenSidebar) {
+                    nexgenSidebar.classList.remove('show');
+                }
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+    </script>
 </body>
 
 </html>

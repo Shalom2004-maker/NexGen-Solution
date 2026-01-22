@@ -69,160 +69,306 @@ $res = $stmt->get_result();
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!-- CSS -->
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Osward", sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Osward", sans-serif;
+        }
 
-    html,
-    body {
-        background-color: #ececece8;
-    }
+        html,
+        body {
+            background-color: #ececece8;
+            min-height: 100vh;
+        }
 
-    h3,
-    h4 {
-        font-weight: bold;
-    }
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    h5 {
-        text-decoration: none;
-        color: lightslategray;
-        padding-top: .5rem;
-        text-indent: 1.5rem;
-        padding-bottom: .5rem;
-    }
+        .main-content {
+            flex: 1;
+            background-color: #f5f5f5d2;
+            padding: 2rem;
+            overflow-y: auto;
+        }
 
-    a:hover {
-        color: white;
-        background-color: #337ccfe2;
-        border-radius: 5px;
-    }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-    .col-md-9 {
-        background-color: #f5f5f5d2;
-    }
+        .page-header h3 {
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
 
+        .search-form {
+            width: 100%;
+            max-width: 500px;
+        }
 
-    h6 {
-        padding-top: .5rem;
-        margin-left: .5rem;
-    }
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
 
-    h5 {
-        font-size: 17px;
-    }
+        .table {
+            margin: 0;
+        }
 
-    h5 p {
-        color: lightslategray;
-    }
+        .table thead {
+            background-color: #337ccfe2;
+            color: white;
+        }
 
-    form {
-        width: 100%;
-        padding: 10px 20px;
-    }
+        .table tbody tr {
+            border-bottom: 1px solid #d4d4d4;
+        }
 
-    div.col-md-4 {
-        display: flex;
-        gap: 1rem;
-    }
+        .table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
 
-    input[type="text"] button {
-        margin-top: 0;
-    }
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
 
-    .search-buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons form {
+            display: inline;
+            margin: 0;
+        }
+
+        .action-buttons button {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        .pagination {
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1040;
+            background-color: #337ccfe2;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+                padding-top: 3.5rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header h3 {
+                width: 100%;
+            }
+
+            .search-form {
+                max-width: 100%;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem !important;
+            }
+
+            .action-buttons {
+                gap: 0.25rem;
+            }
+
+            .action-buttons button {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3rem;
+            }
+
+            .table-container {
+                padding: 0.75rem;
+            }
+
+            .table {
+                font-size: 0.8rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.25rem !important;
+            }
+
+            .page-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid d-flex p-0">
-        <?php include "admin_siderbar.php"; ?>
-        <div class="col-md-9 mb-2 p-4 ms-auto" style="margin-left: 25vw;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Users Management</h3>
-                <a href="admin_user.php" class="btn btn-outline-primary btn-sm bi bi-plus-circle"> &nbsp; Create New
-                    User</a>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h3><i class="bi bi-people-fill"></i> Users Management</h3>
+                <a href="admin_user.php" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> Create New User
+                </a>
             </div>
 
-            <!-- Search -->
-            <div class="d-flex justify-content-between align-items-center">
-                <form method="get" class="mb-3 w-75">
-                    <div class="input-group mb-3">
-                        <span type="submit" class="input-group-text btn btn-outline-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1
-                                     1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                            </svg>
-                        </span>
-                        <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
-                            placeholder="Search by name or email"> &nbsp;&nbsp;
-                        <span style="margin-top: -1.5rem">
-                            <button class="btn btn-outline-secondary">Search</button>
-                        </span>
-                        <?php if ($q): ?>
+            <!-- Search Form -->
+            <form method="get" class="search-form mb-4">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
+                        placeholder="Search by name or email">
+                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    <?php if ($q): ?>
+                        <a href="admin_user_view.php" class="btn btn-outline-secondary">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
 
-                        <a href=" admin_user_view.php" class="btn btn-link">Reset</a>
-                        <?php endif; ?>
-                    </div>
-                </form>
-            </div>
-
-            <div class="table-responsive border bg-light rounded shadow">
-                <table class="table table-light border">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($user = $res->fetch_assoc()) : ?>
-                        <tr>
-                            <td><?= htmlspecialchars($user['id']) ?></td>
-                            <td><?= htmlspecialchars($user['full_name']) ?></td>
-                            <td><?= htmlspecialchars($user['email']) ?></td>
-                            <td><?= htmlspecialchars($user['role_name'] ?? 'N/A') ?></td>
-                            <td>
-                                <span class="badge bg-<?= $user['status'] === 'active' ? 'success' : 'danger' ?>">
-                                    <?= htmlspecialchars($user['status']) ?>
-                                </span>
-                            </td>
-                            <td><?= htmlspecialchars($user['created_at']) ?></td>
-                            <td>
-                                <form method="post" action="admin_user_delete.php" style="margin-top: -1.3rem"
-                                    onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                    <input type="hidden" name="csrf_token"
-                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <button class="btn btn-outline-primary"> <a
-                                            href=" admin_user_edit.php?id=<?= $user['id'] ?>"
-                                            class="bi bi-pencil-square"></a>
-                                    </button> &nbsp;&nbsp;
-                                    <button class="btn btn-outline-danger bi bi-trash3-fill"></button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+            <!-- Users Table -->
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($user = $res->fetch_assoc()) : ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($user['id']) ?></td>
+                                    <td><?= htmlspecialchars($user['full_name']) ?></td>
+                                    <td><?= htmlspecialchars($user['email']) ?></td>
+                                    <td><?= htmlspecialchars($user['role_name'] ?? 'N/A') ?></td>
+                                    <td>
+                                        <span class="badge bg-<?= $user['status'] === 'active' ? 'success' : 'danger' ?>">
+                                            <?= htmlspecialchars($user['status']) ?>
+                                        </span>
+                                    </td>
+                                    <td><?= htmlspecialchars($user['created_at']) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="admin_user_edit.php?id=<?= urlencode($user['id']) ?>"
+                                                class="btn btn-outline-primary btn-sm" title="Edit">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form method="post" action="admin_user_delete.php"
+                                                onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                <input type="hidden" name="csrf_token"
+                                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination -->
@@ -231,18 +377,67 @@ $res = $stmt->get_result();
             $baseUrl = 'admin_user_view.php?q=' . urlencode($q);
             ?>
             <?php if ($pages > 1): ?>
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <?php for ($p = 1; $p <= $pages; $p++) : ?>
-                    <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="<?= $baseUrl ?>&page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="<?= $baseUrl ?>&page=<?= $page - 1 ?>">Previous</a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($p = 1; $p <= $pages; $p++) : ?>
+                            <?php if ($p === 1 || $p === $pages || abs($p - $page) <= 1) : ?>
+                                <li class="page-item <?= $p === $page ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
+                                </li>
+                            <?php elseif ($p === 2 || $p === $pages - 1) : ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $pages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="<?= $baseUrl ?>&page=<?= $page + 1 ?>">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="<?= $baseUrl ?>&page=<?= $pages ?>">Last</a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
             <?php endif; ?>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', function() {
+                if (nexgenSidebar) {
+                    nexgenSidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (nexgenSidebar) {
+                    nexgenSidebar.classList.remove('show');
+                }
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+    </script>
 </body>
 
 </html>

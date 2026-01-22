@@ -51,3 +51,9 @@
 [2026-01-12 19:41:06] ip=::1 user=1 action=task_status msg=Task 8 set to done
 [2026-01-18 13:11:38] ip=::1 user=1 action=user_update msg=Updated user admin@spycray.com (ID: 1)
 [2026-01-18 13:16:24] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 10
+[2026-01-22 18:33:18] ip=::1 user=4 action=leave_request msg=Leave request submitted by user 4
+[2026-01-22 18:44:09] ip=::1 user=1 action=task_create msg=Task created for project 1
+[2026-01-22 18:50:41] ip=::1 user=1 action=task_create msg=Task JavaScript Validation created
+[2026-01-22 18:50:54] ip=::1 user=1 action=task_delete msg=Task 11 deleted
+[2026-01-22 18:51:18] ip=::1 user=1 action=task_update msg=Task 7 updated
+[2026-01-22 18:51:46] ip=::1 user=1 action=task_update msg=Task 10 updated

@@ -2,7 +2,6 @@
 include "../includes/auth.php";
 allow("ProjectLeader");
 include "../includes/db.php";
-include "../includes/header.php";
 include "../includes/logger.php";
 // ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
@@ -37,32 +36,243 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management - NexGen Solution</title>
+
+    <!-- Google Fonts Link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap CSS Link -->
+    <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <!-- CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Oswald", sans-serif;
+        }
+
+        html,
+        body {
+            background-color: #ececece8;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: #f5f5f5d2;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h3 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: lightslategray;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1040;
+            background-color: #337ccfe2;
+            color: white;
+            border: none;
+            padding: 0.6rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+                padding-top: 3.5rem;
+            }
+
+            .form-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3rem;
+            }
+
+            .page-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
 <body>
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-3 bg-light p-3">
-                <a href="/dashboard/employee.php">Dashboard</a><br>
-                <a href="/dashboard/tasks.php">Tasks</a><br>
-                <a href="/dashboard/leave.php">Leave</a><br>
-                <a href="../public/logout.php">Logout</a>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <div>
+                    <h3>Payroll Input</h3>
+                    <p>Submit payroll information for team members</p>
+                </div>
             </div>
-            <div class="col-md-9">
+
+            <div class="form-container">
+                <h5 class="mb-4">Add Payroll Information</h5>
                 <form method="post">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                    <input name="emp" class="form-control" placeholder="Employee ID">
-                    <input name="month" class="form-control mt-2">
-                    <input name="year" class="form-control mt-2">
-                    <input name="ot" class="form-control mt-2" placeholder="Overtime Hours">
-                    <input name="bonus" class="form-control mt-2">
-                    <input name="ded" class="form-control mt-2">
-                    <button class="btn btn-primary mt-3">Submit</button>
+
+                    <div class="mb-3">
+                        <label for="emp" class="form-label">Employee ID *</label>
+                        <input type="number" id="emp" name="emp" class="form-control"
+                            placeholder="Enter employee ID" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="month" class="form-label">Month *</label>
+                            <input type="number" id="month" name="month" class="form-control"
+                                placeholder="1-12" min="1" max="12" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="year" class="form-label">Year *</label>
+                            <input type="number" id="year" name="year" class="form-control"
+                                placeholder="YYYY" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ot" class="form-label">Overtime Hours</label>
+                        <input type="number" id="ot" name="ot" class="form-control" step="0.5"
+                            placeholder="Hours">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bonus" class="form-label">Bonus</label>
+                        <input type="number" id="bonus" name="bonus" class="form-control" step="0.01"
+                            placeholder="Amount">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ded" class="form-label">Deductions</label>
+                        <input type="number" id="ded" name="ded" class="form-control" step="0.01"
+                            placeholder="Amount">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+            if (sidebarToggleBtn && nexgenSidebar) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nexgenSidebar.classList.toggle('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('show');
+                    }
+                });
+            }
+
+            if (sidebarOverlay && nexgenSidebar) {
+                sidebarOverlay.addEventListener('click', function() {
+                    nexgenSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            if (nexgenSidebar) {
+                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            nexgenSidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
-<?php
-include "../includes/footer.php"; ?>

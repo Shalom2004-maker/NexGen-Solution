@@ -78,138 +78,371 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Osward", sans-serif;
+            font-family: "Oswald", sans-serif;
         }
 
         html,
         body {
             background-color: #ececece8;
-        }
-
-        .col-md-3 {
             min-height: 100vh;
-            background-color: #ececece8;
-            color: black;
-            box-shadow: inset 0 0 10px #aaaaaa;
         }
 
-        h3,
-        h4 {
-            font-weight: bold;
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
         }
 
-        a.d-block,
-        h5 {
-            text-decoration: none;
-            color: lightslategray;
-            padding-top: .7rem;
-            text-indent: 1.5rem;
-            padding-bottom: .7rem;
-        }
-
-        a:hover {
-            color: white;
-            background-color: #337ccfe2;
-            border-radius: 5px;
-        }
-
-        .col-md-9 {
+        .main-content {
+            flex: 1;
             background-color: #f5f5f5d2;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
-        .col-md-2 {
-            width: 15vw;
-            border: 1px solid #d4d4d4;
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h6 {
-            padding-top: .5rem;
-            margin-left: .5rem;
+        .page-header h3 {
+            font-weight: bold;
+            color: #333;
+            margin: 0;
         }
 
-        p {
+        .page-header p {
             color: lightslategray;
+            margin: 0;
         }
 
-        button {
-            margin-top: 1.5rem;
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #d4d4d4;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #337ccfe2;
+            box-shadow: 0 0 0 0.2rem rgba(51, 124, 207, 0.25);
+        }
+
+        .alert {
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-submit {
+            background-color: #337ccfe2;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #2563a8;
+            color: white;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1040;
+            background-color: #337ccfe2;
+            color: white;
+            border: none;
+            padding: 0.6rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        .tasks-table {
+            width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tasks-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tasks-table th {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #d4d4d4;
+            font-weight: 600;
+        }
+
+        .tasks-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        .tasks-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-todo {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .status-in-progress {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .status-done {
+            background-color: #28a745;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+                padding-top: 3.5rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-header h3 {
+                font-size: 1.5rem;
+            }
+
+            .tasks-table {
+                overflow-x: auto;
+            }
+
+            .tasks-table table {
+                min-width: 500px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3rem;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+
+            .page-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+
+            .btn-submit {
+                padding: 0.6rem 1.5rem;
+            }
         }
     </style>
 
 </head>
 
-<body class="container-fluid">
-    <div class="row">
-        <div class="col-md-3 bg-light p-3 position-fixed">
-            <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
-            <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
-            <hr>
-            <h5>Employee</h5>
-            <a href="employee.php" class="d-block mb-2 bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
-            <a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
-            <a href="leave.php" class="d-block mb-2 bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
-            <a href="salary.php" class="d-block mb-2 bi bi-coin"> &nbsp;&nbsp; My Salary</a>
-            <hr>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
 
-            <div class="d-flex justify-content-center align-items-center mt-4">
-                <span
-                    style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;">
-                    <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
-                </span> &nbsp;&nbsp; &nbsp;&nbsp;
-                <span class="me-3"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
-                    <font style="font-size: 13px; color: lightslategray;">
-                        <?= htmlspecialchars($_SESSION['role'] ?? '') ?>
-                    </font>
-                </span>
-            </div>
-            <center>
-                <a href="../public/logout.php" type="submit"
-                    class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
-                    &nbsp; Logout
-                </a>
-
-            </center>
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
         </div>
-        <div class="col-md-9 ms-auto p-4" style="margin-left:25vw;">
-            <h3 class="mb-3">My Tasks</h3><?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?><div
-                    class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Create Task</h5>
-                        <form method="get" action="tasks_view.php" class="row g-2 mb-3">
-                            <div class="col-md-4"><input name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
-                                    placeholder="Search title or description"></div>
-                            <div class="col-md-2"><button class="btn btn-outline-secondary">Search</button><a
-                                    href="tasks.php" class="btn btn-link">Reset</a></div>
-                        </form>
-                        <form method="post" class="row gy-2"><input type="hidden" name="action" value="create">
-                            <div class="col-md-3"><select name="project" class="form-control">
-                                    <option value="">Project (optional)</option>
-                                    <?php while ($p = $projects->fetch_assoc()) : ?>
-                                        <option value="<?= $p['id'] ?>">
-                                            <?= htmlspecialchars($p['project_name']) ?>(<?= $p['id'] ?>)
-                                        </option><?php endwhile;
-                                                    ?>
-                                </select></div>
-                            <div class="col-md-2"><select name="assigned_to" class="form-control">
-                                    <option value="">Assignee</option><?php while ($u = $users->fetch_assoc()) : ?><option
-                                            value="<?= $u['id'] ?>"><?= htmlspecialchars($u['full_name']) ?>(<?= $u['id'] ?>)
-                                        </option>
-                                    <?php endwhile;
-                                    ?>
-                                </select></div>
-                            <div class="col-md-4"><input name="title" class="form-control" placeholder="Title" required>
-                            </div>
-                            <div class="col-md-4"><input type="date" name="deadline" class="form-control"></div>
-                            <div class="col-12"><textarea name="description" class="form-control"
-                                    placeholder="Description"></textarea></div>
-                            <div class="col-12 text-end"><button class="btn btn-primary">Create</button></div>
-                        </form>
+
+        <div class="main-content">
+            <div class="page-header">
+                <div>
+                    <h3>My Tasks</h3>
+                    <p>Manage your tasks and assignments</p>
+                </div>
+                <a href="tasks_view.php" class="btn btn-outline-secondary">View All Tasks</a>
+            </div>
+
+            <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
+                <div class="form-container mb-4">
+                    <h5 class="mb-3">Create New Task</h5>
+                    <form method="post" class="row gy-2">
+                        <input type="hidden" name="action" value="create">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Project (Optional)</label>
+                            <select name="project" class="form-select">
+                                <option value="">Select Project</option>
+                                <?php while ($p = $projects->fetch_assoc()) : ?>
+                                    <option value="<?= $p['id'] ?>">
+                                        <?= htmlspecialchars($p['project_name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Assign To</label>
+                            <select name="assigned_to" class="form-select">
+                                <option value="">Select Assignee</option>
+                                <?php
+                                $users->data_seek(0);
+                                while ($u = $users->fetch_assoc()) :
+                                ?>
+                                    <option value="<?= $u['id'] ?>">
+                                        <?= htmlspecialchars($u['full_name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" name="deadline" class="form-control">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Task Title *</label>
+                            <input name="title" class="form-control" placeholder="Enter task title" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Enter task description"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <div class="form-container">
+                <h5 class="mb-3">Search Tasks</h5>
+                <form method="get" action="tasks_view.php" class="row g-2">
+                    <div class="col-md-8">
+                        <input name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
+                            placeholder="Search by title or description...">
                     </div>
-                </div><?php endif;
-                        ?><div class="alert alert-info"><a href="tasks_view.php" class="btn btn-primary">View All Tasks</a>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+            if (sidebarToggleBtn && nexgenSidebar) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nexgenSidebar.classList.toggle('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('show');
+                    }
+                });
+            }
+
+            if (sidebarOverlay && nexgenSidebar) {
+                sidebarOverlay.addEventListener('click', function() {
+                    nexgenSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            if (nexgenSidebar) {
+                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            nexgenSidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

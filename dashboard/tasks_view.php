@@ -86,186 +86,366 @@ $res = $stmt->get_result();
 
     <!-- CSS -->
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Osward", sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Oswald", sans-serif;
+        }
 
-    html,
-    body {
-        background-color: #ececece8;
-    }
+        html,
+        body {
+            background-color: #ececece8;
+            min-height: 100vh;
+        }
 
-    .col-md-3 {
-        min-height: 100vh;
-        background-color: #ececece8;
-        color: black;
-        box-shadow: inset 0 0 10px #aaaaaa;
-    }
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    h3,
-    h4 {
-        font-weight: bold;
-    }
+        .main-content {
+            flex: 1;
+            background-color: #f5f5f5d2;
+            padding: 2rem;
+            overflow-y: auto;
+        }
 
-    a.d-block,
-    h5 {
-        text-decoration: none;
-        color: lightslategray;
-        padding-top: .7rem;
-        text-indent: 1.5rem;
-        padding-bottom: .7rem;
-    }
+        .page-header {
+            margin-bottom: 2rem;
+        }
 
-    a:hover {
-        color: white;
-        background-color: #337ccfe2;
-        border-radius: 5px;
-    }
+        .page-header h3 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
 
-    .col-md-9 {
-        background-color: #f5f5f5d2;
-        min-height: 100vh;
-    }
+        .page-header p {
+            color: lightslategray;
+            margin: 0;
+        }
 
-    .col-md-2 {
-        width: 15vw;
-        border: 1px solid #d4d4d4;
-    }
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
 
-    h6 {
-        padding-top: .5rem;
-        margin-left: .5rem;
-    }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    p {
-        color: lightslategray;
-    }
+        .table-container th {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #d4d4d4;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
 
-    button {
-        margin-top: 1.5rem;
-    }
+        .table-container td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #d4d4d4;
+            font-size: 0.9rem;
+        }
+
+        .table-container tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-todo {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .status-in-progress {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .status-done {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d4d4d4;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #337ccfe2;
+        }
+
+        .pagination a:hover {
+            background-color: #337ccfe2;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons a {
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1040;
+            background-color: #337ccfe2;
+            color: white;
+            border: none;
+            padding: 0.6rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+                padding-top: 3.5rem;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            .table-container table {
+                font-size: 0.9rem;
+            }
+
+            .table-container th,
+            .table-container td {
+                padding: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3rem;
+            }
+
+            .page-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .table-container {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .table-container th,
+            .table-container td {
+                padding: 0.4rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 bg-light p-3 position-fixed">
-                <h3 style="margin-top: .5rem; padding-left: 1.5rem;">NexGen Solution</h3>
-                <p style="margin-top: .5rem; padding-left: 1.5rem;">Employee Management</p>
-                <hr>
-                <h5>Employee</h5><a href="employee.php" class="d-block mb-2 bi bi-columns-gap">&nbsp;
-                    &nbsp;
-                    Dashboard</a><a href="tasks.php" class="d-block mb-2 bi bi-suitcase-lg">&nbsp;
-                    &nbsp;
-                    My Tasks</a><a href="leave.php" class="d-block mb-2 bi bi-file-text">&nbsp;
-                    &nbsp;
-                    Request Leave</a><a href="salary.php" class="d-block mb-2 bi bi-coin">&nbsp;
-                    &nbsp;
-                    My Salary</a>
-                <hr>
-                <div class="d-flex justify-content-center align-items-center mt-4"><span
-                        style="width: 50px; height: 50px; background-color: #337ccfe2; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; font-weight: bold;"><?= substr($_SESSION['name'] ?? 'User', 0, 1) ?></span>&nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    <span class="me-3"><b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b><br>
-                        <font style="font-size: 13px; color: lightslategray;">
-                            <?= htmlspecialchars($_SESSION['role'] ?? '') ?></font>
-                    </span>
-                </div>
-                <center>
-                    <a href="../public/login.php" type="submit"
-                        class="btn btn-outline-danger w-75 text-align-start bi bi-box-arrow-right mt-3">&nbsp;
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
 
-                        Logout </a>
-                </center>
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <div>
+                    <h3>View All Tasks</h3>
+                    <p>Manage and track all tasks</p>
+                </div>
+                <a href="tasks.php" class="btn btn-outline-secondary">Create New Task</a>
             </div>
-            <div class="col-md-9 ms-auto p-4" style="margin-left:25vw;">
-                <h3>View Tasks</h3>
-                <a href="employee.php" style="margin-top: .5rem; margin-left: 47.7rem;" class="btn btn-secondary">Back
-                    Dashboard</a>
-                <hr>
-                <div class="col-md-12 mt-5 border rounded shadow d-flex justify-content-center align-items-center p-3">
-                    <table class="table table-light-striped table-hover mt-3">
-                        <thead>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Project</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($res->num_rows === 0): ?>
                             <tr>
-                                <th>Id</th>
-                                <th>Project_id</th>
-                                <th>Assigned_to</th>
-                                <th>Created_by</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th>Deadline</th>
-                                <th>Created_at</th>
-                                <th>Action</th>
+                                <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
                             </tr>
-                        </thead>
-                        <tbody><?php while ($t = $res->fetch_assoc()) : ?><tr>
-                                <td><?= htmlspecialchars($t['id']) ?></td>
-                                <td><?php if (!empty($t['project_name'])) {
-                                    echo htmlspecialchars($t['project_name']) . ' (' . htmlspecialchars($t['project_id']) . ')';
-                                } else {
-                                    echo htmlspecialchars($t['project_id']);
-                                }
+                        <?php else: ?>
+                            <?php while ($t = $res->fetch_assoc()): ?>
+                                <tr>
+                                    <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
+                                    <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
+                                    <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
+                                    <td>
+                                        <?php
+                                        $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in-progress' ? 'status-in-progress' : 'status-todo');
+                                        ?>
+                                        <span class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
+                                    </td>
+                                    <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?></td>
+                                    <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn-edit">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                            <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
+                                                <form method="post" action="task_delete.php" style="display:inline" onsubmit="return confirm('Delete this task?')">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="task_id" value="<?= htmlspecialchars($t['id']) ?>">
+                                                    <button type="submit" class="btn-delete" style="border:none;cursor:pointer;">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
 
-                                ?></td>
-                                <td><?php if (!empty($t['assigned_name'])) {
-                                    echo htmlspecialchars($t['assigned_name']) . ' (' . htmlspecialchars($t['assigned_to']) . ')';
-                                } else {
-                                    echo htmlspecialchars($t['assigned_to']);
-                                }
-
-                                ?></td>
-                                <td><?php if (!empty($t['created_name'])) {
-                                    echo htmlspecialchars($t['created_name']) . ' (' . htmlspecialchars($t['created_by']) . ')';
-                                } else {
-                                    echo htmlspecialchars($t['created_by']);
-                                }
-
-                                ?></td>
-                                <td><?= htmlspecialchars($t['title']) ?></td>
-                                <td><?= htmlspecialchars($t['description']) ?></td>
-                                <td><?= htmlspecialchars($t['status']) ?></td>
-                                <td><?= htmlspecialchars($t['deadline']) ?></td>
-                                <td><?= htmlspecialchars($t['created_at']) ?></td>
-                                <td><a href="tasks_edit.php?id=<?= $t['id'] ?>"
-                                        class="btn btn-sm btn-outline-primary">Edit</a>
-                                    <form method="post" action="tasks_update.php" style="display:inline"><input
-                                            type="hidden" name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"><input
-                                            type="hidden" name="action" value="toggle_status"><input type="hidden"
-                                            name="task_id" value="<?= htmlspecialchars($t['id']) ?>"><button
-                                            class="btn btn-sm btn-<?= $t['status'] === 'done' ? 'warning' : 'success' ?>"><?= $t['status'] === 'done' ? 'Undo' : 'Mark Done' ?></button>
-                                    </form>
-                                    <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid) : ?>
-                                    <form method="post" action="task_delete.php" style="display:inline"
-                                        onsubmit="return confirm('Delete task?')"><input type="hidden" name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"><input
-                                            type="hidden" name="action" value="delete"><input type="hidden"
-                                            name="task_id" value="<?= htmlspecialchars($t['id']) ?>"><button
-                                            class="btn btn-sm btn-danger">Delete</button></form><?php endif;
-                                                                                                ?>
-                                </td>
-                            </tr><?php endwhile;
-                                ?></tbody>
-                    </table><?php $pages = max(1, ceil($total / $limit));
-                                $baseUrl = 'tasks_view.php?q=' . urlencode($q);
-                                ?><?php if ($pages > 1): ?><nav aria-label="Page navigation">
-                        <ul class="pagination"><?php for ($p = 1; $p <= $pages; $p++) : ?><li
-                                class="page-item <?= $p === $page ? 'active' : '' ?>"><a class="page-link"
-                                    href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a></li><?php endfor;
-                                                                                            ?></ul>
-                    </nav><?php endif;
+                <?php if ($total > $limit): ?>
+                    <div class="pagination">
+                        <?php
+                        $pages = ceil($total / $limit);
+                        for ($p = 1; $p <= $pages; $p++):
+                            $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
                         ?>
-                </div>
+                            <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
+                                <?= $p ?>
+                            </a>
+                        <?php endfor; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+            if (sidebarToggleBtn && nexgenSidebar) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nexgenSidebar.classList.toggle('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('show');
+                    }
+                });
+            }
+
+            if (sidebarOverlay && nexgenSidebar) {
+                sidebarOverlay.addEventListener('click', function() {
+                    nexgenSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            if (nexgenSidebar) {
+                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            nexgenSidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

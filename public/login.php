@@ -79,121 +79,247 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=lock" />
-
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Osward", sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Osward", sans-serif;
+        }
 
-    html,
-    body {
-        background-color: #ececece8;
-        min-height: 100vh;
-    }
+        html,
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .login-box {
-        height: 90vh;
-        margin-top: 2rem;
-    }
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 1rem;
+        }
 
-    h4 {
-        font-weight: bold;
-        font-family: "Osward", sans-serif;
-        font-size: 1.5rem;
-    }
+        .login-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
 
-    .card-header img {
-        margin-bottom: 0.5rem;
-    }
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
 
-    button.btn {
-        background-color: #337ccfe2;
-        color: white;
-        font-weight: bold;
-    }
+        .card-header img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
 
-    button.btn:hover {
-        background-color: #337ccfe2;
-        color: white;
-        font-weight: bold;
-    }
+        .card-header h4 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
 
-    a.nav-link {
-        text-decoration: none;
-        color: #337ccfe2;
-    }
+        .card-header p {
+            color: lightslategray;
+            margin: 0;
+            font-size: 0.95rem;
+        }
 
-    a.nav-link:hover {
-        text-decoration: none;
-        color: #337ccfe2;
-    }
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .alert {
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border: 1px solid #d4d4d4;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #d4d4d4;
+            color: lightslategray;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .home-link {
+            display: block;
+            text-align: center;
+            color: #667eea;
+            text-decoration: none;
+            margin-top: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .home-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 0.5rem;
+            }
+
+            .card-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .card-header img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .card-header h4 {
+                font-size: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1.5rem 1rem;
+            }
+
+            .form-control,
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .btn-login {
+                padding: 0.65rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-header h4 {
+                font-size: 1.3rem;
+            }
+
+            .card-header p {
+                font-size: 0.85rem;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+
+            .form-control,
+            .input-group {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container login-box">
-        <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card shadow-lg">
-                    <div class="card-header bg-light text-dark text-center">
-                        <span style="vertical-align: middle; font-size: 40px; color: lightslategray;">
-                            <img src="/assets/nexgenlogo.png" alt="" srcset="">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <img src="../assets/nexgenlogo.png" alt="NexGen Solution Logo">
+                <h4>NexGen Solution</h4>
+                <p>Sign in to your account</p>
+            </div>
+
+            <div class="card-body">
+                <?php if ($error): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="">
+                    <label for="emailInput" class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-envelope"></i>
                         </span>
-                        <h4>NexGen Solution</h4>
-                        <p>Sign in to your account to continue</p>
+                        <input type="email" class="form-control" id="emailInput" name="email"
+                            placeholder="Enter your email" required>
                     </div>
-                    <div class="card-body">
 
-                        <?php if ($error): ?>
-                        <div class="alert alert-danger"><?php echo $error; ?></div>
-                        <?php endif; ?>
-
-                        <form method="POST">
-                            <label for="email">Email: </label>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="inputGroupPrepend">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                        width="20px" fill="lightslategray">
-                                        <path
-                                            d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480v58q0 59-40.5 100.5T740-280q-35 0-66-15t-52-43q-29 29-65.5 43.5T480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480v58q0 26 17 44t43 18q26 0 43-18t17-44v-58q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93h200v80H480Zm0-280q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
-                                    </svg>
-                                </span>
-                                <input type="text" class="form-control" id="validationCustomUsername" name="email"
-                                    placeholder="Email" aria-describedby="inputGroupPrepend" required>
-                            </div>
-
-                            <label>Password</label>
-                            <div class="input-group mb-3">
-
-                                <span class="input-group-text" id="inputGroupPrepend"><svg
-                                        xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                        width="20px" fill="lightslategray">
-                                        <path
-                                            d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm240-120q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z" />
-                                    </svg></span>
-                                <input type="password" class="form-control" id="validationCustomUsername"
-                                    name="password" placeholder="Password" aria-describedby="inputGroupPrepend"
-                                    required>
-                            </div>
-
-                            <button class="btn w-100 mb-3 mt-3">Login</button>
-                            <br>
-                            <a class="nav-link text-center mb-3" href="index.php">Back to Home</a>
-                        </form>
-
+                    <label for="passwordInput" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="passwordInput" name="password"
+                            placeholder="Enter your password" required>
                     </div>
-                </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </button>
+
+                    <a href="index.php" class="home-link">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                </form>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

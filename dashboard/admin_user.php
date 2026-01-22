@@ -86,242 +86,310 @@ $roles = $conn->query("SELECT * FROM roles");
 ?>
 
 <!DOCTYPE html>
-<html>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
+<html lang="en">
 
-<!-- Google Fonts Link -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-    href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User - Admin Dashboard</title>
 
-<link
-    href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-    rel="stylesheet">
+    <!-- Google Fonts Link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
 
-<!-- Bootstrap CSS Link -->
-<link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <!-- Bootstrap CSS Link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-<!-- CSS -->
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Osward", sans-serif;
-}
+    <!-- CSS -->
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Osward", sans-serif;
+    }
 
-html,
-body,
-div.container-fluid {
-    background-color: #ececece8;
-    padding-top: 0;
-    right: 0;
-}
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
-h3,
-h4 {
-    font-weight: bold;
-}
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
 
-a.d-block,
-h5 {
-    text-decoration: none;
-    color: lightslategray;
-    padding-top: .5rem;
-    text-indent: 1.5rem;
-    padding-bottom: .5rem;
-}
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding: 2rem;
+        overflow-y: auto;
+    }
 
-a:hover {
-    color: white;
-    background-color: #337ccfe2;
-    border-radius: 5px;
-}
+    .page-header {
+        margin-bottom: 2rem;
+    }
 
-.col-md-9 {
-    background-color: #f5f5f5d2;
-}
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
 
-.col-md-2 {
-    width: 15vw;
-    border: 1px solid #d4d4d4;
-}
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
 
-h6 {
-    padding-top: .5rem;
-    margin-left: .5rem;
-}
+    .form-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+    }
 
-h5 {
-    font-size: 17px;
-}
+    .form-container .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
 
-p {
-    color: lightslategray;
-}
+    .form-container .form-control {
+        border: 1px solid #d4d4d4;
+        padding: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
 
-button {
-    margin-top: 1.5rem;
-}
-</style>
+    .form-container .form-control:focus {
+        border-color: #337ccfe2;
+        box-shadow: 0 0 0 0.2rem rgba(51, 124, 207, 0.25);
+    }
+
+    .alert {
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-submit {
+        background-color: #337ccfe2;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: #2563a8;
+        color: white;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .main-wrapper {
+            flex-direction: column;
+        }
+
+        .sidebar-toggle {
+            display: block;
+        }
+
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+        }
+
+        .form-container {
+            max-width: 100%;
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+        }
+
+        .form-container {
+            padding: 1rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .form-container .form-label {
+            font-size: 0.9rem;
+        }
+
+        .btn-submit {
+            padding: 0.6rem 1.5rem;
+        }
+    }
+    </style>
 </head>
 
-<body class="bg-light">
-    <div class="container-fluid">
-        <div class="row d-flex position-absolute">
-            <div class=" col-md-9 mb-2 p-4 ms-auto" style="margin-left: 25vw;">
-                <h3 style="padding-left: 2.3rem;">HR Dashboard</h3>
-                <p style="margin-top: .7rem; padding-left: 2.3rem; color: lightslategray"> Manage personnel, approvals,
-                    and payroll.</p>
-                <div class="d-md-flex justify-content-md-end me-4">
-                    <a class="btn btn-outline-primary bi bi-plus-circle btn-sm" href=" admin_create_employee.php">
-                        &nbsp;
-                        Add
-                        Employee</a>
-                </div>
-                <div class="row d-flex justify-content-center pt-4" style="gap: 2.5rem;">
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Total Employees <span class="bi bi-people-fill"
-                                style="margin-left: 1rem; color: #337ccfe2;"></span></h6>
-                        <?php
-                        include "../includes/db.php";
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM employees");
-                        if ($stmt) {
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count > 0) {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px; margin-left: .5rem;\">Active staff members</p>";
-                            } else {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">No employees yet</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
-                        }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Pending Leaves <span class="bi bi-file-text-fill"
-                                style="margin-left: 1rem; color: #00a938f3;"></span>
-                        </h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE status = 'pending'");
-                        if ($stmt) {
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4 style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Requests needing approval</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
-                        }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Open Inquiries<span class="bi bi-exclamation-circle"
-                                style="margin-left: 1.3rem; color: #bc00e6f3;"></span>
-                        </h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM inquiries WHERE status = 'new' ");
-                        if ($stmt) {
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4  style=\"margin-left: .5rem;\"><b>{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">Public contact messages</p>";
-                            } else {
-                                echo "<p style=\"margin-top: .7rem;  font-size: 14px;  margin-left: .5rem;\">No inquiries</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
-                        }
-                        ?>
-                    </div>
-                    <div class="col-md-2 bg-light rounded text-start shadow">
-                        <h6>Total Payroll<span class="bi bi-cash-coin"
-                                style="margin-left: 1.7rem; color: orange; top: .3rem;"></span>
-                        </h6>
-                        <?php
-                        $stmt = $conn->prepare("SELECT SUM(net_salary) FROM salary_slips;");
-                        if ($stmt) {
-                            $stmt->execute();
-                            $stmt->bind_result($count);
-                            $stmt->fetch();
-                            $count = (int)($count ?? 0);
-                            echo "<h4  style=\"margin-left: .5rem;\"><b>$" . "{$count}</b></h4>";
-                            if ($count >= 1) {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">Total distributed YTD</p>";
-                            } else {
-                                echo "<p style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">No salary data</p>";
-                            }
-                            $stmt->close();
-                        } else {
-                            echo "<p  style=\"margin-top: .7rem; font-size: 14px;  margin-left: .5rem;\">DB error</p>";
-                        }
-                        ?>
-                    </div>
-                    <div class="col-md-9 mb-2 p-4 d-flex gap-3 justify-content-center pt-4 w-100">
-                        <div class="col-md-12 rounded bg-light p-3 shadow border w-100">
-                            <h4 class="mt-2 ml-2">Employee Directory</h4>
-                            <table class="table table-hover mt-3">
-                                <thead>
-                                    <tr>
-                                        <th>Id</th>
-                                        <th>Fullname</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <?php
-                                $stmt = $conn->prepare("SELECT * FROM users");
-                                if ($stmt) {
-                                    $stmt->execute();
-                                    $res = $stmt->get_result();
-                                    while ($row = $res->fetch_assoc()) {
-                                        ?>
-                                <tbody>
-                                    <tr>
-                                        <td><?= htmlspecialchars($row['id']) ?></td>
-                                        <td><?= htmlspecialchars($row['full_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['email']) ?></td>
-                                        <td><?= htmlspecialchars($row['role_id']) ?></td>
-                                        <td>
-                                            <a href='admin_user_edit.php?id=<?= urlencode($row['id']) ?>'
-                                                class='btn btn-outline-primary bi bi-pencil-square'></a>
-                                            <a href='admin_user_delete.php?id=<?= urlencode($row['id']) ?>'
-                                                class='btn btn-outline-danger bi bi-trash3-fill'></a>
-                                        </td>
-                                    </tr>
-                                </tbody><?php
-                                    }
-                                    $stmt->close();
-                            }
-                            ?>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
         </div>
 
+        <div class="main-content">
+            <div class="page-header">
+                <h3>Create New User</h3>
+                <p>Add a new system user account</p>
+                <a href="admin_user_view.php" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> View Users
+                </a>
+            </div>
+
+            <?php if (!empty($error)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($success)): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> User created successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php endif; ?>
+
+            <div class="form-container">
+                <form method="POST" action="">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+                    <div class="mb-3">
+                        <label for="nameInput" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="nameInput" name="name" required
+                            placeholder="Enter full name" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="emailInput" class="form-label">Email Address *</label>
+                        <input type="email" class="form-control" id="emailInput" name="email" required
+                            placeholder="Enter email address" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="passwordInput" class="form-label">Password *</label>
+                        <input type="password" class="form-control" id="passwordInput" name="pass" required
+                            placeholder="Enter password (min. 6 characters)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="roleSelect" class="form-label">Role *</label>
+                        <select class="form-control" id="roleSelect" name="role" required>
+                            <option value="">Select a role</option>
+                            <?php while ($role = $roles->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($role['id']) ?>">
+                                <?= htmlspecialchars($role['role_name']) ?>
+                            </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit mb-3">Create User</button>
+                    <a href="admin_user_view.php" class="btn btn-outline-secondary w-100">Cancel</a>
+                </form>
+            </div>
+        </div>
     </div>
-    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
+
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nexgenSidebar.classList.toggle('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
+                nexgenSidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
+                    }
+                });
+            });
+        }
+    });
+    </script>
 </body>
 
 </html>
