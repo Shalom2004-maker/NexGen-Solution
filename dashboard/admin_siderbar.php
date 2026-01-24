@@ -28,7 +28,7 @@
         color: black;
         border-right: 1px solid #d4d4d4;
         position: relative;
-        padding-bottom: 150px;
+        padding-bottom: 200px;
     }
 
     .nexgen-sidebar-header {
@@ -89,8 +89,15 @@
         border-radius: 5px;
     }
 
+    .nexgen-sidebar-menu a.active {
+        color: white;
+        background-color: #337ccfe2;
+        border-radius: 5px;
+        font-weight: 600;
+    }
+
     .nexgen-sidebar-footer {
-        position: fixed;
+        position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
@@ -157,6 +164,7 @@
         }
 
         .nexgen-sidebar-footer {
+            position: fixed;
             width: 70%;
             max-width: 300px;
         }
@@ -194,25 +202,28 @@
     </div>
 
     <div class="nexgen-sidebar-menu">
+        <?php
+        $current_page = basename($_SERVER['PHP_SELF']);
+        ?>
         <h5>Employee</h5>
-        <a href="employee.php" class="bi bi-columns-gap"> &nbsp;&nbsp; Dashboard</a>
-        <a href="tasks.php" class="bi bi-suitcase-lg"> &nbsp;&nbsp; My Tasks</a>
-        <a href="leave.php" class="bi bi-file-text"> &nbsp;&nbsp; Request Leave</a>
-        <a href="salary.php" class="bi bi-coin"> &nbsp;&nbsp; My Salary</a>
+        <a href="employee.php" class="bi bi-columns-gap <?= $current_page === 'employee.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Dashboard</a>
+        <a href="tasks.php" class="bi bi-suitcase-lg <?= $current_page === 'tasks.php' ? 'active' : '' ?>"> &nbsp;&nbsp; My Tasks</a>
+        <a href="leave.php" class="bi bi-file-text <?= $current_page === 'leave.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Request Leave</a>
+        <a href="salary.php" class="bi bi-coin <?= $current_page === 'salary.php' ? 'active' : '' ?>"> &nbsp;&nbsp; My Salary</a>
 
         <h5 style="margin-top: 1rem;">Project Leader</h5>
-        <a href="leader.php" class="bi bi-columns-gap"> &nbsp;&nbsp; Overview</a>
-        <a href="tasks.php" class="bi bi-suitcase-lg"> &nbsp;&nbsp; Tasks Assignment</a>
-        <a href="leave_view.php" class="bi bi-file-text"> &nbsp;&nbsp; Leave Review</a>
+        <a href="leader.php" class="bi bi-columns-gap <?= $current_page === 'leader.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Overview</a>
+        <a href="tasks.php" class="bi bi-suitcase-lg <?= $current_page === 'tasks.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Tasks Assignment</a>
+        <a href="leave_view.php" class="bi bi-file-text <?= $current_page === 'leave_view.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Leave Review</a>
 
         <h5 style="margin-top: 1rem;">HR</h5>
-        <a href="hr.php" class="bi bi-people"> &nbsp;&nbsp; Employees</a>
-        <a href="leave_view.php" class="bi bi-file-text"> &nbsp;&nbsp; Leave Approvals</a>
-        <a href="leader_payroll.php" class="bi bi-currency-dollar"> &nbsp;&nbsp; Process Payroll</a>
-        <a href="inquiries_view.php" class="bi bi-person-circle"> &nbsp;&nbsp; Inquiries</a>
+        <a href="hr.php" class="bi bi-people <?= $current_page === 'hr.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Employees</a>
+        <a href="leave_view.php" class="bi bi-file-text <?= $current_page === 'leave_view.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Leave Approvals</a>
+        <a href="leader_payroll.php" class="bi bi-currency-dollar <?= $current_page === 'leader_payroll.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Process Payroll</a>
+        <a href="inquiries_view.php" class="bi bi-person-circle <?= $current_page === 'inquiries_view.php' ? 'active' : '' ?>"> &nbsp;&nbsp; Inquiries</a>
 
         <h5 style="margin-top: 1rem;">Admin</h5>
-        <a href="admin_user.php" class="bi bi-people"> &nbsp;&nbsp; System Users</a>
+        <a href="admin_user.php" class="bi bi-people <?= $current_page === 'admin_user.php' ? 'active' : '' ?>"> &nbsp;&nbsp; System Users</a>
     </div>
 
     <div class="nexgen-sidebar-footer">
