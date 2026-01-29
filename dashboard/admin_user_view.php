@@ -65,7 +65,7 @@ $res = $stmt->get_result();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
@@ -78,7 +78,8 @@ $res = $stmt->get_result();
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Osward", sans-serif;
+        font-family: "Special Gothic Expanded One", sans-serif;
+
     }
 
     html,

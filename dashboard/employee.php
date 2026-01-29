@@ -25,196 +25,196 @@ include "../includes/db.php";
 
     <!-- CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Osward", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Osward", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding: 2rem;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: left;
+    }
+
+    .stat-card h6 {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .stat-card h4 {
+        color: #337ccfe2;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+        color: lightslategray;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .stat-icon {
+        float: right;
+        font-size: 1.5rem;
+        color: #337ccfe2;
+        margin-top: -2.5rem;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .card-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-container h4 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .list-group-item {
+        border: 1px solid #d4d4d4;
+        margin-bottom: 0.5rem;
+        border-radius: 5px;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: left;
-        }
-
-        .stat-card h6 {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .stat-card h4 {
-            color: #337ccfe2;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card p {
-            color: lightslategray;
-            font-size: 0.85rem;
-            margin: 0;
-        }
-
-        .stat-icon {
-            float: right;
-            font-size: 1.5rem;
-            color: #337ccfe2;
-            margin-top: -2.5rem;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .card-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-container h4 {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-        }
-
-        .list-group-item {
-            border: 1px solid #d4d4d4;
-            margin-bottom: 0.5rem;
-            border-radius: 5px;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .card-container {
-                padding: 1rem;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .stat-card {
-                padding: 1rem;
-            }
-
-            .stat-card h6 {
-                font-size: 0.85rem;
-            }
-
-            .card-container {
-                padding: 0.75rem;
-            }
-
-            .card-container h4 {
-                font-size: 1rem;
-            }
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
+
+        .content-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card-container {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-card h6 {
+            font-size: 0.85rem;
+        }
+
+        .card-container {
+            padding: 0.75rem;
+        }
+
+        .card-container h4 {
+            font-size: 1rem;
+        }
+    }
     </style>
 </head>
 
@@ -358,7 +358,7 @@ include "../includes/db.php";
                 <div class="card-container">
                     <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
                     <?php
-                    $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY created_at DESC LIMIT 5");
+                    $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
                     if ($stmt) {
                         $stmt->bind_param('i', $id);
                         $stmt->execute();
@@ -399,27 +399,27 @@ include "../includes/db.php";
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-        if (sidebarToggleBtn) {
-            sidebarToggleBtn.addEventListener('click', function() {
-                if (nexgenSidebar) {
-                    nexgenSidebar.classList.toggle('show');
-                    sidebarOverlay.classList.toggle('show');
-                }
-            });
-        }
+    if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            }
+        });
+    }
 
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                if (nexgenSidebar) {
-                    nexgenSidebar.classList.remove('show');
-                }
-                sidebarOverlay.classList.remove('show');
-            });
-        }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.remove('show');
+            }
+            sidebarOverlay.classList.remove('show');
+        });
+    }
     </script>
 </body>
 

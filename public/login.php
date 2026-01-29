@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $_SESSION["role"]    = $user["role_name"];
 
                         if ($user["role_name"] === "Admin") {
-                            header("Location: ../dashboard/admin_user.php");
+                            header("Location: ../dashboard/admin_dashboard.php");
                         } elseif ($user["role_name"] === "HR") {
                             header("Location: ../dashboard/hr.php");
                         } elseif ($user["role_name"] === "ProjectLeader") {
@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
@@ -88,7 +88,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Osward", sans-serif;
+        font-family: "Inter", sans-serif;
+
     }
 
     html,

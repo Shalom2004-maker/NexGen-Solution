@@ -123,7 +123,7 @@ INSERT INTO `leave_requests` (`id`, `employee_id`, `start_date`, `end_date`, `le
 (7, 1, '2024-06-10', '2024-06-12', 'annual', 'Vacation', 'leader_approved', 3, 2, '2026-01-03 16:41:45'),
 (8, 2, '2024-06-05', '2024-06-06', 'sick', 'Flu', 'leader_approved', 3, NULL, '2026-01-03 16:41:45'),
 (9, 1, '2024-05-01', '2024-05-02', 'unpaid', 'Personal', 'hr_approved', 3, 2, '2026-01-03 16:41:45'),
-(10, 1, '2026-01-30', '2026-02-08', '', 'I\'d like to spend the time thinking about myself, refreshing my mind, and improving my self-growth ', 'pending', NULL, NULL, '2026-01-11 17:05:30');
+(10, 1, '2026-01-30', '2026-02-08', '', 'I\'d like to spend the time thinking about myself. ', 'pending', NULL, NULL, '2026-01-11 17:05:30');
 
 -- --------------------------------------------------------
 

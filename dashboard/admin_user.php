@@ -97,7 +97,7 @@ $roles = $conn->query("SELECT * FROM roles");
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
@@ -110,7 +110,7 @@ $roles = $conn->query("SELECT * FROM roles");
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Osward", sans-serif;
+        font-family: "Special Gothic Expanded One", sans-serif;
     }
 
     html,
@@ -127,31 +127,10 @@ $roles = $conn->query("SELECT * FROM roles");
     .main-content {
         flex: 1;
         background-color: #f5f5f5d2;
-        padding: 2rem;
-        overflow-y: auto;
-    }
-
-    .page-header {
-        margin-bottom: 2rem;
-    }
-
-    .page-header h3 {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-
-    .page-header p {
-        color: lightslategray;
-        margin: 0;
-    }
-
-    .form-container {
-        background-color: white;
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
+        width: 75%;
+        padding-top: 1.7rem;
+        padding-left: 20rem;
+        padding-right: 2rem;
     }
 
     .form-container .form-label {

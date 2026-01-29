@@ -83,9 +83,6 @@ $res = $stmt->get_result();
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -97,7 +94,8 @@ $res = $stmt->get_result();
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Oswald", sans-serif;
+        font-family: "Inter", sans-serif;
+
     }
 
     html,

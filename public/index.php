@@ -9,9 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
 
+    <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
@@ -20,8 +21,30 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Oswald", sans-serif;
+        font-family: "Inter", sans-serif;
+
     }
+
+    .roboto {
+        font-family: "Roboto", sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        font-variation-settings:
+            "width"100;
+    }
+
+    .oswald {
+        font-family: "Oswald", sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+    }
+
+    .special-gothic-expanded-one-regular {
+        font-family: "Special Gothic Expanded One", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+
 
     html,
     body {
