@@ -138,10 +138,12 @@ $roles = $conn->query("SELECT * FROM roles");
     .main-content {
         flex: 1;
         background-color: #f5f5f5d2;
-        width: 75%;
         padding-top: 1.7rem;
         padding-left: 18rem;
         padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
+        overflow-y: auto;
     }
 
     .form-container .form-label {
@@ -225,6 +227,7 @@ $roles = $conn->query("SELECT * FROM roles");
         .main-content {
             padding: 1.5rem;
             padding-top: 3.5rem;
+            width: 100%;
         }
 
         .form-container {
@@ -279,14 +282,14 @@ $roles = $conn->query("SELECT * FROM roles");
         </div>
 
         <div class="main-content">
-            <div class="page-header">
-                <h3>Create New User</h3>
-                <p>Add a new system user account</p>
-                <div class="position-relative" style="height: 50px;">
-                    <a href="admin_user_view.php" class="btn btn-outline-primary btn-sm btn-lg position-absolute end-0">
-                        <i class="bi bi-plus-circle"></i> View Users
-                    </a>
+            <div class="page-header d-flex justify-content-between align-items-center end-0">
+                <div>
+                    <h3>Create New User</h3>
+                    <p>Add a new system user account</p>
                 </div>
+                <a href="admin_user_view.php" class="btn btn-outline-primary btn-sm btn-lg">
+                    <i class="bi bi-plus-circle"></i> View Users
+                </a>
             </div>
 
             <?php if (!empty($error)): ?>
@@ -303,7 +306,7 @@ $roles = $conn->query("SELECT * FROM roles");
             </div>
             <?php endif; ?>
 
-            <div class="form-container">
+            <div class="form-container mx-auto w-75">
                 <form method="POST" action="">
                     <input type="hidden" name="csrf_token"
                         value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
