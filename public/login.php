@@ -80,8 +80,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
 
     <style>
     * {
@@ -103,9 +113,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .login-container {
         width: 100%;
-        max-width: 450px;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
+        max-width: 400px;
+        padding-top: .7rem;
+        padding-bottom: .7rem;
     }
 
     .login-card {
@@ -113,35 +123,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         border-radius: 10px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         overflow: hidden;
-        width: 30vw;
+        width: 100%;
+        max-width: 420px;
     }
 
     .card-header {
         background-color: #f8f9fa;
-        padding: 1cqb 1rem;
+        padding: .7rem;
         text-align: center;
-        height: 200px;
         border-bottom: 1px solid #e0e0e0;
     }
 
     .card-header img {
-        width: 120px;
-        height: 90px;
-        margin-bottom: 1rem;
+        max-width: 120px;
+        width: 40%;
+        height: auto;
+        margin-bottom: 0.3rem;
         border-radius: 8px;
+        object-fit: contain;
     }
 
     .card-header h4 {
         font-weight: bold;
         color: #333;
-        margin-bottom: 0.5rem;
-        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
+        font-size: 1.5rem;
     }
 
     .card-header p {
         color: lightslategray;
         margin: 0;
-        font-size: 0.95rem;
+        font-size: 0.90rem;
     }
 
     .card-body {
@@ -150,21 +162,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .alert {
         border-radius: 6px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .form-label {
         font-weight: 600;
         color: #333;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
         font-size: 0.95rem;
     }
 
     .form-control {
         border: 1px solid #d4d4d4;
-        height: 7vh;
+        height: 40px;
         border-radius: 6px;
         font-size: 0.95rem;
+        padding: 0.5rem 0.7rem;
     }
 
     .form-control:focus {
@@ -177,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .input-group-text {
-        background-color: #f8f9fa;
+        background-color: #f3f3f3;
         border: 1px solid #d4d4d4;
         color: lightslategray;
     }
@@ -186,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         font-weight: bold;
-        padding: 0.7rem;
+        padding: 0.5rem;
         border: none;
         border-radius: 6px;
         width: 100%;
@@ -210,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         text-align: center;
         color: #667eea;
         text-decoration: none;
-        margin-top: 1rem;
+        margin-top: .5rem;
         font-weight: 500;
         transition: all 0.3s ease;
     }
@@ -223,28 +236,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     @media (max-width: 576px) {
         .login-container {
             padding: 0.5rem;
+            width: 95%;
         }
 
         .card-header {
-            padding: 1.5rem 1rem;
+            padding: 1rem 0.75rem;
         }
 
         .card-header img {
-            width: 60px;
-            height: 60px;
+            width: 28%;
+            height: auto;
         }
 
         .card-header h4 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
         }
 
         .card-body {
-            padding: 1.5rem 1rem;
+            padding: 1rem 0.75rem;
         }
 
         .form-control,
         .input-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.9rem;
         }
 
         .btn-login {
@@ -255,7 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     @media (max-width: 480px) {
         .card-header h4 {
-            font-size: 1.3rem;
+            font-size: 1rem;
         }
 
         .card-header p {

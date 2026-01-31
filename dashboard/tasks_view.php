@@ -86,233 +86,241 @@ $res = $stmt->get_result();
 
     <!-- CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Oswald", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        overflow-x: hidden;
+        width: 75%;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .table-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container th {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #d4d4d4;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .table-container td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #d4d4d4;
+        font-size: 0.9rem;
+    }
+
+    .table-container tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-todo {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .status-in-progress {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .status-done {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        justify-content: center;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d4d4d4;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #337ccfe2;
+    }
+
+    .pagination a:hover {
+        background-color: #337ccfe2;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons a {
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .table-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table-container th {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #d4d4d4;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .table-container td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #d4d4d4;
-            font-size: 0.9rem;
-        }
-
-        .table-container tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-todo {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .status-in-progress {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .status-done {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .pagination {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            justify-content: center;
-        }
-
-        .pagination a,
-        .pagination span {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d4d4d4;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #337ccfe2;
-        }
-
-        .pagination a:hover {
-            background-color: #337ccfe2;
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .action-buttons a {
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-edit {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.6rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .table-container {
-                padding: 1rem;
-            }
-
-            .table-container table {
-                font-size: 0.9rem;
-            }
-
-            .table-container th,
-            .table-container td {
-                padding: 0.5rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .action-buttons a {
-                width: 100%;
-                text-align: center;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+            width: 100%;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .table-container {
-                padding: 0.75rem;
-                font-size: 0.85rem;
-            }
-
-            .table-container th,
-            .table-container td {
-                padding: 0.4rem;
-            }
+        .table-container {
+            padding: 1rem;
         }
+
+        .table-container table {
+            font-size: 0.9rem;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 0.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+            width: 100%;
+
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .table-container {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 0.4rem;
+        }
+    }
     </style>
 </head>
 
@@ -328,16 +336,16 @@ $res = $stmt->get_result();
         </div>
 
         <div class="main-content">
-            <div class="page-header">
+            <div class="page-header d-flex justify-content-between align-items-center end-0">
                 <div>
                     <h3>View All Tasks</h3>
                     <p>Manage and track all tasks</p>
                 </div>
-                <a href="tasks.php" class="btn btn-outline-secondary">Create New Task</a>
+                <a href="tasks.php" class="btn btn-outline-secondary mt-3 ">Create New Task</a>
             </div>
 
-            <div class="table-container">
-                <table class="table">
+            <div class="table-responsive rounded shadow">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Title</th>
@@ -351,58 +359,62 @@ $res = $stmt->get_result();
                     </thead>
                     <tbody>
                         <?php if ($res->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
-                            </tr>
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
+                        </tr>
                         <?php else: ?>
-                            <?php while ($t = $res->fetch_assoc()): ?>
-                                <tr>
-                                    <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
-                                    <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
-                                    <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
-                                    <td>
-                                        <?php
+                        <?php while ($t = $res->fetch_assoc()): ?>
+                        <tr>
+                            <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small
+                                    class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
+                            <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
+                            <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
+                            <td>
+                                <?php
                                         $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in-progress' ? 'status-in-progress' : 'status-todo');
                                         ?>
-                                        <span class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
-                                    </td>
-                                    <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?></td>
-                                    <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn-edit">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                            <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
-                                                <form method="post" action="task_delete.php" style="display:inline" onsubmit="return confirm('Delete this task?')">
-                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="task_id" value="<?= htmlspecialchars($t['id']) ?>">
-                                                    <button type="submit" class="btn-delete" style="border:none;cursor:pointer;">
-                                                        <i class="bi bi-trash"></i> Delete
-                                                    </button>
-                                                </form>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
+                                <span
+                                    class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
+                            </td>
+                            <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?></td>
+                            <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
+                                    <form method="post" action="task_delete.php" style="display:inline"
+                                        onsubmit="return confirm('Delete this task?')">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="task_id" value="<?= htmlspecialchars($t['id']) ?>">
+                                        <button type="submit" class="btn btn-outline-danger" style="cursor:pointer;">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>
 
                 <?php if ($total > $limit): ?>
-                    <div class="pagination">
-                        <?php
+                <div class="pagination">
+                    <?php
                         $pages = ceil($total / $limit);
                         for ($p = 1; $p <= $pages; $p++):
                             $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
                         ?>
-                            <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
-                                <?= $p ?>
-                            </a>
-                        <?php endfor; ?>
-                    </div>
+                    <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
+                        <?= $p ?>
+                    </a>
+                    <?php endfor; ?>
+                </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -410,41 +422,41 @@ $res = $stmt->get_result();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const nexgenSidebar = document.getElementById('nexgenSidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-            if (sidebarToggleBtn && nexgenSidebar) {
-                sidebarToggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    nexgenSidebar.classList.toggle('show');
-                    if (sidebarOverlay) {
-                        sidebarOverlay.classList.toggle('show');
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nexgenSidebar.classList.toggle('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
+                nexgenSidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
                     }
                 });
-            }
-
-            if (sidebarOverlay && nexgenSidebar) {
-                sidebarOverlay.addEventListener('click', function() {
-                    nexgenSidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                });
-            }
-
-            if (nexgenSidebar) {
-                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            nexgenSidebar.classList.remove('show');
-                            if (sidebarOverlay) {
-                                sidebarOverlay.classList.remove('show');
-                            }
-                        }
-                    });
-                });
-            }
-        });
+            });
+        }
+    });
     </script>
 </body>
 

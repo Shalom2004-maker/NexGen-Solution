@@ -83,10 +83,24 @@ $res = $stmt->get_result();
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- CSS -->
     <style>
@@ -112,7 +126,11 @@ $res = $stmt->get_result();
     .main-content {
         flex: 1;
         background-color: #f5f5f5d2;
-        padding: 2rem;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
         overflow-y: auto;
     }
 
@@ -297,65 +315,74 @@ $res = $stmt->get_result();
                                                                     ?></div>
                 </div>
             </form>
-            <div class="table-responsive rounded shadow">
-                <div class="col-md-12 border rounded d-flex justify-content-center align-items-center p-3">
-                    <table class="table table-striped table-hover border">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th><?php if ($role !== 'Employee'): ?><th>Employee</th><?php endif;
-                                                                                                    ?><th>Start Date
-                                </th>
-                                <th>End Date</th>
-                                <th>Leave Type</th>
-                                <th>Reason</th>
-                                <th>Status</th>
-                                <th>Applied At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody><?php while ($leave = $res->fetch_assoc()) : ?><tr>
-                                <td><?= htmlspecialchars($leave['id']) ?></td><?php if ($role !== 'Employee'): ?>
-                                <td>
-                                    <?= htmlspecialchars($leave['employee_name']) ?></td><?php endif;
+            <div class="table-responsive rounded shadow border">
+                <table class="table table-striped">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th><?php if ($role !== 'Employee'): ?>
+                            <th>Employee</th><?php endif; ?>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Leave Type</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Applied At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody><?php while ($leave = $res->fetch_assoc()) : ?><tr>
+                            <td><?= htmlspecialchars($leave['id']) ?></td><?php if ($role !== 'Employee'): ?>
+                            <td>
+                                <?= htmlspecialchars($leave['employee_name']) ?></td><?php endif;
                                                                                                     ?><td>
-                                    <?= htmlspecialchars($leave['start_date']) ?></td>
-                                <td><?= htmlspecialchars($leave['end_date']) ?></td>
-                                <td><?= htmlspecialchars($leave['leave_type']) ?></td>
-                                <td><?= htmlspecialchars(substr($leave['reason'], 0, 30)) ?><?= strlen($leave['reason']) > 30 ? '...' : '' ?>
-                                </td>
-                                <td><span
-                                        class="badge bg-<?=
-                                                                $leave['status'] === 'hr_approved' ? 'success' : ($leave['status'] === 'leader_approved' ? 'warning' : ($leave['status'] === 'rejected' ? 'danger' : 'secondary')) ?>">
-                                        <?= htmlspecialchars($leave['status']) ?></span></td>
-                                <td><?= htmlspecialchars($leave['applied_at']) ?></td>
-                                <td><a href="leave_edit.php?id=<?= $leave['id'] ?>"
-                                        class="btn btn-sm btn-outline-primary">View/Edit</a><?php if ($role === 'Employee' && $leave['status'] === 'pending'): ?>
-                                    <form method="post" action="leave_delete.php" style="display:inline"
-                                        onsubmit="return confirm('Are you sure you want to cancel this leave request?')">
-                                        <input type="hidden" name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"><input
-                                            type="hidden" name="action" value="delete"><input type="hidden"
-                                            name="leave_id" value="<?= $leave['id'] ?>"><button
-                                            class="btn btn-sm btn-danger">Cancel</button>
-                                    </form><?php endif;
-                                                        ?>
-                                </td>
-                            </tr><?php endwhile;
-                                            ?></tbody>
-                    </table>
-                </div>
+                                <?= htmlspecialchars($leave['start_date']) ?></td>
+                            <td><?= htmlspecialchars($leave['end_date']) ?></td>
+                            <td><?= htmlspecialchars($leave['leave_type']) ?></td>
+                            <td><?= htmlspecialchars(substr($leave['reason'], 0, 30)) ?><?= strlen($leave['reason']) > 30 ? '...' : '' ?>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge bg-<?= $leave['status'] === 'hr_approved' ? 'success' : ($leave['status'] === 'leader_approved' ? 'warning' : ($leave['status'] === 'rejected' ? 'danger' : 'secondary')) ?>">
+                                    <?= htmlspecialchars($leave['status']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($leave['applied_at']) ?>
+                            </td>
+                            <td>
+                                <a href="leave_edit.php?id=<?= $leave['id'] ?>" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> | <i class="bi bi-pen"></i>
+                                </a>
+                                <?php if ($role === 'Employee' && $leave['status'] === 'pending'): ?>
+                                <form method="post" action="leave_delete.php" style="display: inline"
+                                    onsubmit="return confirm('Are you sure you want to cancel this leave request?')">
+                                    <input type="hidden" name="csrf_token"
+                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="leave_id" value="<?= $leave['id'] ?>">
+                                    <button class="btn btn-sm btn-danger">Cancel</button>
+                                </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             </div>
             <!-- Pagination -->
             <?php $pages = max(1, ceil($total / $limit));
-                                    $baseUrl = 'leave_view.php?status=' . urlencode($statusFilter);
-                                    ?><?php if ($pages > 1): ?><nav aria-label="Page navigation">
-                <ul class="pagination"><?php for ($p = 1; $p <= $pages; $p++) : ?><li
-                        class="page-item <?= $p === $page ? 'active' : '' ?>"><a class="page-link"
-                            href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a></li><?php endfor;
-                                                                                                ?></ul>
-            </nav><?php endif;
-
-                            ?>
+                $baseUrl = 'leave_view.php?status=' . urlencode($statusFilter);
+            ?>
+            <?php if ($pages > 1): ?>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <?php for ($p = 1; $p <= $pages; $p++) : ?>
+                    <li class="page-item <?= $p === $page ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
+                    </li>
+                    <?php endfor; ?>
+                </ul>
+            </nav><?php endif; ?>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

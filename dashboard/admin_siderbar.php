@@ -191,7 +191,7 @@
     }
 
     .nexgen-sidebar-footer {
-        width: 80%;
+        width: 100%;
     }
 
     .nexgen-sidebar-footer-content {

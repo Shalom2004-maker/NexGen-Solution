@@ -54,117 +54,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Oswald", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Oswald", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .form-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .form-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.6rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .form-container {
-                max-width: 100%;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+            width: 100%;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .form-container {
-                padding: 1rem;
-            }
+        .form-container {
+            max-width: 100%;
         }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+            width: 100%;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .form-container {
+            padding: 1rem;
+        }
+    }
     </style>
 </head>
 
@@ -190,31 +196,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-container">
                 <h5 class="mb-4">Add Payroll Information</h5>
                 <form method="post">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                     <div class="mb-3">
                         <label for="emp" class="form-label">Employee ID *</label>
-                        <input type="number" id="emp" name="emp" class="form-control"
-                            placeholder="Enter employee ID" required>
+                        <input type="number" id="emp" name="emp" class="form-control" placeholder="Enter employee ID"
+                            required>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="month" class="form-label">Month *</label>
-                            <input type="number" id="month" name="month" class="form-control"
-                                placeholder="1-12" min="1" max="12" required>
+                            <input type="number" id="month" name="month" class="form-control" placeholder="1-12" min="1"
+                                max="12" required>
                         </div>
                         <div class="col-md-6">
                             <label for="year" class="form-label">Year *</label>
-                            <input type="number" id="year" name="year" class="form-control"
-                                placeholder="YYYY" required>
+                            <input type="number" id="year" name="year" class="form-control" placeholder="YYYY" required>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="ot" class="form-label">Overtime Hours</label>
-                        <input type="number" id="ot" name="ot" class="form-control" step="0.5"
-                            placeholder="Hours">
+                        <input type="number" id="ot" name="ot" class="form-control" step="0.5" placeholder="Hours">
                     </div>
 
                     <div class="mb-3">
@@ -225,8 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="mb-3">
                         <label for="ded" class="form-label">Deductions</label>
-                        <input type="number" id="ded" name="ded" class="form-control" step="0.01"
-                            placeholder="Amount">
+                        <input type="number" id="ded" name="ded" class="form-control" step="0.01" placeholder="Amount">
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
@@ -237,41 +241,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const nexgenSidebar = document.getElementById('nexgenSidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-            if (sidebarToggleBtn && nexgenSidebar) {
-                sidebarToggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    nexgenSidebar.classList.toggle('show');
-                    if (sidebarOverlay) {
-                        sidebarOverlay.classList.toggle('show');
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nexgenSidebar.classList.toggle('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
+                nexgenSidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
                     }
                 });
-            }
-
-            if (sidebarOverlay && nexgenSidebar) {
-                sidebarOverlay.addEventListener('click', function() {
-                    nexgenSidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                });
-            }
-
-            if (nexgenSidebar) {
-                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            nexgenSidebar.classList.remove('show');
-                            if (sidebarOverlay) {
-                                sidebarOverlay.classList.remove('show');
-                            }
-                        }
-                    });
-                });
-            }
-        });
+            });
+        }
+    });
     </script>
 </body>
 

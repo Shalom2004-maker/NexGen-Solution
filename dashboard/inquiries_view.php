@@ -82,158 +82,164 @@ $res = $stmt->get_result();
 
     <!-- CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Oswald", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Oswald", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .filter-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .table-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container th {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #d4d4d4;
+        font-weight: 600;
+    }
+
+    .table-container td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #d4d4d4;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin: 0;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .filter-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .table-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table-container th {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #d4d4d4;
-            font-weight: 600;
-        }
-
-        .table-container td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #d4d4d4;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.6rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .page-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            .table-container {
-                padding: 1rem;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+            width: 100%;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .table-container th,
-            .table-container td {
-                padding: 0.5rem;
-                font-size: 0.85rem;
-            }
-
-            .filter-container {
-                padding: 1rem;
-            }
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
         }
+
+        .table-container {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+            width: 100%;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .filter-container {
+            padding: 1rem;
+        }
+    }
     </style>
 </head>
 
@@ -262,11 +268,12 @@ $res = $stmt->get_result();
                         <input name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
                             placeholder="Search by name, email, or company">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-3 col-md-3 col-12">
                         <select name="status" class="form-control">
                             <option value="">All Status</option>
                             <option value="new" <?= $statusFilter === 'new' ? 'selected' : '' ?>>New</option>
-                            <option value="replied" <?= $statusFilter === 'replied' ? 'selected' : '' ?>>Replied</option>
+                            <option value="replied" <?= $statusFilter === 'replied' ? 'selected' : '' ?>>Replied
+                            </option>
                             <option value="closed" <?= $statusFilter === 'closed' ? 'selected' : '' ?>>Closed</option>
                         </select>
                     </div>
@@ -274,16 +281,16 @@ $res = $stmt->get_result();
                         <button type="submit" class="btn btn-primary w-100">Search</button>
                     </div>
                     <?php if ($q || $statusFilter): ?>
-                        <div class="col-md-2">
-                            <a href="inquiries_view.php" class="btn btn-outline-secondary w-100">Reset</a>
-                        </div>
+                    <div class="col-md-2">
+                        <a href="inquiries_view.php" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
                     <?php endif; ?>
                 </form>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
+            <div class="table-responsive rounded shadow">
+                <table class="table table-striped">
+                    <thead class="table-primary">
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
@@ -297,100 +304,110 @@ $res = $stmt->get_result();
                     </thead>
                     <tbody>
                         <?php if ($res->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 2rem; color: #999;">No inquiries found</td>
-                            </tr>
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: #999;">No inquiries found
+                            </td>
+                        </tr>
                         <?php else: ?>
-                            <?php while ($inquiry = $res->fetch_assoc()) : ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($inquiry['id']) ?></td>
-                                    <td><?= htmlspecialchars($inquiry['name']) ?></td>
-                                    <td><?= htmlspecialchars($inquiry['email']) ?></td>
-                                    <td><?= htmlspecialchars($inquiry['company']) ?></td>
-                                    <td><?= htmlspecialchars(substr($inquiry['message'], 0, 40)) ?><?= strlen($inquiry['message']) > 40 ? '...' : '' ?></td>
-                                    <td>
-                                        <?php
+                        <?php while ($inquiry = $res->fetch_assoc()) : ?>
+                        <tr>
+                            <td><?= htmlspecialchars($inquiry['id']) ?></td>
+                            <td><?= htmlspecialchars($inquiry['name']) ?></td>
+                            <td><?= htmlspecialchars($inquiry['email']) ?></td>
+                            <td><?= htmlspecialchars($inquiry['company']) ?></td>
+                            <td>
+                                <?= htmlspecialchars(substr($inquiry['message'], 0, 40)) ?>
+                                <?= strlen($inquiry['message']) > 40 ? '...' : '' ?>
+                            </td>
+                            <td>
+                                <?php
                                         $statusBadge = $inquiry['status'] === 'new' ? 'primary' : ($inquiry['status'] === 'replied' ? 'warning' : 'secondary');
                                         ?>
-                                        <span class="badge bg-<?= $statusBadge ?>">
-                                            <?= htmlspecialchars($inquiry['status']) ?>
-                                        </span>
-                                    </td>
-                                    <td><?= date('M d, Y', strtotime($inquiry['created_at'])) ?></td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="inquiries_edit.php?id=<?= $inquiry['id'] ?>" class="btn btn-sm btn-outline-primary">View/Edit</a>
-                                            <form method="post" action="inquiries_delete.php" style="display:inline"
-                                                onsubmit="return confirm('Delete this inquiry?')">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="inquiry_id" value="<?= $inquiry['id'] ?>">
-                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
+                                <span class="badge bg-<?= $statusBadge ?>">
+                                    <?= htmlspecialchars($inquiry['status']) ?>
+                                </span>
+                            </td>
+                            <td><?= date('M d, Y', strtotime($inquiry['created_at'])) ?></td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="inquiries_edit.php?id=<?= $inquiry['id'] ?>"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pen"></i>
+                                    </a>
+                                    <form method="post" action="inquiries_delete.php" style="display:inline"
+                                        onsubmit="return confirm('Delete this inquiry?')">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="inquiry_id" value="<?= $inquiry['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
             <?php if ($total > $limit): ?>
-                <nav class="mt-4" aria-label="Page navigation">
-                    <ul class="pagination">
-                        <?php
+            <nav class="mt-4" aria-label="Page navigation">
+                <ul class="pagination">
+                    <?php
                         $pages = ceil($total / $limit);
                         $baseUrl = 'inquiries_view.php?q=' . urlencode($q) . '&status=' . urlencode($statusFilter);
                         ?>
-                        <?php for ($p = 1; $p <= $pages; $p++) : ?>
-                            <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                                <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
-                            </li>
-                        <?php endfor; ?>
-                    </ul>
-                </nav>
+                    <?php for ($p = 1; $p <= $pages; $p++) : ?>
+                    <li class="page-item <?= $p === $page ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
+                    </li>
+                    <?php endfor; ?>
+                </ul>
+            </nav>
             <?php endif; ?>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const nexgenSidebar = document.getElementById('nexgenSidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-            if (sidebarToggleBtn && nexgenSidebar) {
-                sidebarToggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    nexgenSidebar.classList.toggle('show');
-                    if (sidebarOverlay) {
-                        sidebarOverlay.classList.toggle('show');
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nexgenSidebar.classList.toggle('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
+                nexgenSidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
                     }
                 });
-            }
-
-            if (sidebarOverlay && nexgenSidebar) {
-                sidebarOverlay.addEventListener('click', function() {
-                    nexgenSidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                });
-            }
-
-            if (nexgenSidebar) {
-                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            nexgenSidebar.classList.remove('show');
-                            if (sidebarOverlay) {
-                                sidebarOverlay.classList.remove('show');
-                            }
-                        }
-                    });
-                });
-            }
-        });
+            });
+        }
+    });
     </script>
 </body>
 

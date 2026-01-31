@@ -59,9 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -69,180 +66,186 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Oswald", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Oswald", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .form-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+    }
+
+    .form-container .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-container .form-control,
+    .form-container .form-select {
+        border: 1px solid #d4d4d4;
+        padding: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-container .form-control:focus,
+    .form-container .form-select:focus {
+        border-color: #337ccfe2;
+        box-shadow: 0 0 0 0.2rem rgba(51, 124, 207, 0.25);
+    }
+
+    .alert {
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-submit {
+        background-color: #337ccfe2;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        background-color: #2563a8;
+        color: white;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin: 0;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .form-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-        }
-
-        .form-container .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-container .form-control,
-        .form-container .form-select {
-            border: 1px solid #d4d4d4;
-            padding: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .form-container .form-control:focus,
-        .form-container .form-select:focus {
-            border-color: #337ccfe2;
-            box-shadow: 0 0 0 0.2rem rgba(51, 124, 207, 0.25);
-        }
-
-        .alert {
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-submit {
-            background-color: #337ccfe2;
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-submit:hover {
-            background-color: #2563a8;
-            color: white;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.6rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .form-container {
-                max-width: 100%;
-                padding: 1.5rem;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                margin-bottom: 1.5rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.5rem;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+            width: 100%;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .form-container {
-                padding: 1rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .form-container .form-label {
-                font-size: 0.9rem;
-            }
-
-            .btn-submit {
-                padding: 0.6rem 1.5rem;
-            }
+        .form-container {
+            max-width: 100%;
+            padding: 1.5rem;
         }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+            width: 100%;
+        }
+
+        .form-container {
+            padding: 1rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .form-container .form-label {
+            font-size: 0.9rem;
+        }
+
+        .btn-submit {
+            padding: 0.6rem 1.5rem;
+        }
+    }
     </style>
 </head>
 
@@ -267,17 +270,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             <?php endif; ?>
 
             <?php if (!empty($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i> Leave request submitted successfully!
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> Leave request submitted successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             <?php endif; ?>
 
             <div class="form-container">
@@ -301,9 +304,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="leaveType" class="form-label">Leave Type *</label>
                         <select class="form-select" id="leaveType" name="type" required>
                             <option value="">Select Leave Type</option>
-                            <option value="sick" <?= (isset($_POST['type']) && $_POST['type'] === 'sick') ? 'selected' : '' ?>>Sick Leave</option>
-                            <option value="annual" <?= (isset($_POST['type']) && $_POST['type'] === 'annual') ? 'selected' : '' ?>>Annual Leave</option>
-                            <option value="unpaid" <?= (isset($_POST['type']) && $_POST['type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid Leave</option>
+                            <option value="sick"
+                                <?= (isset($_POST['type']) && $_POST['type'] === 'sick') ? 'selected' : '' ?>>Sick Leave
+                            </option>
+                            <option value="annual"
+                                <?= (isset($_POST['type']) && $_POST['type'] === 'annual') ? 'selected' : '' ?>>Annual
+                                Leave</option>
+                            <option value="unpaid"
+                                <?= (isset($_POST['type']) && $_POST['type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid
+                                Leave</option>
                         </select>
                     </div>
 
@@ -322,41 +331,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const nexgenSidebar = document.getElementById('nexgenSidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-            if (sidebarToggleBtn && nexgenSidebar) {
-                sidebarToggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    nexgenSidebar.classList.toggle('show');
-                    if (sidebarOverlay) {
-                        sidebarOverlay.classList.toggle('show');
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nexgenSidebar.classList.toggle('show');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
+
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
+                nexgenSidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
                     }
                 });
-            }
-
-            if (sidebarOverlay && nexgenSidebar) {
-                sidebarOverlay.addEventListener('click', function() {
-                    nexgenSidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                });
-            }
-
-            if (nexgenSidebar) {
-                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            nexgenSidebar.classList.remove('show');
-                            if (sidebarOverlay) {
-                                sidebarOverlay.classList.remove('show');
-                            }
-                        }
-                    });
-                });
-            }
-        });
+            });
+        }
+    });
     </script>
 </body>
 

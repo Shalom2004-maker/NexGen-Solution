@@ -101,8 +101,19 @@ $roles = $conn->query("SELECT * FROM roles");
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- CSS -->
     <style>
@@ -129,7 +140,7 @@ $roles = $conn->query("SELECT * FROM roles");
         background-color: #f5f5f5d2;
         width: 75%;
         padding-top: 1.7rem;
-        padding-left: 20rem;
+        padding-left: 18rem;
         padding-right: 2rem;
     }
 
@@ -234,6 +245,7 @@ $roles = $conn->query("SELECT * FROM roles");
         .main-content {
             padding: 1rem;
             padding-top: 3rem;
+            width: 100%;
         }
 
         .form-container {
@@ -270,9 +282,11 @@ $roles = $conn->query("SELECT * FROM roles");
             <div class="page-header">
                 <h3>Create New User</h3>
                 <p>Add a new system user account</p>
-                <a href="admin_user_view.php" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-plus-circle"></i> View Users
-                </a>
+                <div class="position-relative" style="height: 50px;">
+                    <a href="admin_user_view.php" class="btn btn-outline-primary btn-sm btn-lg position-absolute end-0">
+                        <i class="bi bi-plus-circle"></i> View Users
+                    </a>
+                </div>
             </div>
 
             <?php if (!empty($error)): ?>

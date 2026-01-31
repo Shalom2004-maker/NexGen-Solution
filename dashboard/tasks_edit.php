@@ -1,7 +1,6 @@
 <?php
 include "../includes/auth.php";
 include "../includes/db.php";
-include "../includes/header.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 if (!isset($_GET['id'])) {
@@ -41,58 +40,78 @@ if (empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_byt
 
 <head>
     <title>Edit Task</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS Link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
 </head>
 
 <body class="container py-4">
-    <h3>Edit Task</h3>
-    <form method="post" action="tasks_update.php" class="row g-2">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <input type="hidden" name="action" value="update">
-        <input type="hidden" name="task_id" value="<?= htmlspecialchars($task['id']) ?>">
-
-        <div class="col-md-4">
-            <label>Project</label>
-            <select name="project" class="form-control">
-                <option value="">(none)</option>
-                <?php while ($p = $projects->fetch_assoc()) : ?>
-                    <option value="<?= $p['id'] ?>" <?= ($task['project_id'] == $p['id']) ? 'selected' : '' ?>><?= htmlspecialchars($p['project_name']) ?></option>
-                <?php endwhile; ?>
-            </select>
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php include "admin_siderbar.php"; ?>
         </div>
+        <h3>Edit Task</h3>
+        <form method="post" action="tasks_update.php" class="row g-2">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="task_id" value="<?= htmlspecialchars($task['id']) ?>">
 
-        <div class="col-md-4">
-            <label>Assignee</label>
-            <select name="assigned_to" class="form-control">
-                <option value="">(unassigned)</option>
-                <?php while ($u = $users->fetch_assoc()) : ?>
-                    <option value="<?= $u['id'] ?>" <?= ($task['assigned_to'] == $u['id']) ? 'selected' : '' ?>><?= htmlspecialchars($u['full_name']) ?></option>
-                <?php endwhile; ?>
-            </select>
-        </div>
+            <div class="col-md-4">
+                <label>Project</label>
+                <select name="project" class="form-control">
+                    <option value="">(none)</option>
+                    <?php while ($p = $projects->fetch_assoc()) : ?>
+                    <option value="<?= $p['id'] ?>" <?= ($task['project_id'] == $p['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($p['project_name']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
 
-        <div class="col-md-4">
-            <label>Title</label>
-            <input name="title" class="form-control" required value="<?= htmlspecialchars($task['title']) ?>">
-        </div>
+            <div class="col-md-4">
+                <label>Assignee</label>
+                <select name="assigned_to" class="form-control">
+                    <option value="">(unassigned)</option>
+                    <?php while ($u = $users->fetch_assoc()) : ?>
+                    <option value="<?= $u['id'] ?>" <?= ($task['assigned_to'] == $u['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($u['full_name']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
 
-        <div class="col-12">
-            <label>Description</label>
-            <textarea name="description" class="form-control"><?= htmlspecialchars($task['description']) ?></textarea>
-        </div>
+            <div class="col-md-4">
+                <label>Title</label>
+                <input name="title" class="form-control" required value="<?= htmlspecialchars($task['title']) ?>">
+            </div>
 
-        <div class="col-md-4">
-            <label>Deadline</label>
-            <input type="date" name="deadline" class="form-control" value="<?= htmlspecialchars($task['deadline']) ?>">
-        </div>
+            <div class="col-12">
+                <label>Description</label>
+                <textarea name="description"
+                    class="form-control"><?= htmlspecialchars($task['description']) ?></textarea>
+            </div>
 
-        <div class="col-12 text-end">
-            <button class="btn btn-primary">Save</button>
-            <a href="tasks_view.php" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
+            <div class="col-md-4">
+                <label>Deadline</label>
+                <input type="date" name="deadline" class="form-control"
+                    value="<?= htmlspecialchars($task['deadline']) ?>">
+            </div>
 
-    <?php include "../includes/footer.php"; ?>
+            <div class="col-12 text-end">
+                <button class="btn btn-primary">Save</button>
+                <a href="tasks_view.php" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>

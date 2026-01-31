@@ -65,8 +65,19 @@ $projects = [
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- CSS -->
     <style>
@@ -341,7 +352,7 @@ $projects = [
         background: linear-gradient(90deg, #337ccfe2, #4a9eff);
         height: 100%;
         border-radius: 5px;
-        transition: width 0.25s ease;
+        transition: width 1s ease;
     }
 
     /* Quick Actions */
@@ -425,6 +436,7 @@ $projects = [
 
         .main-content {
             padding: 1.5rem;
+            width: 100%;
             padding-top: 3.5rem;
             padding-left: 1.5rem;
         }
@@ -491,7 +503,7 @@ $projects = [
 
             <!-- Metrics Cards -->
             <div class="row">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
                         <i class="bi bi-people metric-icon"></i>
                         <div class="metric-label">Total Employees</div>
@@ -500,7 +512,7 @@ $projects = [
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
                         <i class="bi bi-clipboard-check metric-icon"></i>
                         <div class="metric-label">Active Tasks</div>
@@ -509,7 +521,7 @@ $projects = [
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
                         <i class="bi bi-calendar-event metric-icon"></i>
                         <div class="metric-label">Pending Leaves</div>
@@ -518,7 +530,7 @@ $projects = [
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
                         <i class="bi bi-graph-up metric-icon"></i>
                         <div class="metric-label">Performance</div>
@@ -553,7 +565,7 @@ $projects = [
 
             <!-- Recent Tasks and Leave Requests -->
             <div class="row">
-                <div class="col-lg-7">
+                <div class="col-lg-7 col-md-12 col-12">
                     <div class="task-list">
                         <div class="section-title">
                             <span>Recent Tasks</span>
@@ -658,7 +670,7 @@ $projects = [
                 <span>Project Progress</span>
             </div>
             <div class="row">
-                <div class="col-lg-6 w-50">
+                <div class="col-lg-7">
                     <?php foreach ($projects as $project): ?>
                     <div class="project-item">
                         <div class="project-name">

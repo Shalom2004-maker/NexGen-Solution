@@ -15,173 +15,180 @@ include "../includes/db.php";
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Osward", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Osward", sans-serif;
+    }
 
-        html,
-        body {
-            background-color: #ececece8;
-            min-height: 100vh;
-        }
+    html,
+    body {
+        background-color: #ececece8;
+        min-height: 100vh;
+    }
 
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        background-color: #f5f5f5d2;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
+        overflow-y: auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: lightslategray;
+        margin: 0;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: white;
+    }
+
+    .action-card i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .action-card h5 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .action-card.primary {
+        background-color: #007bff;
+    }
+
+    .action-card.warning {
+        background-color: #ffc107;
+    }
+
+    .action-card.success {
+        background-color: #28a745;
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1040;
+        background-color: #337ccfe2;
+        color: white;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
         .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            background-color: #f5f5f5d2;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-header h3 {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: lightslategray;
-            margin: 0;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .action-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            text-decoration: none;
-            color: white;
-        }
-
-        .action-card i {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .action-card h5 {
-            margin: 0;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .action-card.primary {
-            background-color: #007bff;
-        }
-
-        .action-card.warning {
-            background-color: #ffc107;
-        }
-
-        .action-card.success {
-            background-color: #28a745;
+            flex-direction: column;
         }
 
         .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1040;
-            background-color: #337ccfe2;
-            color: white;
-            border: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        .sidebar-overlay.show {
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .main-wrapper {
-                flex-direction: column;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-                padding-top: 3.5rem;
-            }
-
-            .action-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 3.5rem;
+            width: 100%;
         }
 
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 1rem;
-                padding-top: 3rem;
-            }
-
-            .page-header h3 {
-                font-size: 1.25rem;
-            }
-
-            .action-card {
-                padding: 1.5rem;
-            }
-
-            .action-card i {
-                font-size: 1.5rem;
-            }
-
-            .action-card h5 {
-                font-size: 1rem;
-            }
+        .action-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+            padding-top: 3rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .action-card {
+            padding: 1.5rem;
+        }
+
+        .action-card i {
+            font-size: 1.5rem;
+        }
+
+        .action-card h5 {
+            font-size: 1rem;
+        }
+    }
     </style>
 </head>
 
@@ -226,27 +233,27 @@ include "../includes/db.php";
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-        if (sidebarToggleBtn) {
-            sidebarToggleBtn.addEventListener('click', function() {
-                if (nexgenSidebar) {
-                    nexgenSidebar.classList.toggle('show');
-                    sidebarOverlay.classList.toggle('show');
-                }
-            });
-        }
+    if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            }
+        });
+    }
 
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                if (nexgenSidebar) {
-                    nexgenSidebar.classList.remove('show');
-                }
-                sidebarOverlay.classList.remove('show');
-            });
-        }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.remove('show');
+            }
+            sidebarOverlay.classList.remove('show');
+        });
+    }
     </script>
 </body>
 
