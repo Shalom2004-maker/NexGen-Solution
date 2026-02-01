@@ -168,6 +168,7 @@ $projects = [
         font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 1px;
+        font-weight: bold;
         margin-bottom: 0.5rem;
     }
 
@@ -646,7 +647,7 @@ $projects = [
                                     echo '<div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <strong>' . htmlspecialchars($reason) . '</strong><br>
-                                        <small>' . htmlspecialchars($start_date ?? 'Not set') . ' to ' . htmlspecialchars($end_date ?? 'Not set') . '</small>
+                                        <small>' . htmlspecialchars(is_object($start_date) ? $start_date->format('Y-m-d') : ($start_date ?? 'Not set')) . ' to ' . htmlspecialchars(is_object($end_date) ? $end_date->format('Y-m-d') : ($end_date ?? 'Not set')) . '</small>
                                     </div>
                                     <div>' . $status_badge . '</div>
                                   </div>';

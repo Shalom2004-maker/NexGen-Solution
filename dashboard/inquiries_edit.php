@@ -2,7 +2,6 @@
 include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
-include "../includes/header.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 if (!isset($_GET['id'])) {
@@ -30,19 +29,18 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<?php include __DIR__ . '/admin_siderbar.php'; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View/Edit Inquiry</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<body class="container py-4">
-    <h3>View/Edit Inquiry</h3>
-    <a href="inquiries_view.php" class="btn btn-secondary mb-3">← Back to Inquiries</a>
+<div class="main-content container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>View/Edit Inquiry</h3>
+            <p class="text-muted">Modify inquiry details and track status</p>
+        </div>
+        <a href="inquiries_view.php" class="btn btn-outline-secondary">← Back to Inquiries</a>
+    </div>
 
     <div class="card">
         <div class="card-body">
@@ -58,7 +56,8 @@ if (empty($_SESSION['csrf_token'])) {
 
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input name="email" type="email" class="form-control" value="<?= htmlspecialchars($inquiry['email']) ?>" required>
+                    <input name="email" type="email" class="form-control"
+                        value="<?= htmlspecialchars($inquiry['email']) ?>" required>
                 </div>
 
                 <div class="mb-3">
@@ -68,21 +67,25 @@ if (empty($_SESSION['csrf_token'])) {
 
                 <div class="mb-3">
                     <label class="form-label">Message</label>
-                    <textarea name="message" class="form-control" rows="5" required><?= htmlspecialchars($inquiry['message']) ?></textarea>
+                    <textarea name="message" class="form-control" rows="5"
+                        required><?= htmlspecialchars($inquiry['message']) ?></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-control" required>
                         <option value="new" <?= ($inquiry['status'] === 'new') ? 'selected' : '' ?>>New</option>
-                        <option value="replied" <?= ($inquiry['status'] === 'replied') ? 'selected' : '' ?>>Replied</option>
-                        <option value="closed" <?= ($inquiry['status'] === 'closed') ? 'selected' : '' ?>>Closed</option>
+                        <option value="replied" <?= ($inquiry['status'] === 'replied') ? 'selected' : '' ?>>Replied
+                        </option>
+                        <option value="closed" <?= ($inquiry['status'] === 'closed') ? 'selected' : '' ?>>Closed
+                        </option>
                     </select>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Created At</label>
-                    <input type="text" class="form-control" value="<?= htmlspecialchars($inquiry['created_at']) ?>" readonly>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($inquiry['created_at']) ?>"
+                        readonly>
                 </div>
 
                 <div class="text-end">
@@ -93,8 +96,6 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <?php include "../includes/footer.php"; ?>
-</body>
+    </body>
 
-</html>
-
+    </html>

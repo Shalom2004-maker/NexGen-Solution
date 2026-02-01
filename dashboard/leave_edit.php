@@ -1,7 +1,6 @@
 <?php
 include "../includes/auth.php";
 include "../includes/db.php";
-include "../includes/header.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 if (!isset($_GET['id'])) {
@@ -64,56 +63,67 @@ if (empty($_SESSION['csrf_token'])) {
                 <input type="hidden" name="leave_id" value="<?= htmlspecialchars($leave['id']) ?>">
 
                 <?php if ($role !== 'Employee'): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Employee</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($leave['employee_name']) ?>" readonly>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Employee</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($leave['employee_name']) ?>"
+                        readonly>
+                </div>
                 <?php endif; ?>
 
                 <div class="mb-3">
                     <label class="form-label">Start Date</label>
-                    <input name="start_date" type="date" class="form-control" value="<?= htmlspecialchars($leave['start_date']) ?>" required>
+                    <input name="start_date" type="date" class="form-control"
+                        value="<?= htmlspecialchars($leave['start_date']) ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">End Date</label>
-                    <input name="end_date" type="date" class="form-control" value="<?= htmlspecialchars($leave['end_date']) ?>" required>
+                    <input name="end_date" type="date" class="form-control"
+                        value="<?= htmlspecialchars($leave['end_date']) ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Leave Type</label>
                     <select name="leave_type" class="form-control" required>
                         <option value="sick" <?= ($leave['leave_type'] === 'sick') ? 'selected' : '' ?>>Sick</option>
-                        <option value="annual" <?= ($leave['leave_type'] === 'annual') ? 'selected' : '' ?>>Annual</option>
-                        <option value="unpaid" <?= ($leave['leave_type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid</option>
+                        <option value="annual" <?= ($leave['leave_type'] === 'annual') ? 'selected' : '' ?>>Annual
+                        </option>
+                        <option value="unpaid" <?= ($leave['leave_type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid
+                        </option>
                     </select>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Reason</label>
-                    <textarea name="reason" class="form-control" rows="4" required><?= htmlspecialchars($leave['reason']) ?></textarea>
+                    <textarea name="reason" class="form-control" rows="4"
+                        required><?= htmlspecialchars($leave['reason']) ?></textarea>
                 </div>
 
                 <?php if (in_array($role, ['ProjectLeader', 'HR', 'Admin'])): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control" required>
-                            <option value="pending" <?= ($leave['status'] === 'pending') ? 'selected' : '' ?>>Pending</option>
-                            <option value="leader_approved" <?= ($leave['status'] === 'leader_approved') ? 'selected' : '' ?>>Leader Approved</option>
-                            <option value="hr_approved" <?= ($leave['status'] === 'hr_approved') ? 'selected' : '' ?>>HR Approved</option>
-                            <option value="rejected" <?= ($leave['status'] === 'rejected') ? 'selected' : '' ?>>Rejected</option>
-                        </select>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control" required>
+                        <option value="pending" <?= ($leave['status'] === 'pending') ? 'selected' : '' ?>>Pending
+                        </option>
+                        <option value="leader_approved"
+                            <?= ($leave['status'] === 'leader_approved') ? 'selected' : '' ?>>Leader Approved</option>
+                        <option value="hr_approved" <?= ($leave['status'] === 'hr_approved') ? 'selected' : '' ?>>HR
+                            Approved</option>
+                        <option value="rejected" <?= ($leave['status'] === 'rejected') ? 'selected' : '' ?>>Rejected
+                        </option>
+                    </select>
+                </div>
                 <?php else: ?>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($leave['status']) ?>" readonly>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($leave['status']) ?>" readonly>
+                </div>
                 <?php endif; ?>
 
                 <div class="mb-3">
                     <label class="form-label">Applied At</label>
-                    <input type="text" class="form-control" value="<?= htmlspecialchars($leave['applied_at']) ?>" readonly>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($leave['applied_at']) ?>"
+                        readonly>
                 </div>
 
                 <div class="text-end">
@@ -124,8 +134,6 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <?php include "../includes/footer.php"; ?>
 </body>
 
 </html>
-

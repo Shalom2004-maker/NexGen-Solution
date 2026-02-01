@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: white;
         border-radius: 8px;
         padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-left: 11vw;
         max-width: 100%;
     }
 
@@ -347,8 +347,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="tasks_view.php" class="btn btn-outline-secondary">View All Tasks</a>
             </div>
 
+            <div class="form-container col-lg-8 col-md-9 col-12 mb-4 border shadow">
+                <h5 class="mb-3">Search Tasks</h5>
+                <form method="get" action="tasks_view.php" class="row g-2">
+                    <div class="col-md-8">
+                        <input name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
+                            placeholder="Search by title or description...">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
-            <div class="form-container mb-4">
+            <div class="col-lg-8 col-md-9 col-12 form-container mb-4">
                 <h5 class="mb-3">Create New Task</h5>
                 <form method="post" class="row gy-2">
                     <input type="hidden" name="action" value="create">
@@ -404,62 +419,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
             <?php endif; ?>
-
-            <div class="form-container">
-                <h5 class="mb-3">Search Tasks</h5>
-                <form method="get" action="tasks_view.php" class="row g-2">
-                    <div class="col-md-8">
-                        <input name="q" value="<?= htmlspecialchars($q) ?>" class="form-control"
-                            placeholder="Search by title or description...">
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                    </div>
-                </form>
+            <div>
             </div>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-        if (sidebarToggleBtn && nexgenSidebar) {
-            sidebarToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                nexgenSidebar.classList.toggle('show');
-                if (sidebarOverlay) {
-                    sidebarOverlay.classList.toggle('show');
+                if (sidebarToggleBtn && nexgenSidebar) {
+                    sidebarToggleBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        nexgenSidebar.classList.toggle('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.toggle('show');
+                        }
+                    });
+                }
+
+                if (sidebarOverlay && nexgenSidebar) {
+                    sidebarOverlay.addEventListener('click', function() {
+                        nexgenSidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    });
+                }
+
+                if (nexgenSidebar) {
+                    document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                        link.addEventListener('click', function() {
+                            if (window.innerWidth <= 768) {
+                                nexgenSidebar.classList.remove('show');
+                                if (sidebarOverlay) {
+                                    sidebarOverlay.classList.remove('show');
+                                }
+                            }
+                        });
+                    });
                 }
             });
-        }
-
-        if (sidebarOverlay && nexgenSidebar) {
-            sidebarOverlay.addEventListener('click', function() {
-                nexgenSidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-        }
-
-        if (nexgenSidebar) {
-            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
-                    }
-                });
-            });
-        }
-    });
-    </script>
+            </script>
 </body>
 
 </html>

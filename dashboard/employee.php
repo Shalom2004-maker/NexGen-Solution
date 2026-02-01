@@ -16,12 +16,22 @@ include "../includes/db.php";
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+
+    <!-- Local Bootstrap CSS Link -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
 
     <!-- CSS -->
     <style>
@@ -29,12 +39,13 @@ include "../includes/db.php";
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Osward", sans-serif;
+        font-family: "Inter", sans-serif;
     }
 
     html,
     body {
         background-color: #ececece8;
+        color: #333;
         min-height: 100vh;
     }
 
@@ -46,7 +57,11 @@ include "../includes/db.php";
     .main-content {
         flex: 1;
         background-color: #f5f5f5d2;
-        padding: 2rem;
+        padding-top: 1.7rem;
+        padding-left: 18rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+        width: 75%;
         overflow-y: auto;
     }
 
@@ -55,56 +70,85 @@ include "../includes/db.php";
     }
 
     .page-header h3 {
-        font-weight: bold;
-        color: #333;
+        font-size: 2rem;
+        font-weight: 700;
         margin-bottom: 0.5rem;
+        color: #333;
     }
 
     .page-header p {
         color: lightslategray;
         margin: 0;
+        font-size: 0.9rem;
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
+    /* Metric Cards */
     .stat-card {
-        background-color: white;
+        background: #ffffff;
+        border: 1px solid #d4d4d4;
         border-radius: 8px;
         padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        text-align: left;
+        margin-bottom: 1.5rem;
+        transition: all 0.15s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: #337ccfe2;
+        box-shadow: 0 6px 20px rgba(51, 124, 207, 0.08);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(51, 124, 207, 0.06);
+        border-radius: 50%;
+        transform: translate(18px, -18px);
     }
 
     .stat-card h6 {
         font-weight: 600;
-        color: #333;
+        color: #666;
         margin-bottom: 1rem;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .stat-card h4 {
         color: #337ccfe2;
         margin-bottom: 0.5rem;
+        font-size: 2rem;
+        font-weight: 700;
     }
 
     .stat-card p {
-        color: lightslategray;
+        color: #777;
         font-size: 0.85rem;
         margin: 0;
     }
 
     .stat-icon {
         float: right;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         color: #337ccfe2;
         margin-top: -2.5rem;
     }
 
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Content Cards */
     .content-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -112,23 +156,84 @@ include "../includes/db.php";
     }
 
     .card-container {
-        background-color: white;
+        background-color: #ffffff;
+        border: 1px solid #d4d4d4;
         border-radius: 8px;
         padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.15s ease;
+    }
+
+    .card-container:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .card-container h4 {
-        font-weight: bold;
+        font-weight: 700;
         color: #333;
         margin-bottom: 1.5rem;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+    }
+
+    .list-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
     .list-group-item {
         border: 1px solid #d4d4d4;
-        margin-bottom: 0.5rem;
+        border-left: 3px solid #337ccfe2;
         border-radius: 5px;
+        padding: 0.9rem;
+        background: #fff;
+        transition: all 0.12s ease;
+    }
+
+    .list-group-item:hover {
+        background: #fbfdff;
+        transform: translateX(3px);
+    }
+
+    .list-group-item strong {
+        color: #333;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .list-group-item small {
+        color: #777;
+        font-size: 0.85rem;
+    }
+
+    .badge {
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+
+    .bg-warning {
+        background-color: #fbbf24 !important;
+    }
+
+    .bg-success {
+        background-color: #4ade80 !important;
+    }
+
+    .bg-secondary {
+        background-color: #6b7280 !important;
+    }
+
+    .bg-danger {
+        background-color: #ef4444 !important;
+    }
+
+    .text-dark {
+        color: #1f2937 !important;
+    }
+
+    .text-muted {
+        color: #999 !important;
     }
 
     .sidebar-toggle {
@@ -140,9 +245,10 @@ include "../includes/db.php";
         background-color: #337ccfe2;
         color: white;
         border: none;
-        padding: 0.5rem 0.75rem;
+        padding: 0.6rem 0.8rem;
         border-radius: 5px;
         cursor: pointer;
+        font-size: 1.25rem;
     }
 
     .sidebar-overlay {
@@ -172,6 +278,16 @@ include "../includes/db.php";
         .main-content {
             padding: 1.5rem;
             padding-top: 3.5rem;
+            width: 100%;
+            padding-left: 1.5rem;
+        }
+
+        .page-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .stat-card h4 {
+            font-size: 1.6rem;
         }
 
         .stats-grid {
@@ -193,6 +309,7 @@ include "../includes/db.php";
         .main-content {
             padding: 1rem;
             padding-top: 3rem;
+            width: 100%;
         }
 
         .page-header h3 {
@@ -204,7 +321,11 @@ include "../includes/db.php";
         }
 
         .stat-card h6 {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+        }
+
+        .stat-card h4 {
+            font-size: 1.5rem;
         }
 
         .card-container {
@@ -232,7 +353,8 @@ include "../includes/db.php";
         <div class="main-content">
             <div class="page-header">
                 <h3><i class="bi bi-speedometer2"></i> Employee Dashboard</h3>
-                <p>Welcome back, Employee. Here's what's happening today.</p>
+                <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's what's happening
+                    today.</p>
             </div>
 
             <!-- Stats Grid -->
@@ -375,10 +497,12 @@ include "../includes/db.php";
                             } else {
                                 $status_badge = '<span class="badge bg-danger">Rejected</span>';
                             }
+                            $start_date_str = ($start_date instanceof DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
+                            $end_date_str = ($end_date instanceof DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
                             echo '<div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <strong>' . htmlspecialchars($reason) . '</strong><br>
-                                        <small>' . htmlspecialchars($start_date ?? 'Not set') . ' to ' . htmlspecialchars($end_date ?? 'Not set') . '</small>
+                                        <small>' . htmlspecialchars($start_date_str) . ' to ' . htmlspecialchars($end_date_str) . '</small>
                                     </div>
                                     <div>' . $status_badge . '</div>
                                   </div>';
@@ -399,27 +523,41 @@ include "../includes/db.php";
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const nexgenSidebar = document.getElementById('nexgenSidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-    if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', function() {
-            if (nexgenSidebar) {
+        if (sidebarToggleBtn && nexgenSidebar) {
+            sidebarToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
                 nexgenSidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            }
-        });
-    }
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.toggle('show');
+                }
+            });
+        }
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-            if (nexgenSidebar) {
+        if (sidebarOverlay && nexgenSidebar) {
+            sidebarOverlay.addEventListener('click', function() {
                 nexgenSidebar.classList.remove('show');
-            }
-            sidebarOverlay.classList.remove('show');
-        });
-    }
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        if (nexgenSidebar) {
+            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nexgenSidebar.classList.remove('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.remove('show');
+                        }
+                    }
+                });
+            });
+        }
+    });
     </script>
 </body>
 

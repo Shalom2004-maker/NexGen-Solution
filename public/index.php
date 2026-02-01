@@ -225,6 +225,7 @@
         .navbar-section {
             padding: 1rem;
             flex-wrap: wrap;
+            width: 100%;
             gap: 1rem;
         }
 
@@ -275,6 +276,7 @@
             flex-direction: column;
             align-items: center;
             padding: 1rem 0.5rem;
+            width: 100%;
         }
 
         .navbar-brand {
@@ -329,7 +331,7 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar-section">
+    <nav class="navbar navbar-section">
         <a href="#" class="navbar-brand">
             <img src="../assets/logos/nexgen-brand-logo.png" alt="NexGen Logo"> &nbsp; NexGen Solution
         </a>

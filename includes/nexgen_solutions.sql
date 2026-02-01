@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 12, 2026 at 08:33 PM
+-- Generation Time: Feb 01, 2026 at 05:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -59,19 +59,19 @@ CREATE TABLE `inquiries` (
   `company` varchar(100) DEFAULT NULL,
   `message` text DEFAULT NULL,
   `status` enum('new','replied','closed') DEFAULT 'new',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `category` varchar(70) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `inquiries`
 --
 
-INSERT INTO `inquiries` (`id`, `name`, `email`, `company`, `message`, `status`, `created_at`) VALUES
-(1, 'Mark', 'mark@mail.com', 'Alpha Ltd', 'Need a project quote', 'new', '2026-01-03 16:08:12'),
-(2, 'Lisa', 'lisa@mail.com', 'Beta Corp', 'Interested in your software', 'replied', '2026-01-03 16:08:12'),
-(3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'replied', '2026-01-03 16:08:12'),
-(4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\n\nPreferred Contact Time: 2026-01-14 06:00 PM\nInquiry Type: Service Request', 'new', '2026-01-05 13:18:56'),
-(5, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\n\nPreferred Contact Time: 2026-01-14 06:00 PM\nInquiry Type: Service Request', 'new', '2026-01-05 13:19:43');
+INSERT INTO `inquiries` (`id`, `name`, `email`, `company`, `message`, `status`, `created_at`, `category`) VALUES
+(1, 'Mark', 'mark@mail.com', 'Alpha Ltd', 'Need a project quote', 'new', '2026-01-03 16:08:12', 'Service Request'),
+(2, 'Lisa', 'lisa@mail.com', 'Beta Corp', 'Interested in your software', 'replied', '2026-01-03 16:08:12', 'Others'),
+(3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'replied', '2026-01-03 16:08:12', 'General Inquiry'),
+(4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\n\nPreferred Contact Time: 2026-01-14 06:00 PM\nInquiry Type: Service Request', 'new', '2026-01-05 13:18:56', 'Support');
 
 -- --------------------------------------------------------
 

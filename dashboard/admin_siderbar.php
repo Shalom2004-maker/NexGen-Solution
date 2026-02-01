@@ -222,8 +222,10 @@
             &nbsp;&nbsp; Dashboard</a>
         <a href="tasks.php" class="bi bi-suitcase-lg <?= $current_page === 'tasks.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
             My Tasks</a>
-        <a href="leave.php" class="bi bi-file-text <?= $current_page === 'leave.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
-            Request Leave</a>
+        <a href="leave_dashboard.php"
+            class="bi bi-file-text <?= $current_page === 'leave_dashboard.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp;
+            Leave Requests</a>
         <a href="salary.php" class="bi bi-coin <?= $current_page === 'salary.php' ? 'active' : '' ?>"> &nbsp;&nbsp; My
             Salary</a>
 
@@ -243,8 +245,8 @@
         <a href="leader_payroll.php"
             class="bi bi-currency-dollar <?= $current_page === 'leader_payroll.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
             Process Payroll</a>
-        <a href="inquiries_view.php"
-            class="bi bi-person-circle <?= $current_page === 'inquiries_view.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
+        <a href="inquiries_dashboard.php"
+            class="bi bi-person-circle <?= $current_page === 'inquiries_dashboard.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
             Inquiries</a>
 
         <h5 style="margin-top: 1rem;">Admin</h5>
