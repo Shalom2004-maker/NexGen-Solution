@@ -3,16 +3,15 @@
 <nav class="nexgen-sidebar" id="nexgenSidebar">
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
-        <p>Employee Management</p>
+        <p>Employee Portal</p>
     </div>
 
     <div class="nexgen-sidebar-menu">
         <?php
         $current_page = basename($_SERVER['PHP_SELF']);
         ?>
-        <h5>Admin</h5>
-        <a href="admin_dashboard.php"
-            class="bi bi-columns-gap <?= $current_page === 'admin_dashboard.php' ? 'active' : '' ?>">
+        <h5>Employee</h5>
+        <a href="employee.php" class="bi bi-columns-gap <?= $current_page === 'employee.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Dashboard</a>
 
         <a href="tasks_dashboard.php"
@@ -23,20 +22,15 @@
             class="bi bi-file-text <?= $current_page === 'leave_dashboard.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Leave Requests</a>
 
-        <a href="employee.php" class="bi bi-person-vcard <?= $current_page === 'employee.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Employee</a>
-
         <a href="salary_dashboard.php"
             class="bi bi-coin <?= $current_page === 'salary_dashboard.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Salary</a>
 
-        <a href="inquiries_dashboard.php" class="bi bi-chat-left
-            <?= $current_page === 'inquiries_dashboard.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Inquiries</a>
+        <a href="projects.php" class="bi bi-kanban <?= $current_page === 'projects.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Projects</a>
 
-        <h5 style="margin-top: 1rem;">Users</h5>
-        <a href="admin_user.php" class="bi bi-people <?= $current_page === 'admin_user.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; System Users</a>
+        <a href="profile.php" class="bi bi-person <?= $current_page === 'profile.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Profile</a>
     </div>
 
     <div class="nexgen-sidebar-footer">

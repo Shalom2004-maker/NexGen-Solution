@@ -32,7 +32,7 @@ if ($action === 'update') {
         http_response_code(400);
         die('Start and end dates are required.');
     }
-    if (!in_array($leaveType, ['sick', 'annual', 'unpaid'])) {
+    if (!in_array($leaveType, ['sick', 'annual', 'unpaid', 'personal', 'vacation'])) {
         http_response_code(400);
         die('Invalid leave type.');
     }
@@ -89,4 +89,3 @@ if ($action === 'update') {
 
 header('Location: leave_view.php');
 exit();
-

@@ -28,12 +28,13 @@ include "../includes/db.php";
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Osward", sans-serif;
+        font-family: "Sora", sans-serif;
     }
 
     html,
     body {
-        background-color: #ececece8;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -44,81 +45,87 @@ include "../includes/db.php";
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background-color: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         width: 75%;
         overflow-y: auto;
     }
 
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
     .page-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .page-header h3 {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.35rem;
+        letter-spacing: -0.02em;
     }
 
     .page-header p {
-        color: lightslategray;
+        color: #5b6777;
         margin: 0;
     }
 
     .action-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .action-card {
-        background-color: white;
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 1.8rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        text-align: left;
         text-decoration: none;
-        color: white;
-        transition: all 0.3s ease;
+        color: #0f172a;
+        transition: all 0.2s ease;
     }
 
     .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        border-color: rgba(37, 99, 235, 0.35);
         text-decoration: none;
-        color: white;
+        color: #0f172a;
     }
 
     .action-card i {
-        font-size: 2rem;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.35rem;
         margin-bottom: 1rem;
-        display: block;
+        background: rgba(37, 99, 235, 0.12);
+        color: #1d4ed8;
     }
 
     .action-card h5 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.1rem;
+        margin: 0 0 0.35rem;
+        font-weight: 700;
+        font-size: 1.05rem;
     }
 
-    .action-card.warning {
-        background-color: #ffc107;
-    }
-
-    .action-card.success {
-        background-color: #28a745;
-    }
-
-    .action-card.info {
-        background-color: #007bff;
-    }
-
-    .action-card.danger {
-        background-color: #dc3545;
+    .action-card small {
+        color: #64748b;
     }
 
     .sidebar-toggle {
@@ -160,9 +167,13 @@ include "../includes/db.php";
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             padding-top: 3.5rem;
             width: 100%;
+        }
+
+        .dashboard-shell {
+            padding: 1rem;
         }
 
         .action-grid {
@@ -179,7 +190,7 @@ include "../includes/db.php";
         }
 
         .page-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .action-card {
@@ -187,7 +198,7 @@ include "../includes/db.php";
         }
 
         .action-card i {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
         }
 
         .action-card h5 {
@@ -205,39 +216,41 @@ include "../includes/db.php";
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "admin_siderbar.php"; ?>
+            <?php include "hr_sidebar.php"; ?>
         </div>
 
         <div class="main-content">
-            <div class="page-header">
-                <h3><i class="bi bi-people-fill"></i> HR Dashboard</h3>
-                <p>Manage personnel, approvals, and payroll operations</p>
-            </div>
+            <div class="dashboard-shell">
+                <div class="page-header">
+                    <h3>HR Dashboard</h3>
+                    <p>Manage personnel, approvals, and payroll operations</p>
+                </div>
 
-            <div class="action-grid">
-                <a href="leave_view.php" class="action-card warning">
-                    <i class="bi bi-calendar-check"></i>
-                    <h5>Leave Approvals</h5>
-                    <small>Review and approve employee leave requests</small>
-                </a>
+                <div class="action-grid">
+                    <a href="leave_view.php" class="action-card warning">
+                        <i class="bi bi-calendar-check"></i>
+                        <h5>Leave Approvals</h5>
+                        <small>Review and approve employee leave requests</small>
+                    </a>
 
-                <a href="hr_payroll.php" class="action-card success">
-                    <i class="bi bi-currency-dollar"></i>
-                    <h5>Payroll</h5>
-                    <small>Manage salary and compensation</small>
-                </a>
+                    <a href="hr_payroll.php" class="action-card success">
+                        <i class="bi bi-currency-dollar"></i>
+                        <h5>Payroll</h5>
+                        <small>Manage salary and compensation</small>
+                    </a>
 
-                <a href="inquiries_view.php" class="action-card info">
-                    <i class="bi bi-chat-left-text"></i>
-                    <h5>Inquiries</h5>
-                    <small>View public contact inquiries</small>
-                </a>
+                    <a href="inquiries_dashboard.php" class="action-card info">
+                        <i class="bi bi-chat-left-text"></i>
+                        <h5>Inquiries</h5>
+                        <small>View public contact inquiries</small>
+                    </a>
 
-                <a href="admin_user_view.php" class="action-card danger">
-                    <i class="bi bi-shield-lock"></i>
-                    <h5>System Users</h5>
-                    <small>Manage system user accounts</small>
-                </a>
+                    <a href="admin_user_view.php" class="action-card danger">
+                        <i class="bi bi-shield-lock"></i>
+                        <h5>System Users</h5>
+                        <small>Manage system user accounts</small>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

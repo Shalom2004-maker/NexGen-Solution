@@ -83,9 +83,7 @@ $res = $stmt->get_result();
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -108,13 +106,14 @@ $res = $stmt->get_result();
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
+        font-family: "Sora", sans-serif;
 
     }
 
     html,
     body {
-        background-color: #ececece8;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -125,13 +124,23 @@ $res = $stmt->get_result();
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background-color: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         width: 75%;
         overflow-y: auto;
+    }
+
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
     }
 
     .page-header {
@@ -142,29 +151,31 @@ $res = $stmt->get_result();
     }
 
     .page-header h3 {
-        font-weight: bold;
-        color: #333;
+        font-weight: 700;
+        color: #0f172a;
         margin: 0;
     }
 
     .page-header p {
-        color: lightslategray;
+        color: #5b6777;
         margin: 0;
     }
 
     .filter-container {
-        background-color: white;
-        border-radius: 8px;
+        background-color: #ffffff;
+        border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
     .table-container {
-        background-color: white;
-        border-radius: 8px;
+        background-color: #ffffff;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         overflow-x: auto;
     }
 
@@ -174,11 +185,12 @@ $res = $stmt->get_result();
     }
 
     .table-container th {
-        background-color: #f8f9fa;
+        background-color: #f8fafc;
         padding: 1rem;
         text-align: left;
         border-bottom: 1px solid #d4d4d4;
         font-weight: 600;
+        color: #334155;
     }
 
     .table-container td {
@@ -188,7 +200,7 @@ $res = $stmt->get_result();
 
     .status-badge {
         padding: 0.4rem 0.8rem;
-        border-radius: 4px;
+        border-radius: 999px;
         font-size: 0.85rem;
         font-weight: 600;
         display: inline-block;
@@ -249,7 +261,7 @@ $res = $stmt->get_result();
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             padding-top: 3.5rem;
         }
 
@@ -270,7 +282,7 @@ $res = $stmt->get_result();
         }
 
         .page-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .table-container th,
@@ -289,100 +301,103 @@ $res = $stmt->get_result();
         <div id="sidebarContainer"><?php include "admin_siderbar.php";
                                     ?></div>
         <div class="main-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><?= $role === 'Employee' ? 'Leave Requests' : 'Leave Requests' ?></h3>
-                <?php if ($role === 'Employee'): ?><a href="leave.php" class="btn btn-primary">Apply for Leave</a><?php endif;
+            <div class="dashboard-shell">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><?= $role === 'Employee' ? 'Leave Requests' : 'Leave Requests' ?></h3>
+                    <?php if ($role === 'Employee'): ?><a href="leave.php" class="btn btn-primary">Apply for Leave</a><?php endif;
                                                                                     ?>
-            </div>
-            <!-- Filter -->
-            <form method="GET" class="mb-3 w-100">
-                <div class="d-flex gap-4">
-                    <div class="col-md-4"><select name="status" class="form-control">
-                            <option value="">All Status</option>
-                            <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>Pending
-                            </option>
-                            <option value="leader_approved"
-                                <?= $statusFilter === 'leader_approved' ? 'selected' : '' ?>>
-                                Leader Approved</option>
-                            <option value="hr_approved" <?= $statusFilter === 'hr_approved' ? 'selected' : '' ?>>HR
-                                Approved </option>
-                            <option value="rejected" <?= $statusFilter === 'rejected' ? 'selected' : '' ?>>Rejected
-                            </option>
-                        </select></div>
-                    <div class="col-md-4"><button class="btn btn-outline-secondary">Filter</button></div>
-                    <div class="col-md-4"><?php if ($statusFilter): ?><a href="leave_view.php"
-                            class="btn btn-link">Reset</a><?php endif;
-                                                                    ?></div>
                 </div>
-            </form>
-            <div class="table-responsive rounded shadow border">
-                <table class="table table-striped">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>ID</th><?php if ($role !== 'Employee'): ?>
-                            <th>Employee</th><?php endif; ?>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Leave Type</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th>Applied At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody><?php while ($leave = $res->fetch_assoc()) : ?><tr>
-                            <td><?= htmlspecialchars($leave['id']) ?></td><?php if ($role !== 'Employee'): ?>
-                            <td>
-                                <?= htmlspecialchars($leave['employee_name']) ?></td><?php endif;
+                <!-- Filter -->
+                <form method="GET" class="mb-3 w-100">
+                    <div class="d-flex gap-4">
+                        <div class="col-md-4"><select name="status" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>Pending
+                                </option>
+                                <option value="leader_approved"
+                                    <?= $statusFilter === 'leader_approved' ? 'selected' : '' ?>>
+                                    Leader Approved</option>
+                                <option value="hr_approved" <?= $statusFilter === 'hr_approved' ? 'selected' : '' ?>>HR
+                                    Approved </option>
+                                <option value="rejected" <?= $statusFilter === 'rejected' ? 'selected' : '' ?>>Rejected
+                                </option>
+                            </select></div>
+                        <div class="col-md-4"><button class="btn btn-outline-secondary">Filter</button></div>
+                        <div class="col-md-4"><?php if ($statusFilter): ?><a href="leave_view.php"
+                                class="btn btn-link">Reset</a><?php endif;
+                                                                    ?></div>
+                    </div>
+                </form>
+                <div class="table-responsive rounded shadow border">
+                    <table class="table table-striped">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>ID</th><?php if ($role !== 'Employee'): ?>
+                                <th>Employee</th><?php endif; ?>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Leave Type</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Applied At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody><?php while ($leave = $res->fetch_assoc()) : ?><tr>
+                                <td><?= htmlspecialchars($leave['id']) ?></td><?php if ($role !== 'Employee'): ?>
+                                <td>
+                                    <?= htmlspecialchars($leave['employee_name']) ?></td><?php endif;
                                                                                                     ?><td>
-                                <?= htmlspecialchars($leave['start_date']) ?></td>
-                            <td><?= htmlspecialchars($leave['end_date']) ?></td>
-                            <td><?= htmlspecialchars($leave['leave_type']) ?></td>
-                            <td><?= htmlspecialchars(substr($leave['reason'], 0, 30)) ?><?= strlen($leave['reason']) > 30 ? '...' : '' ?>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge bg-<?= $leave['status'] === 'hr_approved' ? 'success' : ($leave['status'] === 'leader_approved' ? 'warning' : ($leave['status'] === 'rejected' ? 'danger' : 'secondary')) ?>">
-                                    <?= htmlspecialchars($leave['status']) ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($leave['applied_at']) ?>
-                            </td>
-                            <td>
-                                <a href="leave_edit.php?id=<?= $leave['id'] ?>" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> | <i class="bi bi-pen"></i>
-                                </a>
-                                <?php if ($role === 'Employee' && $leave['status'] === 'pending'): ?>
-                                <form method="post" action="leave_delete.php" style="display: inline"
-                                    onsubmit="return confirm('Are you sure you want to cancel this leave request?')">
-                                    <input type="hidden" name="csrf_token"
-                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="leave_id" value="<?= $leave['id'] ?>">
-                                    <button class="btn btn-sm btn-danger">Cancel</button>
-                                </form>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination -->
-            <?php $pages = max(1, ceil($total / $limit));
+                                    <?= htmlspecialchars($leave['start_date']) ?></td>
+                                <td><?= htmlspecialchars($leave['end_date']) ?></td>
+                                <td><?= htmlspecialchars($leave['leave_type']) ?></td>
+                                <td><?= htmlspecialchars(substr($leave['reason'], 0, 30)) ?><?= strlen($leave['reason']) > 30 ? '...' : '' ?>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge bg-<?= $leave['status'] === 'hr_approved' ? 'success' : ($leave['status'] === 'leader_approved' ? 'warning' : ($leave['status'] === 'rejected' ? 'danger' : 'secondary')) ?>">
+                                        <?= htmlspecialchars($leave['status']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($leave['applied_at']) ?>
+                                </td>
+                                <td>
+                                    <a href="leave_edit.php?id=<?= $leave['id'] ?>"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> | <i class="bi bi-pen"></i>
+                                    </a>
+                                    <?php if ($role === 'Employee' && $leave['status'] === 'pending'): ?>
+                                    <form method="post" action="leave_delete.php" style="display: inline"
+                                        onsubmit="return confirm('Are you sure you want to cancel this leave request?')">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="leave_id" value="<?= $leave['id'] ?>">
+                                        <button class="btn btn-sm btn-danger">Cancel</button>
+                                    </form>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <?php $pages = max(1, ceil($total / $limit));
                 $baseUrl = 'leave_view.php?status=' . urlencode($statusFilter);
             ?>
-            <?php if ($pages > 1): ?>
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <?php for ($p = 1; $p <= $pages; $p++) : ?>
-                    <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </nav><?php endif; ?>
+                <?php if ($pages > 1): ?>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <?php for ($p = 1; $p <= $pages; $p++) : ?>
+                        <li class="page-item <?= $p === $page ? 'active' : '' ?>">
+                            <a class="page-link" href="<?= $baseUrl ?>&page=<?= $p ?>"><?= $p ?></a>
+                        </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav><?php endif; ?>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

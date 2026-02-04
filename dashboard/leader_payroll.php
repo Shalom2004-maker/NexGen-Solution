@@ -44,9 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -58,12 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Oswald", sans-serif;
+        font-family: "Sora", sans-serif;
     }
 
     html,
     body {
-        background-color: #ececece8;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -74,36 +73,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background-color: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         width: 75%;
         overflow-y: auto;
     }
 
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
     .page-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .page-header h3 {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.35rem;
+        letter-spacing: -0.02em;
     }
 
     .page-header p {
-        color: lightslategray;
+        color: #5b6777;
         margin: 0;
     }
 
     .form-container {
-        background-color: white;
-        border-radius: 8px;
+        background-color: #ffffff;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        max-width: 640px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .form-control {
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        border-radius: 12px;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: #1d4ed8;
+        box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.15);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+        border: none;
+        border-radius: 999px;
+        font-weight: 600;
+        padding: 0.6rem 1.2rem;
+        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
     }
 
     .sidebar-toggle {
@@ -146,9 +181,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             padding-top: 3.5rem;
             width: 100%;
+        }
+
+        .dashboard-shell {
+            padding: 1rem;
         }
 
         .form-container {
@@ -164,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .page-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .form-container {
@@ -182,10 +221,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "admin_siderbar.php"; ?>
+            <?php include "leader_sidebar.php"; ?>
         </div>
 
         <div class="main-content">
+            <div class="dashboard-shell">
             <div class="page-header">
                 <div>
                     <h3>Payroll Input</h3>
@@ -235,6 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
                 </form>
+            </div>
             </div>
         </div>
     </div>

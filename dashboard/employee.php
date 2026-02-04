@@ -2,6 +2,108 @@
 include "../includes/auth.php";
 allow("Employee");
 include "../includes/db.php";
+
+$create_error = '';
+$create_success = '';
+
+// ensure CSRF token exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
+    $posted_token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
+        $create_error = 'Invalid request (CSRF).';
+    } else {
+        $name = trim($_POST['full_name'] ?? '');
+        $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
+        $password = $_POST['password'] ?? '';
+        $job_title = trim($_POST['job_title'] ?? '');
+        $department = trim($_POST['department'] ?? '');
+        $hire_date = $_POST['hire_date'] ?? null;
+        $salary_base = isset($_POST['salary_base']) ? (float)$_POST['salary_base'] : 0.0;
+        $status = ($_POST['status'] ?? 'active') === 'resigned' ? 'resigned' : 'active';
+
+        if ($name === '' || strlen($name) < 2) {
+            $create_error = 'Enter a valid full name.';
+        } elseif (!$email) {
+            $create_error = 'Enter a valid email address.';
+        } elseif (strlen($password) < 6) {
+            $create_error = 'Password must be at least 6 characters.';
+        } elseif ($job_title === '') {
+            $create_error = 'Job title is required.';
+        } elseif ($department === '') {
+            $create_error = 'Department is required.';
+        } elseif ($hire_date === '' || $hire_date === null) {
+            $create_error = 'Hire date is required.';
+        } elseif ($salary_base < 0) {
+            $create_error = 'Salary must be 0 or higher.';
+        }
+
+        if (empty($create_error)) {
+            $role_stmt = $conn->prepare("SELECT id FROM roles WHERE role_name = 'Employee' LIMIT 1");
+            if ($role_stmt && $role_stmt->execute()) {
+                $role_result = $role_stmt->get_result();
+                $role_row = $role_result->fetch_assoc();
+                $role_id = (int)($role_row['id'] ?? 0);
+                $role_stmt->close();
+            } else {
+                $role_id = 0;
+            }
+
+            if ($role_id <= 0) {
+                $create_error = 'Employee role not found. Please contact admin.';
+            }
+        }
+
+        if (empty($create_error)) {
+            $dup_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            if ($dup_stmt) {
+                $dup_stmt->bind_param('s', $email);
+                $dup_stmt->execute();
+                $dup_stmt->store_result();
+                if ($dup_stmt->num_rows > 0) {
+                    $create_error = 'A user with that email already exists.';
+                }
+                $dup_stmt->close();
+            }
+        }
+
+        if (empty($create_error)) {
+            $conn->begin_transaction();
+            try {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $u_stmt = $conn->prepare("INSERT INTO users(full_name, email, password_hash, role_id) VALUES(?,?,?,?)");
+                if (!$u_stmt) {
+                    throw new Exception('Failed to create user.');
+                }
+                $u_stmt->bind_param("sssi", $name, $email, $hash, $role_id);
+                if (!$u_stmt->execute()) {
+                    throw new Exception('Failed to create user.');
+                }
+                $user_id = (int)$u_stmt->insert_id;
+                $u_stmt->close();
+
+                $e_stmt = $conn->prepare("INSERT INTO employees(user_id, job_title, department, hire_date, salary_base, status) VALUES(?,?,?,?,?,?)");
+                if (!$e_stmt) {
+                    throw new Exception('Failed to create employee record.');
+                }
+                $e_stmt->bind_param("isssds", $user_id, $job_title, $department, $hire_date, $salary_base, $status);
+                if (!$e_stmt->execute()) {
+                    throw new Exception('Failed to create employee record.');
+                }
+                $e_stmt->close();
+
+                $conn->commit();
+                $create_success = 'Employee created successfully.';
+            } catch (Exception $ex) {
+                $conn->rollback();
+                $create_error = $ex->getMessage();
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,9 +117,7 @@ include "../includes/db.php";
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -39,13 +139,13 @@ include "../includes/db.php";
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
+        font-family: "Sora", sans-serif;
     }
 
     html,
     body {
-        background-color: #ececece8;
-        color: #333;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -56,122 +156,209 @@ include "../includes/db.php";
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         width: 75%;
         overflow-y: auto;
     }
 
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
     .page-header {
-        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .page-header h3 {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #333;
+        margin-bottom: 0.4rem;
+        color: #0f172a;
+        letter-spacing: -0.02em;
     }
 
     .page-header p {
-        color: lightslategray;
+        color: #5b6777;
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
-    /* Metric Cards */
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+        color: #fff;
+        border: none;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
+    }
+
+    .btn-primary-custom:hover {
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-custom {
+        border: 1px solid rgba(15, 23, 42, 0.2);
+        color: #0f172a;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        font-weight: 600;
+        background: #fff;
+    }
+
+    .alert-custom {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
     .stat-card {
         background: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.15s ease;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.4rem;
+        transition: all 0.2s ease;
         position: relative;
         overflow: hidden;
+        min-height: 150px;
     }
 
     .stat-card:hover {
-        transform: translateY(-3px);
-        border-color: #337ccfe2;
-        box-shadow: 0 6px 20px rgba(51, 124, 207, 0.08);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        border-color: rgba(37, 99, 235, 0.45);
     }
 
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 60px;
-        height: 60px;
-        background: rgba(51, 124, 207, 0.06);
-        border-radius: 50%;
-        transform: translate(18px, -18px);
+    .stat-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(37, 99, 235, 0.12);
+        color: #1d4ed8;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
     }
 
     .stat-card h6 {
         font-weight: 600;
-        color: #666;
-        margin-bottom: 1rem;
-        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.12em;
     }
 
     .stat-card h4 {
-        color: #337ccfe2;
+        color: #0f172a;
         margin-bottom: 0.5rem;
         font-size: 2rem;
         font-weight: 700;
     }
 
     .stat-card p {
-        color: #777;
+        color: #6b7280;
         font-size: 0.85rem;
         margin: 0;
     }
 
-    .stat-icon {
-        float: right;
-        font-size: 1.8rem;
-        color: #337ccfe2;
-        margin-top: -2.5rem;
+    .quick-actions {
+        background: #ffffff;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .quick-actions h5 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 0;
+        color: #0f172a;
     }
 
-    /* Content Cards */
+    .quick-actions .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .action-link {
+        border: 1px solid rgba(30, 41, 59, 0.15);
+        padding: 0.55rem 0.95rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        background: #f8fafc;
+        text-decoration: none;
+    }
+
+    .action-link:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
     .content-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        gap: 1.5rem;
     }
 
     .card-container {
         background-color: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
-        padding: 1.5rem;
-        transition: all 0.15s ease;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.4rem;
+        transition: all 0.2s ease;
     }
 
     .card-container:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
     .card-container h4 {
         font-weight: 700;
-        color: #333;
-        margin-bottom: 1.5rem;
-        font-size: 1.15rem;
+        color: #0f172a;
+        margin-bottom: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .list-group {
@@ -181,27 +368,26 @@ include "../includes/db.php";
     }
 
     .list-group-item {
-        border: 1px solid #d4d4d4;
-        border-left: 3px solid #337ccfe2;
-        border-radius: 5px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 12px;
         padding: 0.9rem;
         background: #fff;
         transition: all 0.12s ease;
     }
 
     .list-group-item:hover {
-        background: #fbfdff;
-        transform: translateX(3px);
+        background: #f8fafc;
+        transform: translateX(2px);
     }
 
     .list-group-item strong {
-        color: #333;
+        color: #0f172a;
         display: block;
         margin-bottom: 0.25rem;
     }
 
     .list-group-item small {
-        color: #777;
+        color: #6b7280;
         font-size: 0.85rem;
     }
 
@@ -209,7 +395,7 @@ include "../includes/db.php";
         font-weight: 600;
         padding: 0.35rem 0.65rem;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
     }
 
     .bg-warning {
@@ -217,11 +403,11 @@ include "../includes/db.php";
     }
 
     .bg-success {
-        background-color: #4ade80 !important;
+        background-color: #22c55e !important;
     }
 
     .bg-secondary {
-        background-color: #6b7280 !important;
+        background-color: #64748b !important;
     }
 
     .bg-danger {
@@ -229,11 +415,45 @@ include "../includes/db.php";
     }
 
     .text-dark {
-        color: #1f2937 !important;
+        color: #0f172a !important;
     }
 
     .text-muted {
-        color: #999 !important;
+        color: #94a3b8 !important;
+    }
+
+    .modal-content {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: 0 30px 50px rgba(15, 23, 42, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+        background: linear-gradient(135deg, rgba(29, 78, 216, 0.1), rgba(14, 116, 144, 0.08));
+    }
+
+    .modal-title {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .modal-body label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.35rem;
+    }
+
+    .modal-body .form-control,
+    .modal-body .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        padding: 0.65rem 0.8rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(148, 163, 184, 0.3);
     }
 
     .sidebar-toggle {
@@ -276,17 +496,22 @@ include "../includes/db.php";
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             padding-top: 3.5rem;
             width: 100%;
-            padding-left: 1.5rem;
+            padding-left: 1.25rem;
+        }
+
+        .dashboard-shell {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .page-header h3 {
-            font-size: 1.5rem;
-        }
-
-        .stat-card h4 {
             font-size: 1.6rem;
         }
 
@@ -303,6 +528,11 @@ include "../includes/db.php";
         .card-container {
             padding: 1rem;
         }
+
+        .quick-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 
     @media (max-width: 576px) {
@@ -313,7 +543,7 @@ include "../includes/db.php";
         }
 
         .page-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .stat-card {
@@ -347,176 +577,305 @@ include "../includes/db.php";
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "admin_siderbar.php"; ?>
+            <?php include "employee_sidebar.php"; ?>
         </div>
 
         <div class="main-content">
-            <div class="page-header">
-                <h3><i class="bi bi-speedometer2"></i> Employee Dashboard</h3>
-                <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's what's happening
-                    today.</p>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h6>Pending Tasks <i class="bi bi-stopwatch-fill stat-icon"></i></h6>
-                    <?php
-                    $id = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 1;
-                    $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'in_progress' AND assigned_to = ?");
-                    if ($stmt) {
-                        $stmt->bind_param('i', $id);
-                        $stmt->execute();
-                        $stmt->bind_result($count);
-                        $stmt->fetch();
-                        $count = (int)($count ?? 0);
-                        echo "<h4>{$count}</h4>";
-                        echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
-                        $stmt->close();
-                    } else {
-                        echo "<p>DB error</p>";
-                    }
-                    ?>
+            <div class="dashboard-shell">
+                <div class="page-header">
+                    <div>
+                        <h3>Employee Dashboard</h3>
+                        <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's your live
+                            workspace overview.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary-custom" data-bs-toggle="modal"
+                            data-bs-target="#createEmployeeModal">
+                            <i class="bi bi-person-plus"></i> Create Employee
+                        </button>
+                        <a class="btn btn-outline-custom" href="profile.php">
+                            <i class="bi bi-person-circle"></i> My Profile
+                        </a>
+                    </div>
                 </div>
 
-                <div class="stat-card">
-                    <h6>Completed Tasks <i class="bi bi-ui-checks stat-icon"></i></h6>
-                    <?php
-                    $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
-                    if ($stmt) {
-                        $stmt->bind_param('i', $id);
-                        $stmt->execute();
-                        $stmt->bind_result($count);
-                        $stmt->fetch();
-                        $count = (int)($count ?? 0);
-                        echo "<h4>{$count}</h4>";
-                        echo "<p>" . ($count >= 1 ? "Great job!" : "No tasks completed yet") . "</p>";
-                        $stmt->close();
-                    } else {
-                        echo "<p>DB error</p>";
-                    }
-                    ?>
+                <?php if (!empty($create_error)) : ?>
+                <div class="alert alert-danger alert-custom"><?= htmlspecialchars($create_error) ?></div>
+                <?php elseif (!empty($create_success)) : ?>
+                <div class="alert alert-success alert-custom"><?= htmlspecialchars($create_success) ?></div>
+                <?php endif; ?>
+
+                <div class="quick-actions">
+                    <h5>Quick Actions</h5>
+                    <div class="action-buttons">
+                        <a class="action-link" href="tasks_dashboard.php"><i class="bi bi-list-check"></i> Tasks</a>
+                        <a class="action-link" href="leave_dashboard.php"><i class="bi bi-calendar2-check"></i>
+                            Leave</a>
+                        <a class="action-link" href="salary.php"><i class="bi bi-coin"></i> Salary</a>
+                        <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> Inquiries</a>
+                    </div>
                 </div>
 
-                <div class="stat-card">
-                    <h6>Leave Requests <i class="bi bi-suitcase-lg-fill stat-icon"></i></h6>
-                    <?php
-                    $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
-                    if ($stmt) {
-                        $stmt->bind_param('i', $id);
-                        $stmt->execute();
-                        $stmt->bind_result($count);
-                        $stmt->fetch();
-                        $count = (int)($count ?? 0);
-                        echo "<h4>{$count}</h4>";
-                        echo "<p>" . ($count >= 1 ? "Submitted leave requests" : "No leave requests yet") . "</p>";
-                        $stmt->close();
-                    } else {
-                        echo "<p>DB error</p>";
-                    }
-                    ?>
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
+                        <h6>Pending Tasks</h6>
+                        <?php
+                        $id = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 1;
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'in_progress' AND assigned_to = ?");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4>{$count}</h4>";
+                            echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
+                            $stmt->close();
+                        } else {
+                            echo "<p>DB error</p>";
+                        }
+                        ?>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-badge"><i class="bi bi-ui-checks"></i></div>
+                        <h6>Completed Tasks</h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4>{$count}</h4>";
+                            echo "<p>" . ($count >= 1 ? "Great job!" : "No tasks completed yet") . "</p>";
+                            $stmt->close();
+                        } else {
+                            echo "<p>DB error</p>";
+                        }
+                        ?>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-badge"><i class="bi bi-suitcase-lg-fill"></i></div>
+                        <h6>Leave Requests</h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4>{$count}</h4>";
+                            echo "<p>" . ($count >= 1 ? "Submitted leave requests" : "No leave requests yet") . "</p>";
+                            $stmt->close();
+                        } else {
+                            echo "<p>DB error</p>";
+                        }
+                        ?>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-badge"><i class="bi bi-coin"></i></div>
+                        <h6>Salary Slips</h6>
+                        <?php
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips");
+                        if ($stmt) {
+                            $stmt->execute();
+                            $stmt->bind_result($count);
+                            $stmt->fetch();
+                            $count = (int)($count ?? 0);
+                            echo "<h4>" . number_format($count) . "</h4>";
+                            echo "<p>" . ($count >= 1 ? "Records available" : "No salary data") . "</p>";
+                            $stmt->close();
+                        } else {
+                            echo "<p>DB error</p>";
+                        }
+                        ?>
+                    </div>
                 </div>
 
-                <div class="stat-card">
-                    <h6>Latest Salaries <i class="bi bi-coin stat-icon"></i></h6>
-                    <?php
-                    $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips");
-                    if ($stmt) {
-                        $stmt->execute();
-                        $stmt->bind_result($count);
-                        $stmt->fetch();
-                        $count = (int)($count ?? 0);
-                        echo "<h4>$" . number_format($count) . "</h4>";
-                        echo "<p>" . ($count >= 1 ? "Salary credited" : "No salary data") . "</p>";
-                        $stmt->close();
-                    } else {
-                        echo "<p>DB error</p>";
-                    }
-                    ?>
-                </div>
-            </div>
-
-            <!-- Content Grid -->
-            <div class="content-grid">
-                <div class="card-container">
-                    <h4><i class="bi bi-list-check"></i> Recent Tasks</h4>
-                    <?php
-                    $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
-                    if ($stmt) {
-                        $stmt->bind_param('i', $id);
-                        $stmt->execute();
-                        $stmt->bind_result($title, $status, $created_at);
-                        $has_tasks = false;
-                        echo '<div class="list-group">';
-                        while ($stmt->fetch()) {
-                            $has_tasks = true;
-                            $status_badge = '';
-                            if ($status === 'in_progress') {
-                                $status_badge = '<span class="badge bg-warning text-dark">In Progress</span>';
-                            } elseif ($status === 'done') {
-                                $status_badge = '<span class="badge bg-success">Completed</span>';
-                            } else {
-                                $status_badge = '<span class="badge bg-secondary">To Do</span>';
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <div class="card-container">
+                        <h4><i class="bi bi-list-check"></i> Recent Tasks</h4>
+                        <?php
+                        $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($title, $status, $created_at);
+                            $has_tasks = false;
+                            echo '<div class="list-group">';
+                            while ($stmt->fetch()) {
+                                $has_tasks = true;
+                                $status_badge = '';
+                                if ($status === 'in_progress') {
+                                    $status_badge = '<span class="badge bg-warning text-dark">In Progress</span>';
+                                } elseif ($status === 'done') {
+                                    $status_badge = '<span class="badge bg-success">Completed</span>';
+                                } else {
+                                    $status_badge = '<span class="badge bg-secondary">To Do</span>';
+                                }
+                                echo '<div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>' . htmlspecialchars($title) . '</strong><br>
+                                            <small>Due: ' . htmlspecialchars($created_at ?? 'Not set') . '</small>
+                                        </div>
+                                        <div>' . $status_badge . '</div>
+                                      </div>';
                             }
-                            echo '<div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>' . htmlspecialchars($title) . '</strong><br>
-                                        <small>Due: ' . htmlspecialchars($created_at ?? 'Not set') . '</small>
-                                    </div>
-                                    <div>' . $status_badge . '</div>
-                                  </div>';
-                        }
-                        if (!$has_tasks) {
-                            echo '<p class="text-muted">No tasks assigned yet.</p>';
-                        }
-                        echo '</div>';
-                        $stmt->close();
-                    } else {
-                        echo '<p>DB error</p>';
-                    }
-                    ?>
-                </div>
-
-                <div class="card-container">
-                    <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
-                    <?php
-                    $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
-                    if ($stmt) {
-                        $stmt->bind_param('i', $id);
-                        $stmt->execute();
-                        $stmt->bind_result($reason, $start_date, $end_date, $status);
-                        $has_leaves = false;
-                        echo '<div class="list-group">';
-                        while ($stmt->fetch()) {
-                            $has_leaves = true;
-                            $status_badge = '';
-                            if ($status === 'pending') {
-                                $status_badge = '<span class="badge bg-warning text-dark">Pending</span>';
-                            } elseif ($status === 'approved') {
-                                $status_badge = '<span class="badge bg-success">Approved</span>';
-                            } else {
-                                $status_badge = '<span class="badge bg-danger">Rejected</span>';
+                            if (!$has_tasks) {
+                                echo '<p class="text-muted">No tasks assigned yet.</p>';
                             }
-                            $start_date_str = ($start_date instanceof DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
-                            $end_date_str = ($end_date instanceof DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
-                            echo '<div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>' . htmlspecialchars($reason) . '</strong><br>
-                                        <small>' . htmlspecialchars($start_date_str) . ' to ' . htmlspecialchars($end_date_str) . '</small>
-                                    </div>
-                                    <div>' . $status_badge . '</div>
-                                  </div>';
+                            echo '</div>';
+                            $stmt->close();
+                        } else {
+                            echo '<p>DB error</p>';
                         }
-                        if (!$has_leaves) {
-                            echo '<p class="text-muted">No leave requests submitted yet.</p>';
+                        ?>
+                    </div>
+
+                    <div class="card-container">
+                        <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
+                        <?php
+                        $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
+                        if ($stmt) {
+                            $stmt->bind_param('i', $id);
+                            $stmt->execute();
+                            $stmt->bind_result($reason, $start_date, $end_date, $status);
+                            $has_leaves = false;
+                            echo '<div class="list-group">';
+                            while ($stmt->fetch()) {
+                                $has_leaves = true;
+                                $status_badge = '';
+                                if ($status === 'pending') {
+                                    $status_badge = '<span class="badge bg-warning text-dark">Pending</span>';
+                                } elseif ($status === 'approved') {
+                                    $status_badge = '<span class="badge bg-success">Approved</span>';
+                                } else {
+                                    $status_badge = '<span class="badge bg-danger">Rejected</span>';
+                                }
+                                $start_date_str = ($start_date instanceof DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
+                                $end_date_str = ($end_date instanceof DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
+                                echo '<div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>' . htmlspecialchars($reason) . '</strong><br>
+                                            <small>' . htmlspecialchars($start_date_str) . ' to ' . htmlspecialchars($end_date_str) . '</small>
+                                        </div>
+                                        <div>' . $status_badge . '</div>
+                                      </div>';
+                            }
+                            if (!$has_leaves) {
+                                echo '<p class="text-muted">No leave requests submitted yet.</p>';
+                            }
+                            echo '</div>';
+                            $stmt->close();
+                        } else {
+                            echo '<p>DB error</p>';
                         }
-                        echo '</div>';
-                        $stmt->close();
-                    } else {
-                        echo '<p>DB error</p>';
-                    }
-                    ?>
+                        ?>
+                    </div>
+
+                    <div class="card-container">
+                        <h4><i class="bi bi-people"></i> Newest Employees</h4>
+                        <?php
+                        $stmt = $conn->prepare("SELECT u.full_name, u.email, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.id DESC LIMIT 5");
+                        if ($stmt) {
+                            $stmt->execute();
+                            $stmt->bind_result($emp_name, $emp_email, $emp_department, $emp_job, $emp_hire);
+                            $has_employees = false;
+                            echo '<div class="list-group">';
+                            while ($stmt->fetch()) {
+                                $has_employees = true;
+                                $emp_hire_str = ($emp_hire instanceof DateTime) ? $emp_hire->format('Y-m-d') : (string)($emp_hire ?? 'Not set');
+                                echo '<div class="list-group-item">
+                                        <strong>' . htmlspecialchars($emp_name) . '</strong>
+                                        <small>' . htmlspecialchars($emp_job ?? 'Not set') . ' - ' . htmlspecialchars($emp_department ?? 'Not set') . '</small><br>
+                                        <small>' . htmlspecialchars($emp_email ?? 'Not set') . ' - Hired: ' . htmlspecialchars($emp_hire_str) . '</small>
+                                      </div>';
+                            }
+                            if (!$has_employees) {
+                                echo '<p class="text-muted">No employee records yet.</p>';
+                            }
+                            echo '</div>';
+                            $stmt->close();
+                        } else {
+                            echo '<p>DB error</p>';
+                        }
+                        ?>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Employee Modal -->
+    <div class="modal fade" id="createEmployeeModal" tabindex="-1" aria-labelledby="createEmployeeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createEmployeeModalLabel">Create New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    <div class="modal-body">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="create_employee" value="1">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="full_name" class="form-control" required
+                                    placeholder="e.g. Jane Doe">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" required
+                                    placeholder="e.g. jane@company.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password *</label>
+                                <input type="password" name="password" class="form-control" required minlength="6"
+                                    placeholder="Minimum 6 characters">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Job Title *</label>
+                                <input type="text" name="job_title" class="form-control" required
+                                    placeholder="e.g. UI Designer">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department *</label>
+                                <input type="text" name="department" class="form-control" required
+                                    placeholder="e.g. Design">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Hire Date *</label>
+                                <input type="date" name="hire_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Base Salary *</label>
+                                <input type="number" name="salary_base" class="form-control" required min="0"
+                                    step="0.01" placeholder="e.g. 55000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="active" selected>Active</option>
+                                    <option value="resigned">Resigned</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-custom">Create Employee</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -556,6 +915,15 @@ include "../includes/db.php";
                     }
                 });
             });
+        }
+
+        const showCreateModal = <?= !empty($create_error) ? 'true' : 'false' ?>;
+        if (showCreateModal) {
+            const createModal = document.getElementById('createEmployeeModal');
+            if (createModal && window.bootstrap) {
+                const modalInstance = new bootstrap.Modal(createModal);
+                modalInstance.show();
+            }
         }
     });
     </script>

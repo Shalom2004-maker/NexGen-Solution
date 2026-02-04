@@ -60,9 +60,7 @@ $projects = [
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -85,13 +83,13 @@ $projects = [
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
+        font-family: "Sora", sans-serif;
     }
 
     html,
     body {
-        background-color: #ececece8;
-        color: #333;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -102,47 +100,63 @@ $projects = [
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background-color: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         overflow-x: hidden;
         width: 75%;
     }
 
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
     .page-header {
-        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .page-header h2 {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #333;
+        margin-bottom: 0.35rem;
+        color: #0f172a;
+        letter-spacing: -0.02em;
     }
 
     .page-header p {
-        color: lightslategray;
-        font-size: 0.9rem;
+        color: #5b6777;
+        font-size: 0.95rem;
+        margin: 0;
     }
 
     /* Metric Cards */
     .metric-card {
         background: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
-        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.4rem;
         margin-bottom: 1.5rem;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
         position: relative;
         overflow: hidden;
     }
 
     .metric-card:hover {
         transform: translateY(-3px);
-        border-color: #337ccfe2;
-        box-shadow: 0 6px 20px rgba(51, 124, 207, 0.08);
+        border-color: rgba(37, 99, 235, 0.4);
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
     }
 
     .metric-card::before {
@@ -150,32 +164,32 @@ $projects = [
         position: absolute;
         top: 0;
         right: 0;
-        width: 60px;
-        height: 60px;
-        background: rgba(51, 124, 207, 0.06);
-        border-radius: 50%;
-        transform: translate(18px, -18px);
+        width: 70px;
+        height: 70px;
+        background: rgba(37, 99, 235, 0.08);
+        border-radius: 20px;
+        transform: translate(18px, -20px);
     }
 
     .metric-icon {
-        font-size: 1.8rem;
-        color: #337ccfe2;
-        margin-bottom: 0.5rem;
+        font-size: 1.6rem;
+        color: #1d4ed8;
+        margin-bottom: 0.6rem;
     }
 
     .metric-label {
-        color: #666;
-        font-size: 0.85rem;
+        color: #64748b;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+        letter-spacing: 0.12em;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
     }
 
     .metric-value {
         font-size: 2rem;
         font-weight: 700;
-        color: #337ccfe2;
+        color: #0f172a;
         margin-bottom: 0.25rem;
     }
 
@@ -190,11 +204,11 @@ $projects = [
 
     /* Section Title */
     .section-title {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 700;
         margin-top: 1rem;
-        margin-bottom: 1.7rem;
-        color: #333;
+        margin-bottom: 1.4rem;
+        color: #0f172a;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -202,30 +216,29 @@ $projects = [
 
     .section-title a {
         font-size: 0.85rem;
-        color: #337ccfe2;
+        color: #1d4ed8;
         text-decoration: none;
         transition: all 0.15s ease;
     }
 
     .section-title a:hover {
-        color: #2563a8;
+        color: #0f172a;
     }
 
     /* Recent Tasks */
     .task-list {
         background: #ffffff;
         border: 1px solid #d4d4d4;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         margin-bottom: 2rem;
     }
 
     .task-item {
         padding: 0.9rem;
-        border-left: 3px solid #337ccfe2;
+        border: 1px solid rgba(148, 163, 184, 0.35);
         background: #fff;
-        box-shadow: 0 0 3px lightslategray inset;
-        border-radius: 4px;
+        border-radius: 12px;
         margin-bottom: 0.9rem;
         transition: all 0.12s ease;
     }
@@ -235,18 +248,18 @@ $projects = [
     }
 
     .task-item:hover {
-        background: #fbfdff;
-        transform: translateX(3px);
+        background: #f8fafc;
+        transform: translateX(2px);
     }
 
     .task-title {
         font-weight: 600;
-        color: #333;
+        color: #0f172a;
         margin-bottom: 0.25rem;
     }
 
     .task-meta {
-        color: #777;
+        color: #64748b;
         font-size: 0.85rem;
     }
 
@@ -278,8 +291,8 @@ $projects = [
     /* Leave Requests */
     .leave-card {
         background: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 12px;
         padding: 1rem;
         margin-bottom: 1rem;
     }
@@ -290,12 +303,12 @@ $projects = [
 
     .leave-requestor {
         font-weight: 600;
-        color: #333;
+        color: #0f172a;
         margin-bottom: 0.25rem;
     }
 
     .leave-dates {
-        color: #777;
+        color: #64748b;
         font-size: 0.85rem;
         margin-bottom: 0.5rem;
     }
@@ -303,17 +316,17 @@ $projects = [
     .leave-type {
         display: inline-block;
         padding: 0.25rem 0.75rem;
-        border-radius: 20px;
+        border-radius: 999px;
         font-size: 0.75rem;
         font-weight: 600;
-        background-color: #337ccfe2;
+        background-color: #1d4ed8;
         color: white;
     }
 
     .leave-status {
         display: inline-block;
         padding: 0.25rem 0.75rem;
-        border-radius: 20px;
+        border-radius: 999px;
         font-size: 0.75rem;
         font-weight: 600;
         margin-left: 0.5rem;
@@ -336,7 +349,7 @@ $projects = [
 
     .project-name {
         font-weight: 600;
-        color: #333;
+        color: #0f172a;
         margin-bottom: 0.5rem;
         display: flex;
         justify-content: space-between;
@@ -344,15 +357,15 @@ $projects = [
 
     .progress {
         height: 8px;
-        background-color: #e6f0fb;
-        border-radius: 5px;
+        background-color: #e2e8f0;
+        border-radius: 999px;
         overflow: hidden;
     }
 
     .progress-bar {
-        background: linear-gradient(90deg, #337ccfe2, #4a9eff);
+        background: linear-gradient(90deg, #1d4ed8, #0ea5a4);
         height: 100%;
-        border-radius: 5px;
+        border-radius: 999px;
         transition: width 1s ease;
     }
 
@@ -366,27 +379,27 @@ $projects = [
 
     .action-btn {
         background: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
-        padding: 1.25rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.2rem;
         text-align: center;
         transition: all 0.12s ease;
         text-decoration: none;
-        color: #333;
+        color: #0f172a;
         cursor: pointer;
     }
 
     .action-btn:hover {
-        background: #fbfdff;
-        border-color: #337ccfe2;
+        background: #f8fafc;
+        border-color: rgba(37, 99, 235, 0.4);
         transform: translateY(-3px);
-        box-shadow: 0 6px 18px rgba(51, 124, 207, 0.06);
-        color: #333;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        color: #0f172a;
     }
 
     .action-icon {
-        font-size: 1.8rem;
-        color: #337ccfe2;
+        font-size: 1.6rem;
+        color: #1d4ed8;
         margin-bottom: 0.5rem;
         display: block;
     }
@@ -406,7 +419,7 @@ $projects = [
         color: white;
         border: none;
         padding: 0.6rem 0.8rem;
-        border-radius: 5px;
+        border-radius: 12px;
         cursor: pointer;
         font-size: 1.25rem;
     }
@@ -436,14 +449,23 @@ $projects = [
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             width: 100%;
             padding-top: 3.5rem;
-            padding-left: 1.5rem;
+            padding-left: 1.25rem;
+        }
+
+        .dashboard-shell {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .page-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
         }
 
         .metric-value {
@@ -467,7 +489,7 @@ $projects = [
         }
 
         .page-header h2 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .metric-card {
@@ -497,136 +519,143 @@ $projects = [
         </div>
 
         <div class="main-content">
-            <div class="page-header">
-                <h2>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Admin') ?></h2>
-                <p>Here's what's happening in your workspace today.</p>
-            </div>
-
-            <!-- Metrics Cards -->
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-people metric-icon"></i>
-                        <div class="metric-label">Total Employees</div>
-                        <div class="metric-value"><?= $total_employees ?></div>
-                        <div class="metric-change"><i class="bi bi-arrow-up"></i> 12% vs last month</div>
+            <div class="dashboard-shell">
+                <div class="page-header">
+                    <div>
+                        <h2>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Admin') ?></h2>
+                        <p>Here's what's happening in your workspace today.</p>
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-clipboard-check metric-icon"></i>
-                        <div class="metric-label">Active Tasks</div>
-                        <div class="metric-value"><?= $active_tasks ?></div>
-                        <div class="metric-change"><i class="bi bi-arrow-up"></i> 8% vs last month</div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-calendar-event metric-icon"></i>
-                        <div class="metric-label">Pending Leaves</div>
-                        <div class="metric-value"><?= $pending_leaves ?></div>
-                        <div class="metric-change"><i class="bi bi-arrow-down"></i> 3% vs last month</div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-graph-up metric-icon"></i>
-                        <div class="metric-label">Performance</div>
-                        <div class="metric-value"><?= $performance_rating ?>%</div>
-                        <div class="metric-change"><i class="bi bi-arrow-up"></i> 3% vs last month</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="section-title">
-                <span>Quick Actions</span>
-            </div>
-            <div class="quick-actions">
-                <a href="admin_user.php" class="action-btn">
-                    <i class="bi bi-plus-circle action-icon"></i>
-                    <span class="action-label">New Task</span>
-                </a>
-                <a href="admin_user_view.php" class="action-btn">
-                    <i class="bi bi-file-earmark action-icon"></i>
-                    <span class="action-label">Request Leave</span>
-                </a>
-                <a href="admin_user_view.php" class="action-btn">
-                    <i class="bi bi-chat-left action-icon"></i>
-                    <span class="action-label">Submit Inquiry</span>
-                </a>
-                <a href="admin_user_view.php" class="action-btn">
-                    <i class="bi bi-bar-chart action-icon"></i>
-                    <span class="action-label">View Reports</span>
-                </a>
-            </div>
-
-            <!-- Recent Tasks and Leave Requests -->
-            <div class="row">
-                <div class="col-lg-7 col-md-12 col-12">
-                    <div class="task-list">
-                        <div class="section-title">
-                            <span>Recent Tasks</span>
-                            <a href="tasks.php">View All &nbsp; ↗</a>
+                <!-- Metrics Cards -->
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <div class="metric-card">
+                            <i class="bi bi-people metric-icon"></i>
+                            <div class="metric-label">Total Employees</div>
+                            <div class="metric-value"><?= $total_employees ?></div>
+                            <div class="metric-change"><i class="bi bi-arrow-up"></i> 12% vs last month</div>
                         </div>
+                    </div>
 
-                        <?php
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <div class="metric-card">
+                            <i class="bi bi-clipboard-check metric-icon"></i>
+                            <div class="metric-label">Active Tasks</div>
+                            <div class="metric-value"><?= $active_tasks ?></div>
+                            <div class="metric-change"><i class="bi bi-arrow-up"></i> 8% vs last month</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <div class="metric-card">
+                            <i class="bi bi-calendar-event metric-icon"></i>
+                            <div class="metric-label">Pending Leaves</div>
+                            <div class="metric-value"><?= $pending_leaves ?></div>
+                            <div class="metric-change"><i class="bi bi-arrow-down"></i> 3% vs last month</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <div class="metric-card">
+                            <i class="bi bi-graph-up metric-icon"></i>
+                            <div class="metric-label">Performance</div>
+                            <div class="metric-value"><?= $performance_rating ?>%</div>
+                            <div class="metric-change"><i class="bi bi-arrow-up"></i> 3% vs last month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-title">
+                    <span>Quick Actions</span>
+                </div>
+                <div class="quick-actions">
+                    <a href="tasks_dashboard.php" class="action-btn">
+                        <i class="bi bi-plus-circle action-icon"></i>
+                        <span class="action-label">New Task</span>
+                    </a>
+                    <a href="leave_dashboard.php" class="action-btn">
+                        <i class="bi bi-file-earmark action-icon"></i>
+                        <span class="action-label">Request Leave</span>
+                    </a>
+                    <a href="inquiries_dashboard.php" class="action-btn">
+                        <i class="bi bi-chat-left action-icon"></i>
+                        <span class="action-label">Submit Inquiry</span>
+                    </a>
+                    <a href="projects.php" class="action-btn">
+                        <i class="bi bi-bar-chart action-icon"></i>
+                        <span class="action-label">View Projects</span>
+                    </a>
+                    <a href="admin_user_view.php" class="action-btn">
+                        <i class="bi bi-people action-icon"></i>
+                        <span class="action-label">View Users</span>
+                    </a>
+                </div>
+
+                <!-- Recent Tasks and Leave Requests -->
+                <div class="row">
+                    <div class="col-lg-7 col-md-12 col-12">
+                        <div class="task-list">
+                            <div class="section-title">
+                                <span>Recent Tasks</span>
+                                <a href="tasks_dashboard.php">View All &nbsp; ↗</a>
+                            </div>
+
+                            <?php
                         if ($recent_tasks && $recent_tasks->num_rows > 0):
                             while ($task = $recent_tasks->fetch_assoc()):
                                 $priority_class = strtolower($task['priority'] ?? 'medium');
                         ?>
-                        <div class="task-item">
-                            <div class="task-title"><?= htmlspecialchars($task['title'] ?? 'Untitled Task') ?></div>
-                            <div class="task-meta"><i class="bi bi-calendar3"></i> Today</div>
-                            <span class="task-priority <?= $priority_class ?>">
-                                <?= htmlspecialchars($task['priority'] ?? 'Medium') ?>
-                            </span>
-                        </div>
-                        <?php
+                            <div class="task-item">
+                                <div class="task-title"><?= htmlspecialchars($task['title'] ?? 'Untitled Task') ?></div>
+                                <div class="task-meta"><i class="bi bi-calendar3"></i> Today</div>
+                                <span class="task-priority <?= $priority_class ?>">
+                                    <?= htmlspecialchars($task['priority'] ?? 'Medium') ?>
+                                </span>
+                            </div>
+                            <?php
                             endwhile;
                         else:
                             ?>
-                        <div class="task-item">
-                            <div class="task-title">No recent tasks</div>
-                            <div class="task-meta">Tasks will appear here as they are created</div>
+                            <div class="task-item">
+                                <div class="task-title">No recent tasks</div>
+                                <div class="task-meta">Tasks will appear here as they are created</div>
+                            </div>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="col-lg-5">
-                    <div class="section-title">
-                        <span>Leave Requests</span>
-                        <a href="leave_view.php">View All Requests</a>
                     </div>
 
-                    <?php
+                    <div class="col-lg-5">
+                        <div class="section-title">
+                            <span>Leave Requests</span>
+                            <a href="leave_view.php">View All Requests</a>
+                        </div>
+
+                        <?php
                     if ($leave_requests && $leave_requests->num_rows > 0):
                         while ($leave = $leave_requests->fetch_assoc()):
                     ?>
-                    <div class="leave-card">
-                        <div class="leave-requestor"><?= htmlspecialchars($leave['full_name']) ?></div>
-                        <div class="leave-dates">
-                            <i class="bi bi-calendar"></i>
-                            <?= htmlspecialchars($leave['start_date'] ?? 'N/A') ?> -
-                            <?= htmlspecialchars($leave['end_date'] ?? 'N/A') ?>
+                        <div class="leave-card">
+                            <div class="leave-requestor"><?= htmlspecialchars($leave['full_name']) ?></div>
+                            <div class="leave-dates">
+                                <i class="bi bi-calendar"></i>
+                                <?= htmlspecialchars($leave['start_date'] ?? 'N/A') ?> -
+                                <?= htmlspecialchars($leave['end_date'] ?? 'N/A') ?>
+                            </div>
+                            <span class="leave-type"><?= htmlspecialchars($leave['leave_type'] ?? 'Annual') ?></span>
+                            <span class="leave-status <?= strtolower($leave['status'] ?? 'pending') ?>">
+                                <?= htmlspecialchars($leave['status'] ?? 'Pending') ?>
+                            </span>
                         </div>
-                        <span class="leave-type"><?= htmlspecialchars($leave['leave_type'] ?? 'Annual') ?></span>
-                        <span class="leave-status <?= strtolower($leave['status'] ?? 'pending') ?>">
-                            <?= htmlspecialchars($leave['status'] ?? 'Pending') ?>
-                        </span>
-                    </div>
-                    <?php
+                        <?php
                         endwhile;
                     else:
                         ?>
-                    <div class="leave-card">
-                        <div class="leave-requestor">Leave Requests</div>
-                        <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
-                        <?php
+                        <div class="leave-card">
+                            <div class="leave-requestor">Leave Requests</div>
+                            <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
+                            <?php
                             $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at ASC LIMIT 7");
                             if ($stmt) {
                                 $stmt->bind_param('i', $id);
@@ -661,71 +690,71 @@ $projects = [
                                 echo '<p>DB error</p>';
                             }
                             ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                 </div>
-            </div>
 
-            <!-- Project Progress -->
-            <div class="section-title">
-                <span>Project Progress</span>
-            </div>
-            <div class="row">
-                <div class="col-lg-7">
-                    <?php foreach ($projects as $project): ?>
-                    <div class="project-item">
-                        <div class="project-name">
-                            <span><?= htmlspecialchars($project['name']) ?></span>
-                            <span><?= $project['progress'] ?>%</span>
+                <!-- Project Progress -->
+                <div class="section-title">
+                    <span>Project Progress</span>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <?php foreach ($projects as $project): ?>
+                        <div class="project-item">
+                            <div class="project-name">
+                                <span><?= htmlspecialchars($project['name']) ?></span>
+                                <span><?= $project['progress'] ?>%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: <?= $project['progress'] ?>%"></div>
+                            </div>
                         </div>
-                        <div class="progress">
-                            <div class="progress-bar" style="width: <?= $project['progress'] ?>%"></div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-        if (sidebarToggleBtn && nexgenSidebar) {
-            sidebarToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                nexgenSidebar.classList.toggle('show');
-                if (sidebarOverlay) {
-                    sidebarOverlay.classList.toggle('show');
-                }
-            });
-        }
-
-        if (sidebarOverlay && nexgenSidebar) {
-            sidebarOverlay.addEventListener('click', function() {
-                nexgenSidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-        }
-
-        if (nexgenSidebar) {
-            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
+            if (sidebarToggleBtn && nexgenSidebar) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nexgenSidebar.classList.toggle('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('show');
                     }
                 });
-            });
-        }
-    });
-    </script>
+            }
+
+            if (sidebarOverlay && nexgenSidebar) {
+                sidebarOverlay.addEventListener('click', function() {
+                    nexgenSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            if (nexgenSidebar) {
+                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            nexgenSidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                        }
+                    });
+                });
+            }
+        });
+        </script>
 </body>
 
 </html>

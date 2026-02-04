@@ -3,40 +3,31 @@
 <nav class="nexgen-sidebar" id="nexgenSidebar">
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
-        <p>Employee Management</p>
+        <p>Project Leader</p>
     </div>
 
     <div class="nexgen-sidebar-menu">
         <?php
         $current_page = basename($_SERVER['PHP_SELF']);
         ?>
-        <h5>Admin</h5>
-        <a href="admin_dashboard.php"
-            class="bi bi-columns-gap <?= $current_page === 'admin_dashboard.php' ? 'active' : '' ?>">
+        <h5>Leader</h5>
+        <a href="leader.php" class="bi bi-columns-gap <?= $current_page === 'leader.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Dashboard</a>
 
-        <a href="tasks_dashboard.php"
-            class="bi bi-suitcase-lg <?= $current_page === 'tasks_dashboard.php' ? 'active' : '' ?>">
+        <a href="leader_tasks.php"
+            class="bi bi-suitcase-lg <?= $current_page === 'leader_tasks.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Tasks</a>
 
-        <a href="leave_dashboard.php"
-            class="bi bi-file-text <?= $current_page === 'leave_dashboard.php' ? 'active' : '' ?>">
+        <a href="leader_leave.php"
+            class="bi bi-file-text <?= $current_page === 'leader_leave.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Leave Requests</a>
 
-        <a href="employee.php" class="bi bi-person-vcard <?= $current_page === 'employee.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Employee</a>
+        <a href="leader_payroll.php"
+            class="bi bi-coin <?= $current_page === 'leader_payroll.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Payroll</a>
 
-        <a href="salary_dashboard.php"
-            class="bi bi-coin <?= $current_page === 'salary_dashboard.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Salary</a>
-
-        <a href="inquiries_dashboard.php" class="bi bi-chat-left
-            <?= $current_page === 'inquiries_dashboard.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Inquiries</a>
-
-        <h5 style="margin-top: 1rem;">Users</h5>
-        <a href="admin_user.php" class="bi bi-people <?= $current_page === 'admin_user.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; System Users</a>
+        <a href="projects.php" class="bi bi-kanban <?= $current_page === 'projects.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Projects</a>
     </div>
 
     <div class="nexgen-sidebar-footer">

@@ -76,9 +76,7 @@ $res = $stmt->get_result();
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS Link -->
     <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -90,12 +88,13 @@ $res = $stmt->get_result();
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Inter", sans-serif;
+        font-family: "Sora", sans-serif;
     }
 
     html,
     body {
-        background-color: #ececece8;
+        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+        color: #1f2937;
         min-height: 100vh;
     }
 
@@ -106,14 +105,24 @@ $res = $stmt->get_result();
 
     .main-content {
         flex: 1;
-        background-color: #f5f5f5d2;
-        padding-top: 1.7rem;
+        background-color: transparent;
+        padding-top: 2rem;
         padding-left: 18rem;
-        padding-right: 2rem;
+        padding-right: 2.5rem;
         padding-bottom: 2rem;
         overflow-x: hidden;
         width: 75%;
         overflow-y: auto;
+    }
+
+    .dashboard-shell {
+        position: relative;
+        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
     }
 
     .page-header {
@@ -121,21 +130,22 @@ $res = $stmt->get_result();
     }
 
     .page-header h3 {
-        font-weight: bold;
-        color: #333;
+        font-weight: 700;
+        color: #0f172a;
         margin-bottom: 0.5rem;
     }
 
     .page-header p {
-        color: lightslategray;
+        color: #5b6777;
         margin: 0;
     }
 
     .table-container {
-        background-color: white;
-        border-radius: 8px;
+        background-color: #ffffff;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         overflow-x: auto;
     }
 
@@ -145,12 +155,13 @@ $res = $stmt->get_result();
     }
 
     .table-container th {
-        background-color: #f8f9fa;
+        background-color: #f8fafc;
         padding: 1rem;
         text-align: left;
         border-bottom: 1px solid #d4d4d4;
         font-weight: 600;
         font-size: 0.95rem;
+        color: #334155;
     }
 
     .table-container td {
@@ -165,7 +176,7 @@ $res = $stmt->get_result();
 
     .status-badge {
         padding: 0.4rem 0.8rem;
-        border-radius: 4px;
+        border-radius: 999px;
         font-size: 0.85rem;
         font-weight: 600;
         display: inline-block;
@@ -197,16 +208,17 @@ $res = $stmt->get_result();
     .pagination span {
         padding: 0.5rem 0.75rem;
         border: 1px solid #d4d4d4;
-        border-radius: 4px;
+        border-radius: 999px;
         text-decoration: none;
-        color: #337ccfe2;
+        color: #1d4ed8;
     }
 
     .pagination a:hover {
-        background-color: #337ccfe2;
+        background-color: #1d4ed8;
         color: white;
     }
 
+    /* Action Buttons */
     .action-buttons {
         display: flex;
         gap: 0.5rem;
@@ -215,10 +227,31 @@ $res = $stmt->get_result();
 
     .action-buttons a {
         padding: 0.4rem 0.8rem;
-        border-radius: 4px;
+        border-radius: 999px;
         font-size: 0.85rem;
         text-decoration: none;
         transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.4rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
+    }
+
+    .btn-primary-custom:hover {
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(29, 78, 216, 0.3);
     }
 
     .btn-edit {
@@ -271,9 +304,13 @@ $res = $stmt->get_result();
         }
 
         .main-content {
-            padding: 1.5rem;
+            padding: 1.25rem;
             padding-top: 3.5rem;
             width: 100%;
+        }
+
+        .dashboard-shell {
+            padding: 1rem;
         }
 
         .table-container {
@@ -308,7 +345,7 @@ $res = $stmt->get_result();
         }
 
         .page-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
 
         .table-container {
@@ -336,86 +373,97 @@ $res = $stmt->get_result();
         </div>
 
         <div class="main-content">
-            <div class="page-header d-flex justify-content-between align-items-center end-0">
-                <div>
-                    <h3>View All Tasks</h3>
-                    <p>Manage and track all tasks</p>
-                </div>
-                <a href="tasks.php" class="btn btn-outline-secondary mt-3 ">Create New Task</a>
-            </div>
+            <div class="dashboard-shell">
+                <div class="page-header d-flex justify-content-between align-items-center end-0">
+                    <div>
+                        <h3>View All Tasks</h3>
+                        <p>Manage and track all tasks</p>
+                    </div>
 
-            <div class="table-responsive rounded shadow">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Project</th>
-                            <th>Assigned To</th>
-                            <th>Status</th>
-                            <th>Deadline</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($res->num_rows === 0): ?>
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
-                        </tr>
-                        <?php else: ?>
-                        <?php while ($t = $res->fetch_assoc()): ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small
-                                    class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
-                            <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
-                            <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
-                            <td>
-                                <?php
+                    <button type="button" class="btn-primary-custom">
+                        <a href="tasks_dashboard.php" class="text-white text-decoration-none">
+                            <i class=" bi bi-eye"></i> &nbsp; Create Tasks
+                        </a>
+                    </button>
+
+                </div>
+
+                <div class="table-responsive rounded shadow">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Project</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Deadline</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($res->num_rows === 0): ?>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
+                            </tr>
+                            <?php else: ?>
+                            <?php while ($t = $res->fetch_assoc()): ?>
+                            <tr>
+                                <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small
+                                        class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
+                                <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
+                                <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
+                                <td>
+                                    <?php
                                         $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in-progress' ? 'status-in-progress' : 'status-todo');
                                         ?>
-                                <span
-                                    class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
-                            </td>
-                            <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?></td>
-                            <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn btn-outline-primary">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
-                                    <form method="post" action="task_delete.php" style="display:inline"
-                                        onsubmit="return confirm('Delete this task?')">
-                                        <input type="hidden" name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="task_id" value="<?= htmlspecialchars($t['id']) ?>">
-                                        <button type="submit" class="btn btn-outline-danger" style="cursor:pointer;">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                                    <span
+                                        class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
+                                </td>
+                                <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?>
+                                </td>
+                                <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn btn-outline-primary">
+                                            <i class="bi bi-pen"></i>
+                                        </a>
+                                        <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
+                                        <form method="post" action="task_delete.php" style="display: inline"
+                                            onsubmit="return confirm('Delete this task?')">
+                                            <input type="hidden" name="csrf_token"
+                                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="task_id"
+                                                value="<?= htmlspecialchars($t['id']) ?>">
+                                            <button type="submit" class="btn btn-outline-danger"
+                                                style="cursor:pointer;">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
 
-                <?php if ($total > $limit): ?>
-                <div class="pagination">
-                    <?php
+                    <?php if ($total > $limit): ?>
+                    <div class="pagination">
+                        <?php
                         $pages = ceil($total / $limit);
                         for ($p = 1; $p <= $pages; $p++):
                             $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
                         ?>
-                    <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
-                        <?= $p ?>
-                    </a>
-                    <?php endfor; ?>
+                        <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
+                            <?= $p ?>
+                        </a>
+                        <?php endfor; ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
     </div>

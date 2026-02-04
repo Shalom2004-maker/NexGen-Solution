@@ -35,13 +35,122 @@ if (empty($_SESSION['csrf_token'])) {
 ?>
 <?php include __DIR__ . '/admin_siderbar.php'; ?>
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: "Sora", sans-serif;
+}
+
+body {
+    background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
+    color: #1f2937;
+}
+
+.main-content {
+    margin-left: 16rem;
+    padding: 2rem 2.5rem 2rem 2rem;
+    min-height: 100vh;
+}
+
+.dashboard-shell {
+    position: relative;
+    background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
+        radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-header h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.page-header p {
+    color: #5b6777;
+    margin: 0;
+}
+
+.card-panel {
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 16px;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-control,
+select.form-control {
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    border-radius: 12px;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
+}
+
+.btn-secondary,
+.btn-outline-secondary {
+    border-radius: 999px;
+}
+
+@media (max-width: 991.98px) {
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .dashboard-shell {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
 <div class="main-content">
+    <div class="dashboard-shell">
     <div class="page-header">
         <div>
             <h3>Edit User</h3>
             <p class="text-muted">Modify user details and permissions</p>
         </div>
-        <a href="admin_user_view.php" class="btn btn-outline-secondary">← Back to Users</a>
+        <a href="admin_user_view.php" class="btn btn-outline-secondary">Back to Users</a>
     </div>
 
     <div class="card-panel">

@@ -4,7 +4,7 @@ allow("Employee");
 include "../includes/db.php";
 include "../includes/logger.php";
 
-// Get employee ID
+// Get user ID
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
 
 // Initialize form variables
@@ -16,112 +16,100 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 
-// Process form submission
+// Process form submission (Create Task)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF check
     $posted_token = $_POST['csrf_token'] ?? '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
-        audit_log('csrf', 'Invalid CSRF token on leave', $_SESSION['uid'] ?? null);
+        audit_log('csrf', 'Invalid CSRF token on tasks_dashboard', $_SESSION['uid'] ?? null);
         $error = 'Invalid request';
     } else {
-        // Ensure the user has an employee record
-        $empQ = $conn->prepare("SELECT id FROM employees WHERE user_id = ?");
-        $empQ->bind_param('i', $uid);
-        $empQ->execute();
-        $empR = $empQ->get_result()->fetch_assoc();
-        $empQ->close();
+        $project_id = isset($_POST['project']) && $_POST['project'] !== '' ? (int)$_POST['project'] : null;
+        $assigned_to = isset($_POST['assigned_to']) && $_POST['assigned_to'] !== '' ? (int)$_POST['assigned_to'] : $uid;
+        $title = trim($_POST['title'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
 
-        if (empty($empR)) {
-            $error = "No employee record found for current user.";
+        if ($title === '') {
+            $error = 'Task title is required.';
         } else {
-            $employee_id = (int)$empR['id'];
-            $stmt = $conn->prepare("INSERT INTO leave_requests(employee_id,start_date,end_date,leave_type,reason) VALUES(?,?,?,?,?)");
-            $stmt->bind_param("issss", $employee_id, $_POST["start"], $_POST["end"], $_POST["type"], $_POST["reason"]);
+            $stmt = $conn->prepare("INSERT INTO tasks (project_id, assigned_to, created_by, title, description, status, deadline) VALUES (?,?,?,?,?, 'todo', ?)");
+            $stmt->bind_param("iiisss", $project_id, $assigned_to, $uid, $title, $description, $deadline);
             if ($stmt->execute() && $stmt->affected_rows > 0) {
-                audit_log('leave_request', "Leave request submitted by user {$uid}", $_SESSION['uid'] ?? null);
-                $success = 'Leave request submitted successfully!';
-                // Regenerate CSRF token for security
+                audit_log('task_create', "Task created by user {$uid}", $_SESSION['uid'] ?? null);
+                $success = 'Task created successfully!';
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
-                // Clear form data
                 $_POST = [];
             } else {
-                audit_log('leave_request_failed', "Failed leave request by user {$uid}", $_SESSION['uid'] ?? null);
-                $error = "Failed to submit leave request.";
+                audit_log('task_create_failed', "Failed to create task by user {$uid}", $_SESSION['uid'] ?? null);
+                $error = "Failed to create task.";
             }
             $stmt->close();
         }
     }
 }
 
-// Fetch leave statistics
+// Fetch task statistics
+$all_tasks_count = 0;
 $pending_count = 0;
-$approved_count = 0;
-$rejected_count = 0;
-$days_approved = 0;
+$in_progress_count = 0;
+$completed_count = 0;
 
-// Get employee_id from user_id
-$emp_stmt = $conn->prepare("SELECT id FROM employees WHERE user_id = ?");
-if ($emp_stmt) {
-    $emp_stmt->bind_param('i', $uid);
-    $emp_stmt->execute();
-    $emp_result = $emp_stmt->get_result();
-    $emp_row = $emp_result->fetch_assoc();
-    $employee_id = $emp_row['id'] ?? 0;
-    $emp_stmt->close();
-} else {
-    $employee_id = 0;
+// All tasks count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ?");
+if ($stmt) {
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $all_tasks_count = (int)($row['count'] ?? 0);
+    $stmt->close();
 }
 
-if ($employee_id > 0) {
-    // Pending Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND status = 'pending'");
-    if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $pending_count = (int)($row['count'] ?? 0);
-        $stmt->close();
-    }
-
-    // Approved Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND (status = 'hr_approved' OR status = 'leader_approved')");
-    if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $approved_count = (int)($row['count'] ?? 0);
-        $stmt->close();
-    }
-
-    // Rejected Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND status = 'rejected'");
-    if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $rejected_count = (int)($row['count'] ?? 0);
-        $stmt->close();
-    }
-
-    // Days Approved
-    $stmt = $conn->prepare("SELECT SUM(DATEDIFF(end_date, start_date)) as total_days FROM leave_requests WHERE employee_id = ? AND (status = 'hr_approved' OR status = 'leader_approved')");
-    if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $days_approved = (int)($row['total_days'] ?? 0);
-        $stmt->close();
-    }
+// Pending (todo) count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'todo'");
+if ($stmt) {
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $pending_count = (int)($row['count'] ?? 0);
+    $stmt->close();
 }
+
+// In Progress count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'in_progress'");
+if ($stmt) {
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $in_progress_count = (int)($row['count'] ?? 0);
+    $stmt->close();
+}
+
+// Completed count
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'done'");
+if ($stmt) {
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $completed_count = (int)($row['count'] ?? 0);
+    $stmt->close();
+}
+
+// Search
+$search = trim($_GET['q'] ?? '');
 
 // Get filter status from URL
 $filterStatus = isset($_GET['filter']) ? $_GET['filter'] : 'all';
-$filters = ['all', 'pending', 'approved', 'rejected'];
+$filters = ['all', 'todo', 'in_progress', 'done'];
 $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
+
+// Projects for create form
+$projects = $conn->query("SELECT id, project_name FROM projects ORDER BY project_name");
+$users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
 ?>
 
 <!DOCTYPE html>
@@ -130,7 +118,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Requests - NexGen Solution</title>
+    <title>Tasks - NexGen Solution</title>
 
     <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -306,10 +294,10 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 
     /* Section Title */
     .section-title {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: #333;
+        margin-bottom: 1.25rem;
+        color: #0f172a;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -317,20 +305,20 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 
     .section-title a {
         font-size: 0.85rem;
-        color: #337ccfe2;
+        color: #1d4ed8;
         text-decoration: none;
         transition: all 0.15s ease;
     }
 
     .section-title a:hover {
-        color: #2563a8;
+        color: #0f172a;
     }
 
-    /* Leave Request Cards */
-    .leave-request-card {
+    /* Task Cards */
+    .task-card {
         background: #ffffff;
-        border: 1px solid #d4d4d4;
-        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
         padding: 1.25rem;
         margin-bottom: 1rem;
         transition: all 0.15s ease;
@@ -339,113 +327,97 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         align-items: flex-start;
     }
 
-    .leave-request-card:hover {
-        border-color: #337ccfe2;
-        box-shadow: 0 2px 8px rgba(51, 124, 207, 0.06);
+    .task-card:hover {
+        border-color: rgba(37, 99, 235, 0.4);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         transform: translateX(2px);
     }
 
-    .leave-icon-box {
+    .task-icon-box {
         width: 50px;
         height: 50px;
-        background: rgba(51, 124, 207, 0.1);
-        border-radius: 8px;
+        background: rgba(37, 99, 235, 0.12);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
     }
 
-    .leave-icon-box i {
+    .task-icon-box i {
         font-size: 1.5rem;
-        color: #337ccfe2;
+        color: #1d4ed8;
     }
 
-    .leave-request-content {
+    .task-content {
         flex: 1;
     }
 
-    .leave-request-header {
+    .task-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.5rem;
     }
 
-    .leave-requestor {
+    .task-title {
         font-weight: 600;
-        color: #333;
+        color: #0f172a;
     }
 
-    .leave-reason {
-        color: #777;
+    .task-description {
+        color: #64748b;
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
 
-    .leave-dates {
-        color: #666;
+    .task-meta {
+        color: #64748b;
         font-size: 0.85rem;
         margin-bottom: 0.75rem;
     }
 
-    .leave-date-range {
+    .task-meta-item {
         display: inline-block;
         margin-right: 1.5rem;
     }
 
-    .leave-days-count {
-        display: inline-block;
-        color: #337ccfe2;
-        font-weight: 600;
-    }
-
-    .leave-meta {
+    .task-badges {
         display: flex;
         gap: 1rem;
         align-items: center;
         flex-wrap: wrap;
     }
 
-    .leave-type {
+    .task-project {
         display: inline-block;
         padding: 0.3rem 0.75rem;
-        border-radius: 20px;
+        border-radius: 999px;
         font-size: 0.75rem;
         font-weight: 600;
-        background-color: #337ccfe2;
+        background-color: #1d4ed8;
         color: white;
     }
 
-    .leave-status {
+    .task-status {
         display: inline-block;
         padding: 0.3rem 0.75rem;
-        border-radius: 20px;
+        border-radius: 999px;
         font-size: 0.75rem;
         font-weight: 600;
     }
 
-    .leave-status.pending {
+    .task-status.todo {
         background-color: #fbbf24;
         color: white;
     }
 
-    .leave-status.approved {
-        background-color: #4ade80;
+    .task-status.in_progress {
+        background-color: #3b82f6;
         color: white;
     }
 
-    .leave-status.rejected {
-        background-color: #ef4444;
-        color: white;
-    }
-
-    .leave-status.leader_approved {
-        background-color: #60a5fa;
-        color: white;
-    }
-
-    .leave-status.hr_approved {
+    .task-status.done {
         background-color: #10b981;
         color: white;
     }
@@ -546,13 +518,13 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
     }
 
     .btn-primary {
-        background-color: #337ccfe2;
-        border-color: #337ccfe2;
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
     }
 
     .btn-primary:hover {
-        background-color: #2563a8;
-        border-color: #2563a8;
+        background-color: #1e40af;
+        border-color: #1e40af;
     }
 
     .btn-outline-secondary {
@@ -629,12 +601,12 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             font-size: 1.6rem;
         }
 
-        .leave-request-card {
+        .task-card {
             flex-direction: column;
             gap: 0.75rem;
         }
 
-        .leave-request-header {
+        .task-header {
             flex-direction: column;
             align-items: flex-start;
         }
@@ -705,30 +677,30 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             <div class="dashboard-shell">
                 <div class="page-header">
                     <div>
-                        <h2>Leave Requests</h2>
-                        <p>View and submit leave requests</p>
+                        <h2>Tasks</h2>
+                        <p>Manage and track your team's tasks</p>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="action-buttons">
                         <button type="button" class="btn-primary-custom">
-                            <a href="leave_view.php" class="text-white text-decoration-none">
-                                <i class=" bi bi-eye"></i> &nbsp; View All Leaves
+                            <a href="tasks_view.php" class="text-white text-decoration-none">
+                                <i class=" bi bi-eye"></i> &nbsp; View Tasks
                             </a>
                         </button>
                         <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
-                            data-bs-target="#leaveRequestModal">
-                            <i class="bi bi-plus-circle"></i> &nbsp; Request Leave
+                            data-bs-target="#taskCreateModal">
+                            <i class="bi bi-plus-circle"></i> &nbsp; Create Task
                         </button>
 
-                        <!-- Leave Request Modal -->
-                        <div class="modal fade" id="leaveRequestModal" tabindex="-1"
-                            aria-labelledby="leaveRequestModalLabel" aria-hidden="true">
+                        <!-- Create Task Modal -->
+                        <div class="modal fade" id="taskCreateModal" tabindex="-1"
+                            aria-labelledby="taskCreateModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header border-bottom">
-                                        <h1 class="modal-title fs-5" id="leaveRequestModalLabel">
-                                            <i class="bi bi-calendar-plus"></i> &nbsp; Request Leave
+                                        <h1 class="modal-title fs-5" id="taskCreateModalLabel">
+                                            <i class="bi bi-plus-circle"></i> &nbsp; Create New Task
                                         </h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
@@ -755,56 +727,61 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                                                 value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                                             <div class="mb-3">
-                                                <label for="startDate" class="form-label">Start Date <span
-                                                        style="color: #ef4444;">*</span></label>
-                                                <input type="date" class="form-control" id="startDate" name="start"
-                                                    required value="<?= htmlspecialchars($_POST['start'] ?? '') ?>">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="endDate" class="form-label">End Date <span
-                                                        style="color: #ef4444;">*</span></label>
-                                                <input type="date" class="form-control" id="endDate" name="end" required
-                                                    value="<?= htmlspecialchars($_POST['end'] ?? '') ?>">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="leaveType" class="form-label">Leave Type <span
-                                                        style="color: #ef4444;">*</span></label>
-                                                <select class="form-select" id="leaveType" name="type" required>
-                                                    <option value="">Select Leave Type</option>
-                                                    <option value="sick"
-                                                        <?= (isset($_POST['type']) && $_POST['type'] === 'sick') ? 'selected' : '' ?>>
-                                                        Sick Leave</option>
-                                                    <option value="annual"
-                                                        <?= (isset($_POST['type']) && $_POST['type'] === 'annual') ? 'selected' : '' ?>>
-                                                        Annual Leave</option>
-                                                    <option value="unpaid"
-                                                        <?= (isset($_POST['type']) && $_POST['type'] === 'unpaid') ? 'selected' : '' ?>>
-                                                        Unpaid Leave</option>
-                                                    <option value="personal"
-                                                        <?= (isset($_POST['type']) && $_POST['type'] === 'personal') ? 'selected' : '' ?>>
-                                                        Personal Leave</option>
-                                                    <option value="vacation"
-                                                        <?= (isset($_POST['type']) && $_POST['type'] === 'vacation') ? 'selected' : '' ?>>
-                                                        Vacation Leave</option>
+                                                <label for="project" class="form-label">Project (Optional)</label>
+                                                <select class="form-select" id="project" name="project">
+                                                    <option value="">Select Project</option>
+                                                    <?php if ($projects): ?>
+                                                    <?php while ($p = $projects->fetch_assoc()): ?>
+                                                    <option value="<?= $p['id'] ?>"
+                                                        <?= (isset($_POST['project']) && (int)$_POST['project'] === (int)$p['id']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($p['project_name']) ?>
+                                                    </option>
+                                                    <?php endwhile; ?>
+                                                    <?php endif; ?>
                                                 </select>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="reason" class="form-label">Reason <span
+                                                <label for="assigned_to" class="form-label">Assign To</label>
+                                                <select class="form-select" id="assigned_to" name="assigned_to">
+                                                    <option value="">Select Assignee</option>
+                                                    <?php if ($users): ?>
+                                                    <?php while ($u = $users->fetch_assoc()): ?>
+                                                    <option value="<?= $u['id'] ?>"
+                                                        <?= (isset($_POST['assigned_to']) && (int)$_POST['assigned_to'] === (int)$u['id']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($u['full_name']) ?>
+                                                    </option>
+                                                    <?php endwhile; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="title" class="form-label">Task Title <span
                                                         style="color: #ef4444;">*</span></label>
-                                                <textarea class="form-control" id="reason" name="reason" rows="4"
-                                                    required placeholder="Enter the reason for your leave request">
-                                                <?= htmlspecialchars($_POST['reason'] ?? '') ?>
-                                            </textarea>
+                                                <input type="text" class="form-control" id="title" name="title" required
+                                                    value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
+                                                    placeholder="Enter task title">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="deadline" class="form-label">Deadline</label>
+                                                <input type="date" class="form-control" id="deadline" name="deadline"
+                                                    value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description" name="description"
+                                                    rows="4"
+                                                    placeholder="Enter task description"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
                                             </div>
 
                                             <div class="modal-footer border-top">
                                                 <button type="button" class="btn btn-outline-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="bi bi-send"></i> &nbsp; Submit Request
+                                                <button type="submit" class="btn-primary-custom">
+                                                    <i class="bi bi-check2-circle"></i> &nbsp; Create Task
                                                 </button>
                                             </div>
                                         </form>
@@ -820,131 +797,158 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             <div class="row mt-4">
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
+                        <i class="bi bi-list-task metric-icon"></i>
+                        <div class="metric-label">All Tasks</div>
+                        <div class="metric-value"><?= $all_tasks_count ?></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="metric-card">
                         <i class="bi bi-clock-history metric-icon"></i>
-                        <div class="metric-label">Pending Requests</div>
+                        <div class="metric-label">Pending</div>
                         <div class="metric-value"><?= $pending_count ?></div>
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
+                        <i class="bi bi-pie-chart metric-icon"></i>
+                        <div class="metric-label">In Progress</div>
+                        <div class="metric-value"><?= $in_progress_count ?></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12">
+                    <div class="metric-card">
                         <i class="bi bi-check2-circle metric-icon"></i>
-                        <div class="metric-label">Approved</div>
-                        <div class="metric-value"><?= $approved_count ?></div>
+                        <div class="metric-label">Completed</div>
+                        <div class="metric-value"><?= $completed_count ?></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-x-circle metric-icon"></i>
-                        <div class="metric-label">Rejected</div>
-                        <div class="metric-value"><?= $rejected_count ?></div>
+            <!-- Search & Filter Buttons -->
+            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3">
+                <form method="get" class="mb-0">
+                    <div class="row g-2 d-flex">
+                        <div class="col-lg-6 col-md-6 col-12" style="height: 8vh;">
+                            <div class="input-group">
+                                <span class="input-group-text" style="height: 8vh;">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" name="q" value="<?= htmlspecialchars($search) ?>"
+                                    class="form-control" placeholder="Search tasks..." style="height: 8vh;">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 d-flex gap-2">
+                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+                            <?php if ($search): ?>
+                            <a href="tasks_dashboard.php" class="btn btn-outline-secondary">Reset</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
-                        <i class="bi bi-calendar metric-icon"></i>
-                        <div class="metric-label">Days Approved</div>
-                        <div class="metric-value"><?= $days_approved ?></div>
-                    </div>
-                </div>
+                </form>
             </div>
 
             <!-- Filter Buttons -->
-            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3">
-                <div class="filter-buttons">
-                    <a href="?filter=all"
-                        class="filter-btn border rounded <?= $filterStatus === 'all' ? 'active' : '' ?>">
-                        All Requests
-                    </a>
-                    <a href="?filter=pending"
-                        class="filter-btn border rounded <?= $filterStatus === 'pending' ? 'active' : '' ?>">
-                        Pending
-                    </a>
-                    <a href="?filter=approved"
-                        class="filter-btn border rounded <?= $filterStatus === 'approved' ? 'active' : '' ?>">
-                        Approved
-                    </a>
-                    <a href="?filter=rejected"
-                        class="filter-btn border rounded <?= $filterStatus === 'rejected' ? 'active' : '' ?>">
-                        Rejected
-                    </a>
-                </div>
+            <div class="filter-buttons mb-3">
+                <?php
+                $baseUrl = 'tasks_dashboard.php';
+                $queryBase = $search !== '' ? 'q=' . urlencode($search) . '&' : '';
+                ?>
+                <a class="filter-btn <?= $filterStatus === 'all' ? 'active' : '' ?>"
+                    href="<?= $baseUrl . '?' . $queryBase . 'filter=all' ?>">All</a>
+                <a class="filter-btn <?= $filterStatus === 'todo' ? 'active' : '' ?>"
+                    href="<?= $baseUrl . '?' . $queryBase . 'filter=todo' ?>">Pending</a>
+                <a class="filter-btn <?= $filterStatus === 'in_progress' ? 'active' : '' ?>"
+                    href="<?= $baseUrl . '?' . $queryBase . 'filter=in_progress' ?>">In Progress</a>
+                <a class="filter-btn <?= $filterStatus === 'done' ? 'active' : '' ?>"
+                    href="<?= $baseUrl . '?' . $queryBase . 'filter=done' ?>">Completed</a>
             </div>
 
-            <!-- Leave Requests List -->
+            <!-- Tasks List -->
             <div class="section-title">
-                <span>My Leave Requests</span>
+                <span>My Tasks</span>
             </div>
 
             <?php
-            if ($employee_id > 0) {
-                // Build query based on filter
-                $where = 'WHERE employee_id = ?';
-                $params = [$employee_id];
+            if ($uid > 0) {
+                // Build query based on filter and search
+                $where = 'WHERE t.assigned_to = ?';
+                $params = [$uid];
                 $types = 'i';
 
-                if ($filterStatus === 'pending') {
-                    $where .= " AND status = 'pending'";
-                } elseif ($filterStatus === 'approved') {
-                    $where .= " AND (status = 'approved' OR status = 'hr_approved' OR status = 'leader_approved')";
-                } elseif ($filterStatus === 'rejected') {
-                    $where .= " AND status = 'rejected'";
+                if ($filterStatus === 'todo') {
+                    $where .= " AND t.status = 'todo'";
+                } elseif ($filterStatus === 'in_progress') {
+                    $where .= " AND t.status = 'in_progress'";
+                } elseif ($filterStatus === 'done') {
+                    $where .= " AND t.status = 'done'";
                 }
 
-                // Fetch leave requests for the employee based on filter
-                $query = "SELECT id, leave_type, reason, start_date, end_date, status FROM leave_requests " . $where . " ORDER BY applied_at DESC";
+                if ($search !== '') {
+                    $where .= " AND (t.title LIKE ? OR t.description LIKE ?)";
+                    $like = "%{$search}%";
+                    $params[] = $like;
+                    $params[] = $like;
+                    $types .= 'ss';
+                }
+
+                $query = "SELECT t.id, t.title, t.description, t.status, t.deadline, t.created_at, p.project_name
+                          FROM tasks t
+                          LEFT JOIN projects p ON t.project_id = p.id
+                          $where
+                          ORDER BY t.created_at DESC";
                 $stmt = $conn->prepare($query);
                 if ($stmt) {
                     $stmt->bind_param($types, ...$params);
                     $stmt->execute();
                     $result = $stmt->get_result();
-                    $has_requests = false;
+                    $has_tasks = false;
 
-                    while ($leave = $result->fetch_assoc()) {
-                        $has_requests = true;
-                        $start_date = new DateTime($leave['start_date']);
-                        $end_date = new DateTime($leave['end_date']);
-                        $days_diff = $end_date->diff($start_date)->days + 1;
-                        $status = strtolower($leave['status']);
+                    while ($task = $result->fetch_assoc()) {
+                        $has_tasks = true;
+                        $status = strtolower($task['status']);
                         $status_badge_class = match ($status) {
-                            'pending' => 'pending',
-                            'rejected' => 'rejected',
-                            'leader_approved' => 'leader_approved',
-                            'hr_approved' => 'hr_approved',
-                            default => 'pending'
+                            'todo' => 'todo',
+                            'in_progress' => 'in_progress',
+                            'done' => 'done',
+                            default => 'todo'
                         };
-                        $status_display = ucfirst(str_replace('_', ' ', $leave['status']));
+                        $status_display = ucfirst(str_replace('_', ' ', $task['status']));
+                        $deadline_display = $task['deadline'] ? date('M d, Y', strtotime($task['deadline'])) : 'No deadline';
+                        $project_display = $task['project_name'] ?: 'Unassigned';
             ?>
-            <div class="leave-request-card">
-                <div class="leave-icon-box">
-                    <i class="bi bi-calendar3"></i>
+            <div class="task-card">
+                <div class="task-icon-box">
+                    <i class="bi bi-list-check"></i>
                 </div>
-                <div class="leave-request-content">
-                    <div class="leave-request-header">
-                        <div class="leave-requestor">
-                            <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>
+                <div class="task-content">
+                    <div class="task-header">
+                        <div class="task-title">
+                            <?= htmlspecialchars($task['title']) ?>
                         </div>
-                        <span class="leave-status <?= $status_badge_class ?>">
+                        <span class="task-status <?= $status_badge_class ?>">
                             <?= $status_display ?>
                         </span>
                     </div>
-                    <div class="leave-reason">
-                        <?= htmlspecialchars($leave['reason']) ?>
+                    <div class="task-description">
+                        <?= htmlspecialchars($task['description']) ?>
                     </div>
-                    <div class="leave-dates">
-                        <span class="leave-date-range">
+                    <div class="task-meta">
+                        <span class="task-meta-item">
                             <i class="bi bi-calendar2"></i>
-                            <?= htmlspecialchars($leave['start_date']) ?> - <?= htmlspecialchars($leave['end_date']) ?>
+                            Deadline: <?= htmlspecialchars($deadline_display) ?>
                         </span>
-                        <span class="leave-days-count">
-                            <?= $days_diff ?> days
+                        <span class="task-meta-item">
+                            <i class="bi bi-clock"></i>
+                            Created: <?= date('M d, Y', strtotime($task['created_at'])) ?>
                         </span>
                     </div>
-                    <div class="leave-meta">
-                        <span class="leave-type">
-                            <?= htmlspecialchars($leave['leave_type']) ?>
+                    <div class="task-badges">
+                        <span class="task-project">
+                            <?= htmlspecialchars($project_display) ?>
                         </span>
                     </div>
                 </div>
@@ -952,13 +956,13 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             <?php
                     }
 
-                    if (!$has_requests) {
+                    if (!$has_tasks) {
                     ?>
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
-                <p>No leave requests yet</p>
+                <p>No tasks found</p>
                 <p style="font-size: 0.85rem; color: #bbb; margin-top: 0.5rem;">
-                    Click "Request Leave" to submit your first leave request
+                    Create a task to get started
                 </p>
             </div>
             <?php
@@ -971,7 +975,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                 ?>
             <div class="empty-state">
                 <i class="bi bi-exclamation-circle"></i>
-                <p>Unable to load leave requests</p>
+                <p>Unable to load tasks</p>
             </div>
             <?php
             }
