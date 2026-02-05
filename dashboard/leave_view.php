@@ -1,5 +1,6 @@
 <?php
 include "../includes/auth.php";
+allow(["Employee", "ProjectLeader", "HR", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 
@@ -298,8 +299,7 @@ $res = $stmt->get_result();
     <div class="sidebar-overlay" id="sidebarOverlay"></div><button class="sidebar-toggle" id="sidebarToggleBtn"
         type="button"><i class="bi bi-list"></i></button>
     <div class="main-wrapper">
-        <div id="sidebarContainer"><?php include "admin_siderbar.php";
-                                    ?></div>
+        <div id="sidebarContainer"><?php include "../includes/sidebar_helper.php"; render_sidebar(); ?></div>
         <div class="main-content">
             <div class="dashboard-shell">
                 <div class="d-flex justify-content-between align-items-center mb-4">

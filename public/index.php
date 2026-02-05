@@ -48,7 +48,7 @@
 
     html,
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
         min-height: 100vh;
         color: #333;
     }
@@ -61,6 +61,7 @@
         padding: .5rem 2rem;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         position: sticky;
         top: 0;
@@ -98,7 +99,7 @@
     }
 
     .btn-nav {
-        background-color: #337ccfe2;
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
         color: white;
         padding: 0.6rem 1.5rem;
         border-radius: 6px;
@@ -181,7 +182,6 @@
     }
 
     .feature-card {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
         border: 2px solid rgba(51, 124, 207, 0.2);
         border-radius: 12px;
         padding: 2rem;
@@ -198,7 +198,7 @@
     .feature-icon {
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
         border-radius: 12px;
         display: flex;
         align-items: center;

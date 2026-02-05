@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Email and password required";
     } else {
 
-        $sql = "SELECT users.id, users.full_name, users.password_hash, users.status, roles.role_name 
+        $sql = "SELECT users.id, users.full_name, users.password_hash, users.status, users.profile_photo, roles.role_name 
                 FROM users 
                 JOIN roles ON users.role_id = roles.id 
                 WHERE users.email = ?";
@@ -39,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $_SESSION["uid"] = $user["id"];
                         $_SESSION["name"]    = $user["full_name"];
                         $_SESSION["role"]    = $user["role_name"];
+                        $_SESSION["profile_photo"] = $user["profile_photo"] ?? null;
 
                         if ($user["role_name"] === "Admin") {
                             header("Location: ../dashboard/admin_dashboard.php");
@@ -104,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     html,
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -112,8 +113,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .login-container {
-        width: 100%;
-        max-width: 400px;
         padding-top: .7rem;
         padding-bottom: .7rem;
     }
@@ -123,8 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         border-radius: 10px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         overflow: hidden;
-        width: 100%;
-        max-width: 420px;
     }
 
     .card-header {
@@ -158,6 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .card-body {
         padding: 2rem 1.5rem;
+        width: 40vw;
     }
 
     .alert {
@@ -196,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .btn-login {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
         color: white;
         font-weight: bold;
         padding: 0.5rem;
@@ -236,11 +234,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     @media (max-width: 576px) {
         .login-container {
             padding: 0.5rem;
-            width: 95%;
         }
 
         .card-header {
             padding: 1rem 0.75rem;
+            width: 100%;
         }
 
         .card-header img {
@@ -254,6 +252,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .card-body {
             padding: 1rem 0.75rem;
+            width: 100%;
         }
 
         .form-control,
@@ -268,6 +267,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     @media (max-width: 480px) {
+
+        .card-header,
+        .card-body {
+            width: 100%;
+        }
+
         .card-header h4 {
             font-size: 1rem;
         }
@@ -305,33 +310,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
                 <?php endif; ?>
 
-                <form method="POST" action="">
-                    <label for="emailInput" class="form-label">Email Address</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-envelope"></i>
-                        </span>
-                        <input type="email" class="form-control" id="emailInput" name="email"
-                            placeholder="Enter your email" required>
-                    </div>
+                <div class="col-lg-7 col-md-10 col-12 w-100">
+                    <form method="POST" action="login.php" class="w-100">
+                        <label for="emailInput" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="emailInput" name="email"
+                                placeholder="Enter your email" required
+                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                        </div>
 
-                    <label for="passwordInput" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-lock"></i>
-                        </span>
-                        <input type="password" class="form-control" id="passwordInput" name="password"
-                            placeholder="Enter your password" required>
-                    </div>
+                        <label for="passwordInput" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" class="form-control" id="passwordInput" name="password"
+                                placeholder="Enter your password" required>
+                        </div>
 
-                    <button type="submit" class="btn-login">
-                        <i class="bi bi-box-arrow-in-right"></i> Sign In
-                    </button>
+                        <button type="submit" class="btn-login">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </button>
 
-                    <a href="index.php" class="home-link">
-                        <i class="bi bi-arrow-left"></i> Back to Home
-                    </a>
-                </form>
+                        <a href="forgot_password.php" class="home-link">
+                            <i class="bi bi-question-circle"></i> Forgot password?
+                        </a>
+
+                        <a href="index.php" class="home-link">
+                            <i class="bi bi-arrow-left"></i> Back to Home
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

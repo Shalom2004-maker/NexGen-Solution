@@ -3,7 +3,7 @@
 <nav class="nexgen-sidebar" id="nexgenSidebar">
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
-        <p>Employee Management</p>
+        <p>Admin Portal</p>
     </div>
 
     <div class="nexgen-sidebar-menu">
@@ -37,12 +37,21 @@
         <h5 style="margin-top: 1rem;">Users</h5>
         <a href="admin_user.php" class="bi bi-people <?= $current_page === 'admin_user.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; System Users</a>
+
+        <a href="settings.php" class="bi bi-gear <?= $current_page === 'settings.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Settings</a>
     </div>
 
     <div class="nexgen-sidebar-footer">
         <div class="nexgen-sidebar-footer-content">
+            <?php $avatarUrl = function_exists('sidebar_avatar_url') ? sidebar_avatar_url() : ''; ?>
             <div class="nexgen-sidebar-footer-avatar">
+                <?php if ($avatarUrl): ?>
+                <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Profile photo"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <?php else: ?>
                 <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
+                <?php endif; ?>
             </div>
             <div class="nexgen-sidebar-footer-info">
                 <b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b>

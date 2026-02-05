@@ -1,5 +1,6 @@
 <?php
 include "../includes/auth.php";
+allow(["Employee", "ProjectLeader", "HR", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 

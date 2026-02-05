@@ -216,7 +216,7 @@ include "../includes/db.php";
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "hr_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

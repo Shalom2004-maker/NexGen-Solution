@@ -3,6 +3,12 @@ include "../includes/auth.php";
 allow("ProjectLeader");
 include "../includes/db.php";
 include "../includes/logger.php";
+// current user
+$uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
+
+// form feedback
+$error = '';
+$success = '';
 // ensure CSRF token exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
@@ -16,17 +22,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('Invalid request');
     }
 
-    $stmt = $conn->prepare("INSERT INTO tasks(project_id,assigned_to,created_by,title,description,deadline) 
-                          VALUES(?,?,?,?,?,?)");
-    $stmt->bind_param("iiisss", $_POST["project"], $_POST["user"], $_SESSION["uid"], $_POST["title"], $_POST["desc"], $_POST["deadline"]);
-    if ($stmt->execute() && $stmt->affected_rows > 0) {
-        audit_log('task_create', "Task created for project {$_POST['project']}", $_SESSION['uid'] ?? null);
+    $project_id = isset($_POST['project']) ? (int)$_POST['project'] : 0;
+    $assigned_to = isset($_POST['user']) ? (int)$_POST['user'] : 0;
+    $title = trim($_POST['title'] ?? '');
+    $description = trim($_POST['desc'] ?? '');
+    $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
+
+    if ($project_id <= 0 || $assigned_to <= 0 || $title === '') {
+        $error = 'Please select a project, an employee, and enter a task title.';
     } else {
-        audit_log('task_create_failed', "Failed to create task for project {$_POST['project']}", $_SESSION['uid'] ?? null);
-        echo "Failed";
+        // ensure project belongs to this leader
+        $pstmt = $conn->prepare("SELECT id FROM projects WHERE id = ? AND leader_id = ? LIMIT 1");
+        $pstmt->bind_param('ii', $project_id, $uid);
+        $pstmt->execute();
+        $pstmt->store_result();
+        $valid_project = $pstmt->num_rows > 0;
+        $pstmt->close();
+
+        // ensure user is an employee
+        $ustmt = $conn->prepare("SELECT u.id FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = ? AND r.role_name = 'Employee' LIMIT 1");
+        $ustmt->bind_param('i', $assigned_to);
+        $ustmt->execute();
+        $ustmt->store_result();
+        $valid_user = $ustmt->num_rows > 0;
+        $ustmt->close();
+
+        if (!$valid_project) {
+            $error = 'Invalid project selection.';
+        } elseif (!$valid_user) {
+            $error = 'Invalid employee selection.';
+        } else {
+            $stmt = $conn->prepare("INSERT INTO tasks(project_id,assigned_to,created_by,title,description,deadline) 
+                                  VALUES(?,?,?,?,?,?)");
+            $stmt->bind_param("iiisss", $project_id, $assigned_to, $uid, $title, $description, $deadline);
+            if ($stmt->execute() && $stmt->affected_rows > 0) {
+                audit_log('task_create', "Task created for project {$project_id}", $_SESSION['uid'] ?? null);
+                $success = 'Task created successfully.';
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                $_POST = [];
+            } else {
+                audit_log('task_create_failed', "Failed to create task for project {$project_id}", $_SESSION['uid'] ?? null);
+                $error = 'Failed to create task.';
+            }
+            $stmt->close();
+        }
     }
-    $stmt->close();
 }
+
+// Projects for leader select (only projects owned by this leader)
+$projects = null;
+if ($uid > 0) {
+    $pstmt = $conn->prepare("SELECT id, project_name FROM projects WHERE leader_id = ? ORDER BY project_name");
+    $pstmt->bind_param('i', $uid);
+    $pstmt->execute();
+    $projects = $pstmt->get_result();
+    $pstmt->close();
+}
+
+// Employees for assignee select
+$users = $conn->query("SELECT u.id, u.full_name FROM users u JOIN roles r ON u.role_id = r.id WHERE r.role_name = 'Employee' ORDER BY u.full_name");
 ?>
 
 <!DOCTYPE html>
@@ -217,56 +271,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "leader_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">
             <div class="dashboard-shell">
-            <div class="page-header">
-                <div>
-                    <h3>Create Task</h3>
-                    <p>Assign new tasks to team members</p>
+                <div class="page-header">
+                    <div>
+                        <h3>Create Tasks</h3>
+                        <p>Assign new tasks to team members</p>
+                    </div>
+                    <a href="leader.php" class="btn btn-sm btn-outline-primary">Back</a>
                 </div>
-                <a href="leader.php" class="btn btn-sm btn-outline-primary">Back</a>
-            </div>
 
-            <div class="form-container">
-                <form method="post">
-                    <input type="hidden" name="csrf_token"
-                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <div class="form-container mx-auto">
+                    <form method="post">
+                        <input type="hidden" name="csrf_token"
+                            value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
-                    <div class="mb-3">
-                        <label for="project" class="form-label">Project ID *</label>
-                        <input type="number" id="project" name="project" class="form-control"
-                            placeholder="Enter project ID" required>
-                    </div>
+                        <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
 
-                    <div class="mb-3">
-                        <label for="user" class="form-label">Employee User ID *</label>
-                        <input type="number" id="user" name="user" class="form-control"
-                            placeholder="User ID to assign to" required>
-                    </div>
+                        <?php if (!empty($success)): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
 
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Task Title *</label>
-                        <input type="text" id="title" name="title" class="form-control" placeholder="Enter task title"
-                            required>
-                    </div>
+                        <div class="mb-3">
+                            <label for="project" class="form-label">Project ID *</label>
+                            <select id="project" name="project" class="form-control" required>
+                                <option value="">Select project</option>
+                                <?php if ($projects): ?>
+                                <?php while ($p = $projects->fetch_assoc()): ?>
+                                <option value="<?= $p['id'] ?>"
+                                    <?= (isset($_POST['project']) && (int)$_POST['project'] === (int)$p['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['project_name']) ?> (ID: <?= (int)$p['id'] ?>)
+                                </option>
+                                <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="desc" class="form-label">Description</label>
-                        <textarea id="desc" name="desc" class="form-control" rows="4"
-                            placeholder="Task description"></textarea>
-                    </div>
+                        <div class="mb-3">
+                            <label for="user" class="form-label">Employee User ID *</label>
+                            <select id="user" name="user" class="form-control" required>
+                                <option value="">Select employee</option>
+                                <?php if ($users): ?>
+                                <?php while ($u = $users->fetch_assoc()): ?>
+                                <option value="<?= $u['id'] ?>"
+                                    <?= (isset($_POST['user']) && (int)$_POST['user'] === (int)$u['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($u['full_name']) ?> (ID: <?= (int)$u['id'] ?>)
+                                </option>
+                                <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="deadline" class="form-label">Deadline</label>
-                        <input type="date" id="deadline" name="deadline" class="form-control">
-                    </div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Task Title *</label>
+                            <input type="text" id="title" name="title" class="form-control"
+                                placeholder="Enter task title" required
+                                value="<?= htmlspecialchars($_POST['title'] ?? '') ?>">
+                        </div>
 
-                    <button type="submit" class="btn btn-success w-100">Create Task</button>
-                </form>
-            </div>
+                        <div class="mb-3">
+                            <label for="desc" class="form-label">Description</label>
+                            <textarea id="desc" name="desc" class="form-control" rows="4"
+                                placeholder="Task description"><?= htmlspecialchars($_POST['desc'] ?? '') ?></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="deadline" class="form-label">Deadline</label>
+                            <input type="date" id="deadline" name="deadline" class="form-control"
+                                value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Create Task</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <?php
 include "../includes/auth.php";
-allow("Employee");
+allow("Employee", "Admin");
 include "../includes/db.php";
 
 $create_error = '';
@@ -577,7 +577,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "employee_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

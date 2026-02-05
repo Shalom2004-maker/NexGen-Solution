@@ -80,3 +80,8 @@
 [2026-02-04 11:16:43] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 11
 [2026-02-04 11:19:22] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 11
 [2026-02-04 11:26:55] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 11
+[2026-02-05 10:52:27] ip=::1 user=1 action=project_create msg=Project Cloud Computing created
+[2026-02-05 10:56:11] ip=::1 user=1 action=project_update msg=Project 4 updated
+[2026-02-05 14:28:09] ip=::1 user=5 action=password_change msg=Password changed for user 5
+[2026-02-05 14:46:52] ip=::1 user=5 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-02-05 14:54:34] ip=::1 user=5 action=profile_photo msg=Profile photo updated for user 5

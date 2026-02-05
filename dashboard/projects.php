@@ -352,20 +352,13 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php
-            if ($role === 'Admin') {
-                include "admin_siderbar.php";
-            } elseif ($role === 'ProjectLeader') {
-                include "leader_sidebar.php";
-            } else {
-                include "employee_sidebar.php";
-            }
-            ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">
             <div class="dashboard-shell">
-                <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="page-header d-flex flex-wrap align
+                -items-center justify-content-between gap-2">
                     <div>
                         <h3>Projects Management</h3>
                         <p><?= $projectCount ?> total projects in the workspace</p>
@@ -373,7 +366,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
                     <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
                     <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createProjectModal"
                         type="button">
-                        <i class="bi bi-plus-circle me-1"></i>&nbsp; Create New Project
+                        <i class="bi bi-plus-circle"></i>&nbsp; Create New Project
                     </button>
                     <?php endif; ?>
                 </div>
@@ -506,7 +499,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Update Project</button>
+                            <button type="submit" class="btn-primary-custom">Update Project</button>
                             <a href="projects.php" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>

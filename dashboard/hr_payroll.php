@@ -178,7 +178,7 @@ $res = $conn->query("SELECT * FROM payroll_inputs WHERE status='pending'");
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "hr_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

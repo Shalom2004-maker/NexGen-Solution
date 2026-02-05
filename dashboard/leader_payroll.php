@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "leader_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

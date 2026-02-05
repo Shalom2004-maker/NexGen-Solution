@@ -123,7 +123,7 @@ $stmt->close();
 $pages = max(1, ceil($total / $limit));
 ?>
 
-<?php include __DIR__ . '/hr_sidebar.php'; ?>
+<?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 

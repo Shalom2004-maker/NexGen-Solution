@@ -123,7 +123,7 @@ if ($params) {
 $stmt->execute();
 $res = $stmt->get_result();
 ?>
-<?php include __DIR__ . '/admin_siderbar.php'; ?>
+<?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 

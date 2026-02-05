@@ -26,7 +26,7 @@ $sql = "SELECT l.*, e.user_id, u.full_name AS employee_name
 $res = $conn->query($sql);
 ?>
 
-<?php include __DIR__ . '/leader_sidebar.php'; ?>
+<?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
 
 <div class="main-content" style="margin-left: 19rem;">
     <div class="page-header d-flex justify-content-between align-items-center mb-4 mt-3">

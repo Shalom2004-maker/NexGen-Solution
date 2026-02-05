@@ -33,7 +33,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 ?>
-<?php include __DIR__ . '/admin_siderbar.php'; ?>
+<?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap');

@@ -14,14 +14,15 @@ if (!isset($_SESSION["role"])) {
 }
 
 // allow accepts a role string or an array of allowed roles
-// Normalizes role names (trim + lowercase) and treats Admin as a superuser
-function allow($role)
+// Normalizes role names (trim + lowercase)
+// $allowAdmin=true means Admin is a superuser unless explicitly blocked
+function allow($role, $allowAdmin = true)
 {
     $current = trim((string)($_SESSION["role"] ?? ''));
     $current_lc = strtolower($current);
 
-    // Admin bypasses all role checks
-    if ($current_lc === 'admin') {
+    // Admin bypasses all role checks unless explicitly disabled
+    if ($allowAdmin && $current_lc === 'admin') {
         return;
     }
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 01, 2026 at 05:56 PM
+-- Generation Time: Feb 05, 2026 at 02:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -71,7 +71,10 @@ INSERT INTO `inquiries` (`id`, `name`, `email`, `company`, `message`, `status`, 
 (1, 'Mark', 'mark@mail.com', 'Alpha Ltd', 'Need a project quote', 'new', '2026-01-03 16:08:12', 'Service Request'),
 (2, 'Lisa', 'lisa@mail.com', 'Beta Corp', 'Interested in your software', 'replied', '2026-01-03 16:08:12', 'Others'),
 (3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'replied', '2026-01-03 16:08:12', 'General Inquiry'),
-(4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\n\nPreferred Contact Time: 2026-01-14 06:00 PM\nInquiry Type: Service Request', 'new', '2026-01-05 13:18:56', 'Support');
+(4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\r\n\r\nPreferred Contact Time: 2026-01-14 06:00 PM\r\nInquiry Type: Service Request', 'closed', '2026-01-05 13:18:56', 'Support'),
+(6, 'Benevolent', 'benevolenteager@gmail.com', 'NexGen Solutions', 'The integration of APIs and my project.', 'new', '2026-02-03 17:57:15', 'HR'),
+(7, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'replied', '2026-02-03 22:12:16', 'Complaint'),
+(8, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'new', '2026-02-03 22:17:34', 'Complaint');
 
 -- --------------------------------------------------------
 
@@ -107,7 +110,7 @@ CREATE TABLE `leave_requests` (
   `employee_id` int(11) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `leave_type` enum('sick','annual','unpaid') DEFAULT NULL,
+  `leave_type` enum('sick','annual','unpaid','personal','vacation') DEFAULT NULL,
   `reason` text DEFAULT NULL,
   `status` enum('pending','leader_approved','hr_approved','rejected') DEFAULT 'pending',
   `leader_id` int(11) DEFAULT NULL,
@@ -123,7 +126,8 @@ INSERT INTO `leave_requests` (`id`, `employee_id`, `start_date`, `end_date`, `le
 (7, 1, '2024-06-10', '2024-06-12', 'annual', 'Vacation', 'leader_approved', 3, 2, '2026-01-03 16:41:45'),
 (8, 2, '2024-06-05', '2024-06-06', 'sick', 'Flu', 'leader_approved', 3, NULL, '2026-01-03 16:41:45'),
 (9, 1, '2024-05-01', '2024-05-02', 'unpaid', 'Personal', 'hr_approved', 3, 2, '2026-01-03 16:41:45'),
-(10, 1, '2026-01-30', '2026-02-08', '', 'I\'d like to spend the time thinking about myself. ', 'pending', NULL, NULL, '2026-01-11 17:05:30');
+(10, 1, '2026-01-30', '2026-02-08', 'sick', 'I\'d like to spend the time thinking about myself.', 'rejected', NULL, NULL, '2026-01-11 17:05:30'),
+(11, 1, '2026-02-06', '2026-02-08', 'personal', 'It will be Sabbath; I need to need as it is commanded', 'pending', NULL, NULL, '2026-02-04 05:08:18');
 
 -- --------------------------------------------------------
 
@@ -175,7 +179,8 @@ CREATE TABLE `projects` (
 INSERT INTO `projects` (`id`, `project_name`, `description`, `leader_id`, `start_date`, `end_date`) VALUES
 (1, 'Website Revamp', 'Company website upgrade', 3, '2024-01-01', '2024-06-30'),
 (2, 'HR System', 'Internal HR portal', 3, '2024-03-10', '2024-09-10'),
-(3, 'Mobile App', 'Customer app', 3, '2024-03-01', '2024-09-01');
+(3, 'Mobile App', 'Customer app', 3, '2024-03-01', '2024-09-01'),
+(4, 'Cloud Computing', 'Learn the basics of Cloud Computing.', 5, '2026-02-27', '2026-03-05');
 
 -- --------------------------------------------------------
 
@@ -251,9 +256,10 @@ CREATE TABLE `tasks` (
 --
 
 INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `created_by`, `title`, `description`, `status`, `deadline`, `created_at`) VALUES
-(7, 1, 1, 3, 'Design Home Page', 'Create UI for homepage', 'done', '2024-06-01', '2026-01-03 16:34:10'),
+(7, 1, 1, 3, 'Design Home Page', 'Create UI for homepage', 'todo', '2024-06-01', '2026-01-03 16:34:10'),
 (8, 2, 2, 3, 'Design HR Forms', 'Create a leave form UI', 'done', '2026-01-30', '2026-01-03 16:34:10'),
-(9, 3, 3, 3, 'API Setup', 'Set up backend APIs', 'done', '2024-06-10', '2026-01-03 16:34:10');
+(9, 3, 3, 3, 'API Setup', 'Set up backend APIs', 'in_progress', '2024-06-10', '2026-01-03 16:34:10'),
+(10, 3, 1, 1, 'Lets Chat', 'Let\'s focus on this thrilling journey until the end.', 'todo', '2026-03-08', '2026-02-03 17:27:09');
 
 -- --------------------------------------------------------
 
@@ -268,6 +274,9 @@ CREATE TABLE `users` (
   `password_hash` varchar(255) NOT NULL,
   `role_id` int(11) NOT NULL,
   `status` enum('active','disabled') DEFAULT 'active',
+  `profile_photo` varchar(255) DEFAULT NULL,
+  `password_reset_token` varchar(255) DEFAULT NULL,
+  `password_reset_expires_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -275,11 +284,12 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `role_id`, `status`, `created_at`) VALUES
-(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni\n', 5, 'active', '2026-01-03 15:51:13'),
-(2, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe\r\n', 4, 'active', '2026-01-03 15:51:13'),
-(3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS\r\n', 3, 'active', '2026-01-03 15:51:13'),
-(4, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', 2, 'active', '2026-01-05 12:33:32');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `role_id`, `status`, `profile_photo`, `password_reset_token`, `password_reset_expires_at`, `created_at`) VALUES
+(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni\n', 5, 'active', NULL, NULL, NULL, '2026-01-03 15:51:13'),
+(2, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe\r\n', 4, 'active', NULL, NULL, NULL, '2026-01-03 15:51:13'),
+(3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS\r\n', 3, 'active', NULL, NULL, NULL, '2026-01-03 15:51:13'),
+(4, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', 2, 'active', NULL, NULL, NULL, '2026-01-05 12:33:32'),
+(5, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$iw7.67Pr3dmV60q1eiGVrepwsQMfvpnALz3CQHCWNkaGciMDaTmTC', 2, 'active', NULL, NULL, NULL, '2026-02-04 09:00:00');
 
 --
 -- Indexes for dumped tables
@@ -374,7 +384,7 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `inquiry_table`
@@ -386,7 +396,7 @@ ALTER TABLE `inquiry_table`
 -- AUTO_INCREMENT for table `leave_requests`
 --
 ALTER TABLE `leave_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `payroll_inputs`
@@ -398,7 +408,7 @@ ALTER TABLE `payroll_inputs`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -416,13 +426,13 @@ ALTER TABLE `salary_slips`
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

@@ -670,7 +670,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "employee_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

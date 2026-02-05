@@ -5,13 +5,22 @@ include "../includes/db.php";
 
 $uid = intval($_SESSION["uid"]);
 
-$stmt = $conn->prepare("SELECT users.full_name, users.email, employees.job_title, employees.department, employees.hire_date, 
+$stmt = $conn->prepare("SELECT users.full_name, users.email, users.profile_photo, employees.job_title, employees.department, employees.hire_date, 
 employees.salary_base FROM users JOIN employees ON users.id = employees.user_id WHERE users.id = ?");
 $stmt->bind_param("i", $uid);
 $stmt->execute();
 $q = $stmt->get_result();
 
 $data = $q->fetch_assoc();
+$photoPath = $data['profile_photo'] ?? '';
+$photoUrl = '';
+if ($photoPath) {
+    if (preg_match('/^https?:\\/\\//i', $photoPath)) {
+        $photoUrl = $photoPath;
+    } else {
+        $photoUrl = '../' . ltrim($photoPath, '/');
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -52,6 +61,27 @@ $data = $q->fetch_assoc();
         color: #334155;
         font-weight: 600;
     }
+
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1d4ed8;
+        font-weight: 700;
+        font-size: 2.2rem;
+        overflow: hidden;
+        border: 2px solid rgba(29, 78, 216, 0.25);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
     </style>
 </head>
 
@@ -59,7 +89,27 @@ $data = $q->fetch_assoc();
 
     <div class="container mt-4">
         <div class="dashboard-shell">
-            <h3 class="mb-3">My Profile</h3>
+            <div class="d-flex justify-content-between align-items-center end-2 mb-3">
+                <div>
+                    <h3 class="mb-3">My Profile</h3>
+                </div>
+                <a href="employee.php">
+                    <button class="btn btn-outline-primary">Back</button>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="profile-avatar">
+                    <?php if ($photoUrl): ?>
+                    <img src="<?= htmlspecialchars($photoUrl) ?>" alt="Profile photo">
+                    <?php else: ?>
+                    <?= htmlspecialchars(substr($data['full_name'] ?? 'U', 0, 1)) ?>
+                    <?php endif; ?>
+                </div>
+                <div>
+                    <h5 class="mb-0"><?= htmlspecialchars($data['full_name'] ?? '') ?></h5>
+                    <small class="text-muted"><?= htmlspecialchars($data['email'] ?? '') ?></small>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-bordered m-0">
                     <tr>

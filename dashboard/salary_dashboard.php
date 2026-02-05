@@ -287,7 +287,7 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "employee_sidebar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">

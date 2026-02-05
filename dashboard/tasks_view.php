@@ -1,5 +1,6 @@
 <?php
 include "../includes/auth.php";
+allow(["Employee", "ProjectLeader", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 
@@ -369,7 +370,7 @@ $res = $stmt->get_result();
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "admin_siderbar.php"; ?>
+            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
         </div>
 
         <div class="main-content">
