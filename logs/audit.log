@@ -85,3 +85,4 @@
 [2026-02-05 14:28:09] ip=::1 user=5 action=password_change msg=Password changed for user 5
 [2026-02-05 14:46:52] ip=::1 user=5 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
 [2026-02-05 14:54:34] ip=::1 user=5 action=profile_photo msg=Profile photo updated for user 5
+[2026-02-05 15:06:16] ip=::1 user=1 action=profile_photo msg=Profile photo updated for user 1
