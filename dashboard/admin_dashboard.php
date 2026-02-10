@@ -18,7 +18,7 @@ if ($emp_result) {
 }
 
 // Active Tasks
-$task_result = $conn->query("SELECT COUNT(*) as count FROM tasks WHERE status = 'In Progress' OR status = 'Pending'");
+$task_result = $conn->query("SELECT COUNT(*) as count FROM tasks WHERE status IN ('todo', 'in_progress')");
 if ($task_result) {
     $task_row = $task_result->fetch_assoc();
     $active_tasks = $task_row['count'];

@@ -1,11 +1,12 @@
 <?php
 include "../includes/auth.php";
-allow("Employee");
+allow(["Employee", "ProjectLeader", "Admin"]);
 include "../includes/db.php";
 include "../includes/logger.php";
 
 // Get user ID
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
+$role = $_SESSION['role'] ?? '';
 
 // Initialize form variables
 $error = '';
@@ -23,18 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
         audit_log('csrf', 'Invalid CSRF token on tasks_dashboard', $_SESSION['uid'] ?? null);
         $error = 'Invalid request';
+    } elseif (!in_array($role, ['ProjectLeader', 'Admin'], true)) {
+        http_response_code(403);
+        $error = 'You do not have permission to create tasks.';
     } else {
-        $project_id = isset($_POST['project']) && $_POST['project'] !== '' ? (int)$_POST['project'] : null;
+        $project_id = trim($_POST['project'] ?? '');
+        $project_id = $project_id !== '' ? (string)((int)$project_id) : '';
         $assigned_to = isset($_POST['assigned_to']) && $_POST['assigned_to'] !== '' ? (int)$_POST['assigned_to'] : $uid;
         $title = trim($_POST['title'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
+        $deadline = trim($_POST['deadline'] ?? '');
 
         if ($title === '') {
             $error = 'Task title is required.';
         } else {
-            $stmt = $conn->prepare("INSERT INTO tasks (project_id, assigned_to, created_by, title, description, status, deadline) VALUES (?,?,?,?,?, 'todo', ?)");
-            $stmt->bind_param("iiisss", $project_id, $assigned_to, $uid, $title, $description, $deadline);
+            $stmt = $conn->prepare("INSERT INTO tasks (project_id, assigned_to, created_by, title, description, status, deadline) VALUES (NULLIF(?, ''), ?, ?, ?, ?, 'todo', NULLIF(?, ''))");
+            $stmt->bind_param("siisss", $project_id, $assigned_to, $uid, $title, $description, $deadline);
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 audit_log('task_create', "Task created by user {$uid}", $_SESSION['uid'] ?? null);
                 $success = 'Task created successfully!';
@@ -55,10 +60,19 @@ $pending_count = 0;
 $in_progress_count = 0;
 $completed_count = 0;
 
+$can_view_all = in_array($role, ['ProjectLeader', 'Admin'], true);
+$scope_where = $can_view_all ? '' : 'WHERE assigned_to = ?';
+$scope_types = $can_view_all ? '' : 'i';
+$scope_params = $can_view_all ? [] : [$uid];
+
+$count_query_base = "SELECT COUNT(*) as count FROM tasks";
+
 // All tasks count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ?");
+$stmt = $conn->prepare($count_query_base . " $scope_where");
 if ($stmt) {
-    $stmt->bind_param('i', $uid);
+    if (!$can_view_all) {
+        $stmt->bind_param($scope_types, ...$scope_params);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
@@ -67,9 +81,11 @@ if ($stmt) {
 }
 
 // Pending (todo) count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'todo'");
+$stmt = $conn->prepare($count_query_base . " $scope_where" . ($scope_where ? " AND" : " WHERE") . " status = 'todo'");
 if ($stmt) {
-    $stmt->bind_param('i', $uid);
+    if (!$can_view_all) {
+        $stmt->bind_param($scope_types, ...$scope_params);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
@@ -78,9 +94,11 @@ if ($stmt) {
 }
 
 // In Progress count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'in_progress'");
+$stmt = $conn->prepare($count_query_base . " $scope_where" . ($scope_where ? " AND" : " WHERE") . " status = 'in_progress'");
 if ($stmt) {
-    $stmt->bind_param('i', $uid);
+    if (!$can_view_all) {
+        $stmt->bind_param($scope_types, ...$scope_params);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
@@ -89,9 +107,11 @@ if ($stmt) {
 }
 
 // Completed count
-$stmt = $conn->prepare("SELECT COUNT(*) as count FROM tasks WHERE assigned_to = ? AND status = 'done'");
+$stmt = $conn->prepare($count_query_base . " $scope_where" . ($scope_where ? " AND" : " WHERE") . " status = 'done'");
 if ($stmt) {
-    $stmt->bind_param('i', $uid);
+    if (!$can_view_all) {
+        $stmt->bind_param($scope_types, ...$scope_params);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
@@ -106,6 +126,19 @@ $search = trim($_GET['q'] ?? '');
 $filterStatus = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $filters = ['all', 'todo', 'in_progress', 'done'];
 $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
+
+// Redirect target for status updates (preserve search/filter)
+$redirect_url = 'tasks_dashboard.php';
+$redirect_params = [];
+if ($search !== '') {
+    $redirect_params[] = 'q=' . urlencode($search);
+}
+if ($filterStatus !== 'all') {
+    $redirect_params[] = 'filter=' . urlencode($filterStatus);
+}
+if ($redirect_params) {
+    $redirect_url .= '?' . implode('&', $redirect_params);
+}
 
 // Projects for create form
 $projects = $conn->query("SELECT id, project_name FROM projects ORDER BY project_name");
@@ -688,6 +721,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                                 <i class=" bi bi-eye"></i> &nbsp; View Tasks
                             </a>
                         </button>
+                        <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
                         <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
                             data-bs-target="#taskCreateModal">
                             <i class="bi bi-plus-circle"></i> &nbsp; Create Task
@@ -789,6 +823,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                                 </div>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -875,9 +910,9 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             <?php
             if ($uid > 0) {
                 // Build query based on filter and search
-                $where = 'WHERE t.assigned_to = ?';
-                $params = [$uid];
-                $types = 'i';
+                $where = $can_view_all ? 'WHERE 1=1' : 'WHERE t.assigned_to = ?';
+                $params = $can_view_all ? [] : [$uid];
+                $types = $can_view_all ? '' : 'i';
 
                 if ($filterStatus === 'todo') {
                     $where .= " AND t.status = 'todo'";
@@ -902,7 +937,9 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                           ORDER BY t.created_at DESC";
                 $stmt = $conn->prepare($query);
                 if ($stmt) {
-                    $stmt->bind_param($types, ...$params);
+                    if ($types !== '') {
+                        $stmt->bind_param($types, ...$params);
+                    }
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $has_tasks = false;
@@ -936,7 +973,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                     <div class="task-description">
                         <?= htmlspecialchars($task['description']) ?>
                     </div>
-                    <div class="task-meta">
+                <div class="task-meta">
                         <span class="task-meta-item">
                             <i class="bi bi-calendar2"></i>
                             Deadline: <?= htmlspecialchars($deadline_display) ?>
@@ -950,6 +987,21 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                         <span class="task-project">
                             <?= htmlspecialchars($project_display) ?>
                         </span>
+                        <form method="post" action="tasks_update.php" class="d-flex align-items-center gap-2 ms-auto">
+                            <input type="hidden" name="csrf_token"
+                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                            <input type="hidden" name="action" value="set_status">
+                            <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
+                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect_url) ?>">
+                            <select name="status" class="form-select form-select-sm" style="width:auto;">
+                                <option value="todo" <?= $status === 'todo' ? 'selected' : '' ?>>To Do</option>
+                                <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>>
+                                    In Progress
+                                </option>
+                                <option value="done" <?= $status === 'done' ? 'selected' : '' ?>>Completed</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                        </form>
                     </div>
                 </div>
             </div>

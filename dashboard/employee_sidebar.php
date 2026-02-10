@@ -26,9 +26,6 @@
             class="bi bi-coin <?= $current_page === 'salary_dashboard.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Salary</a>
 
-        <a href="projects.php" class="bi bi-kanban <?= $current_page === 'projects.php' ? 'active' : '' ?>">
-            &nbsp;&nbsp; Projects</a>
-
         <a href="profile.php" class="bi bi-person <?= $current_page === 'profile.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Profile</a>
 

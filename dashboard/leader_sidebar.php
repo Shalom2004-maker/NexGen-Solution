@@ -1,6 +1,6 @@
 <?php include __DIR__ . "/../includes/sidebar_styles.php"; ?>
 
-<nav class="nexgen-sidebar p-3" id="nexgenSidebar">
+<nav class="nexgen-sidebar" id="nexgenSidebar">
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
         <p>Project Leader</p>
@@ -20,6 +20,9 @@
 
         <a href="leader_leave.php" class="bi bi-file-text <?= $current_page === 'leader_leave.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Leave Requests</a>
+
+        <a href="bulk_upload.php" class="bi bi-upload <?= $current_page === 'bulk_upload.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Bulk Upload</a>
 
         <a href="leader_payroll.php" class="bi bi-coin <?= $current_page === 'leader_payroll.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Payroll</a>

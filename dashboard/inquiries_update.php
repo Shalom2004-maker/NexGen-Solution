@@ -5,7 +5,7 @@ include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: inquiries_view.php');
+    header('Location: inquiries_dashboard.php');
     exit();
 }
 
@@ -71,6 +71,5 @@ if ($action === 'update') {
     $stmt->close();
 }
 
-header('Location: inquiries_view.php');
+header('Location: inquiries_dashboard.php');
 exit();
-

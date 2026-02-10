@@ -34,9 +34,16 @@
             <?= $current_page === 'inquiries_dashboard.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Inquiries</a>
 
-        <h5 style="margin-top: 1rem;">Users</h5>
-        <a href="admin_user.php" class="bi bi-people <?= $current_page === 'admin_user.php' ? 'active' : '' ?>">
+        <h5 style="margin-top: 1rem;">Quick Access</h5>
+        <a href="admin_user_view.php"
+            class="bi bi-people <?= $current_page === 'admin_user_view.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; System Users</a>
+
+        <a href="bulk_upload.php" class="bi bi-upload <?= $current_page === 'bulk_upload.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Bulk Upload</a>
+
+        <a href="profile.php" class="bi bi-person <?= $current_page === 'profile.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Profile</a>
 
         <a href="settings.php" class="bi bi-gear <?= $current_page === 'settings.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Settings</a>

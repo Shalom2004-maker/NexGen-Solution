@@ -3,6 +3,7 @@ include "../includes/auth.php";
 allow(["Employee", "ProjectLeader", "HR", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
+include "../includes/sidebar_helper.php";
 
 $uid = (int)($_SESSION['uid'] ?? 0);
 
@@ -166,15 +167,7 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-$photoPath = $user['profile_photo'] ?? '';
-$photoUrl = '';
-                if ($photoPath) {
-                    if (preg_match('/^https?:\\/\\//i', $photoPath)) {
-                        $photoUrl = $photoPath;
-                    } else {
-                        $photoUrl = '../' . ltrim($photoPath, '/');
-                    }
-                }
+$photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
 ?>
 
 <!DOCTYPE html>

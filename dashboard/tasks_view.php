@@ -381,11 +381,13 @@ $res = $stmt->get_result();
                         <p>Manage and track all tasks</p>
                     </div>
 
+                    <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
                     <button type="button" class="btn-primary-custom">
-                        <a href="tasks_dashboard.php" class="text-white text-decoration-none">
-                            <i class=" bi bi-eye"></i> &nbsp; Create Tasks
+                        <a href="leader_tasks.php" class="text-white text-decoration-none">
+                            <i class=" bi bi-plus-circle"></i> &nbsp; Create Tasks
                         </a>
                     </button>
+                    <?php endif; ?>
 
                 </div>
 
@@ -416,20 +418,34 @@ $res = $stmt->get_result();
                                 <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
                                 <td>
                                     <?php
-                                        $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in-progress' ? 'status-in-progress' : 'status-todo');
+                                        $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in_progress' ? 'status-in-progress' : 'status-todo');
+                                        $statusLabel = ucfirst(str_replace('_', ' ', $t['status']));
                                         ?>
                                     <span
-                                        class="status-badge <?= $statusClass ?>"><?= ucfirst(htmlspecialchars($t['status'])) ?></span>
+                                        class="status-badge <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span>
                                 </td>
                                 <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?>
                                 </td>
                                 <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
                                 <td>
                                     <div class="action-buttons">
+                                        <?php if ((int)$t['assigned_to'] === $uid || in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
+                                        <form method="post" action="tasks_update.php" style="display: inline">
+                                            <input type="hidden" name="csrf_token"
+                                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                            <input type="hidden" name="action" value="toggle_status">
+                                            <input type="hidden" name="task_id"
+                                                value="<?= htmlspecialchars($t['id']) ?>">
+                                            <button type="submit" class="btn btn-outline-success"
+                                                title="Toggle status">
+                                                <i class="bi bi-check2-circle"></i>
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                        <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
                                         <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn btn-outline-primary">
                                             <i class="bi bi-pen"></i>
                                         </a>
-                                        <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
                                         <form method="post" action="task_delete.php" style="display: inline"
                                             onsubmit="return confirm('Delete this task?')">
                                             <input type="hidden" name="csrf_token"

@@ -13,7 +13,11 @@ if (isset($_GET["approve"])) {
     $stmt->close();
 }
 
-$res = $conn->query("SELECT * FROM leave_requests WHERE status='leader_approved'");
+$res = $conn->query("SELECT leave_requests.id, leave_requests.employee_id, users.full_name, leave_requests.start_date, leave_requests.end_date, leave_requests.status
+                     FROM leave_requests
+                     INNER JOIN employees ON leave_requests.employee_id = employees.id
+                     INNER JOIN users ON employees.user_id = users.id
+                     ORDER BY leave_requests.start_date DESC");
 ?>
 
 <!DOCTYPE html>
@@ -165,7 +169,9 @@ $res = $conn->query("SELECT * FROM leave_requests WHERE status='leader_approved'
                         <thead>
                             <tr>
                                 <th>Employee ID</th>
+                                <th>Employee Name</th>
                                 <th>Dates</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -173,8 +179,15 @@ $res = $conn->query("SELECT * FROM leave_requests WHERE status='leader_approved'
                             <?php while ($row = $res->fetch_assoc()) { ?>
                             <tr>
                                 <td><?= $row["employee_id"] ?></td>
+                                <td><?= $row["full_name"] ?></td>
                                 <td><?= $row["start_date"] ?> to <?= $row["end_date"] ?></td>
-                                <td><a href="?approve=<?= $row["id"] ?>" class="btn btn-primary btn-sm">Approve</a>
+                                <td><?= htmlspecialchars($row["status"]) ?></td>
+                                <td>
+                                    <?php if ($row["status"] === "leader_approved"): ?>
+                                    <a href="?approve=<?= $row["id"] ?>" class="btn btn-primary btn-sm">Approve</a>
+                                    <?php else: ?>
+                                    <button class="btn btn-secondary btn-sm" disabled>Waiting on Leader</button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php } ?>

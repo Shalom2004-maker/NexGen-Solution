@@ -1,6 +1,6 @@
 <?php include __DIR__ . "/../includes/sidebar_styles.php"; ?>
 
-<nav class="nexgen-sidebar p-3" id="nexgenSidebar">
+<nav class="nexgen-sidebar" id="nexgenSidebar">
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
         <p>HR Portal</p>
@@ -14,6 +14,9 @@
         <a href="hr.php" class="bi bi-columns-gap <?= $current_page === 'hr.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Dashboard</a>
 
+        <a href="employee.php" class="bi bi-people <?= $current_page === 'employee.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Employees</a>
+
         <a href="hr_inquiries.php" class="bi bi-chat-left <?= $current_page === 'hr_inquiries.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Inquiries</a>
 
@@ -22,6 +25,9 @@
 
         <a href="hr_payroll.php" class="bi bi-coin <?= $current_page === 'hr_payroll.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Payroll</a>
+
+        <a href="bulk_upload.php" class="bi bi-upload <?= $current_page === 'bulk_upload.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Bulk Upload</a>
 
         <a href="settings.php" class="bi bi-gear <?= $current_page === 'settings.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Settings</a>

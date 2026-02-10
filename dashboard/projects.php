@@ -1,7 +1,7 @@
 <?php
 include "../includes/auth.php";
-// allow Employees, Project Leaders and Admins to view/manage projects
-allow(["Employee", "ProjectLeader", "Admin"]);
+// Only Project Leaders (and Admin) can manage projects
+allow(["ProjectLeader", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 

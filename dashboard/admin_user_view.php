@@ -109,7 +109,7 @@ $total = $countStmt->get_result()->fetch_assoc()['c'];
 $countStmt->close();
 
 // Fetch users with roles
-$sql = "SELECT u.id, u.full_name, u.email, u.status, u.created_at, r.role_name 
+$sql = "SELECT u.id, u.full_name, u.email, u.status, u.created_at, r.role_name
         FROM users u 
         LEFT JOIN roles r ON u.role_id = r.id " . $where . " 
         ORDER BY u.created_at ASC LIMIT ? OFFSET ?";
@@ -333,8 +333,7 @@ body {
             <div>
                 <h3>Users Management</h3>
             </div>
-            <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
-                data-bs-target="#createUserModal">
+            <button type="button" class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createUserModal">
                 <i class="bi bi-person-plus"></i> &nbsp; Create New User
             </button>
         </div>
@@ -463,7 +462,7 @@ body {
             </ul>
         </nav>
         <?php endif; ?>
-</div>
+    </div>
 </div>
 
 <!-- Create User Modal -->
@@ -523,10 +522,10 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const nexgenSidebar = document.getElementById('nexgenSidebar');
 
     if (sidebarToggleBtn && nexgenSidebar) {
         sidebarToggleBtn.addEventListener('click', function(e) {
@@ -545,28 +544,28 @@ body {
         });
     }
 
-        if (nexgenSidebar) {
-            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
+    if (nexgenSidebar) {
+        document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    nexgenSidebar.classList.remove('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.remove('show');
                     }
-                });
+                }
             });
-        }
+        });
+    }
 
-        const showCreateModal = <?= !empty($create_error) ? 'true' : 'false' ?>;
-        if (showCreateModal) {
-            const createModal = document.getElementById('createUserModal');
-            if (createModal && window.bootstrap) {
-                const modalInstance = new bootstrap.Modal(createModal);
-                modalInstance.show();
-            }
+    const showCreateModal = <?= !empty($create_error) ? 'true' : 'false' ?>;
+    if (showCreateModal) {
+        const createModal = document.getElementById('createUserModal');
+        if (createModal && window.bootstrap) {
+            const modalInstance = new bootstrap.Modal(createModal);
+            modalInstance.show();
         }
-    });
+    }
+});
 </script>
 </body>
 

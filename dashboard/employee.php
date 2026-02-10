@@ -1,7 +1,9 @@
 <?php
 include "../includes/auth.php";
-allow("Employee", "Admin");
+allow(["Employee", "HR", "Admin"]);
 include "../includes/db.php";
+
+$role = $_SESSION['role'] ?? '';
 
 $create_error = '';
 $create_success = '';
@@ -15,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
     $posted_token = $_POST['csrf_token'] ?? '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
         $create_error = 'Invalid request (CSRF).';
+    } elseif (!in_array($role, ['HR', 'Admin'], true)) {
+        http_response_code(403);
+        $create_error = 'You do not have permission to create employees.';
     } else {
         $name = trim($_POST['full_name'] ?? '');
         $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
@@ -584,18 +589,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
             <div class="dashboard-shell">
                 <div class="page-header">
                     <div>
+                        <?php if ($role === 'Employee') : ?>
                         <h3>Employee Dashboard</h3>
                         <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's your live
                             workspace overview.</p>
+                        <?php else : ?>
+                        <h3>Employee Records</h3>
+                        <p>Manage employee profiles and onboarding details.</p>
+                        <?php endif; ?>
                     </div>
                     <div class="header-actions">
-                        <button class="btn btn-primary-custom" data-bs-toggle="modal"
-                            data-bs-target="#createEmployeeModal">
+                        <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
+                        <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
                             <i class="bi bi-person-plus"></i> Create Employee
                         </button>
+                        <?php endif; ?>
+                        <?php if ($role === 'Employee') : ?>
                         <a class="btn btn-outline-custom" href="profile.php">
                             <i class="bi bi-person-circle"></i> My Profile
                         </a>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -605,25 +618,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                 <div class="alert alert-success alert-custom"><?= htmlspecialchars($create_success) ?></div>
                 <?php endif; ?>
 
+                <?php if ($role === 'Employee') : ?>
                 <div class="quick-actions">
                     <h5>Quick Actions</h5>
                     <div class="action-buttons">
                         <a class="action-link" href="tasks_dashboard.php"><i class="bi bi-list-check"></i> Tasks</a>
                         <a class="action-link" href="leave_dashboard.php"><i class="bi bi-calendar2-check"></i>
                             Leave</a>
-                        <a class="action-link" href="salary.php"><i class="bi bi-coin"></i> Salary</a>
+                        <a class="action-link" href="salary_dashboard.php"><i class="bi bi-coin"></i> Salary</a>
+                    </div>
+                </div>
+                <?php elseif ($role === 'HR') : ?>
+                <div class="quick-actions">
+                    <h5>Quick Actions</h5>
+                    <div class="action-buttons">
+                        <a class="action-link" href="employee.php"><i class="bi bi-people"></i> Employees</a>
+                        <a class="action-link" href="leave_view.php"><i class="bi bi-calendar2-check"></i> Leave</a>
+                        <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> Inquiries</a>
+                        <a class="action-link" href="hr_payroll.php"><i class="bi bi-coin"></i> Payroll</a>
+                    </div>
+                </div>
+                <?php elseif ($role === 'Admin') : ?>
+                <div class="quick-actions">
+                    <h5>Quick Actions</h5>
+                    <div class="action-buttons">
+                        <a class="action-link" href="admin_dashboard.php"><i class="bi bi-columns-gap"></i>
+                            Dashboard</a>
+                        <a class="action-link" href="admin_user_view.php"><i class="bi bi-people"></i> Users</a>
                         <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> Inquiries</a>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Stats Grid -->
+                <?php if ($role === 'Employee') : ?>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
                         <h6>Pending Tasks</h6>
                         <?php
                         $id = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 1;
-                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'in_progress' AND assigned_to = ?");
+                        $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('todo', 'in_progress') AND assigned_to = ?");
                         if ($stmt) {
                             $stmt->bind_param('i', $id);
                             $stmt->execute();
@@ -781,8 +816,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         ?>
                     </div>
 
+                </div>
+                <?php endif; ?>
+
+                <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
+                <div class="content-grid">
                     <div class="card-container">
-                        <h4><i class="bi bi-people"></i> Newest Employees</h4>
+                        <h4><i class="bi bi-people"></i>&nbsp; Newest Employees</h4>
                         <?php
                         $stmt = $conn->prepare("SELECT u.full_name, u.email, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.id DESC LIMIT 5");
                         if ($stmt) {
@@ -810,10 +850,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         ?>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
+    <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
     <!-- Create Employee Modal -->
     <div class="modal fade" id="createEmployeeModal" tabindex="-1" aria-labelledby="createEmployeeModalLabel"
         aria-hidden="true">
@@ -873,12 +915,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary-custom">Create Employee</button>
+                        <button type="submit" class="btn-primary-custom">Create Employee</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

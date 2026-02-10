@@ -2,6 +2,7 @@
 include "../includes/auth.php";
 allow("Employee");
 include "../includes/db.php";
+include "../includes/sidebar_helper.php";
 
 $uid = intval($_SESSION["uid"]);
 
@@ -12,15 +13,11 @@ $stmt->execute();
 $q = $stmt->get_result();
 
 $data = $q->fetch_assoc();
-$photoPath = $data['profile_photo'] ?? '';
-$photoUrl = '';
-if ($photoPath) {
-    if (preg_match('/^https?:\\/\\//i', $photoPath)) {
-        $photoUrl = $photoPath;
-    } else {
-        $photoUrl = '../' . ltrim($photoPath, '/');
-    }
+$profileMissing = !$data;
+if (!$data) {
+    $data = [];
 }
+$photoUrl = resolve_avatar_url($data['profile_photo'] ?? '');
 ?>
 
 <!DOCTYPE html>
@@ -97,6 +94,17 @@ if ($photoPath) {
                     <button class="btn btn-outline-primary">Back</button>
                 </a>
             </div>
+
+            <?php if ($profileMissing): ?>
+            <div class="py-4">
+                <div class="text-center">
+                    <div class="profile-avatar mx-auto mb-3">!</div>
+                    <h4 class="mb-2">Profile not found</h4>
+                    <p class="text-muted mb-3">We couldn't find your employee profile details. Please contact HR to finish onboarding.</p>
+                    <a href="employee.php" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            </div>
+            <?php else: ?>
             <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="profile-avatar">
                     <?php if ($photoUrl): ?>
@@ -114,30 +122,31 @@ if ($photoPath) {
                 <table class="table table-bordered m-0">
                     <tr>
                         <th>Name</th>
-                        <td><?= $data["full_name"] ?></td>
+                        <td><?= htmlspecialchars($data["full_name"] ?? "Not available") ?></td>
                     </tr>
                     <tr>
                         <th>Email</th>
-                        <td><?= $data["email"] ?></td>
+                        <td><?= htmlspecialchars($data["email"] ?? "Not available") ?></td>
                     </tr>
                     <tr>
                         <th>Job Title</th>
-                        <td><?= $data["job_title"] ?></td>
+                        <td><?= htmlspecialchars($data["job_title"] ?? "Not available") ?></td>
                     </tr>
                     <tr>
                         <th>Department</th>
-                        <td><?= $data["department"] ?></td>
+                        <td><?= htmlspecialchars($data["department"] ?? "Not available") ?></td>
                     </tr>
                     <tr>
                         <th>Hire Date</th>
-                        <td><?= $data["hire_date"] ?></td>
+                        <td><?= htmlspecialchars($data["hire_date"] ?? "Not available") ?></td>
                     </tr>
                     <tr>
                         <th>Base Salary</th>
-                        <td><?= $data["salary_base"] ?></td>
+                        <td><?= htmlspecialchars($data["salary_base"] ?? "Not available") ?></td>
                     </tr>
                 </table>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </body>

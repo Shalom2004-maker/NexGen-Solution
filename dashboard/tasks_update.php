@@ -45,13 +45,43 @@ if ($action === 'toggle_status') {
         if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$newStatus}", $uid);
     }
     $u->close();
+} elseif ($action === 'set_status') {
+    $taskId = isset($_POST['task_id']) ? (int)$_POST['task_id'] : 0;
+    $requested = trim($_POST['status'] ?? '');
+    $allowed = ['todo', 'in_progress', 'done'];
+    if (!in_array($requested, $allowed, true)) {
+        http_response_code(400);
+        die('Invalid status');
+    }
+    $q = $conn->prepare("SELECT assigned_to FROM tasks WHERE id = ?");
+    $q->bind_param('i', $taskId);
+    $q->execute();
+    $r = $q->get_result()->fetch_assoc();
+    $q->close();
+    if (!$r) {
+        http_response_code(404);
+        die('Not found');
+    }
+    $assigned = (int)$r['assigned_to'];
+    if (!in_array($role, ['ProjectLeader', 'Admin'], true) && $assigned !== $uid) {
+        http_response_code(403);
+        die('Forbidden');
+    }
+    $u = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
+    $u->bind_param('si', $requested, $taskId);
+    if ($u->execute()) {
+        if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$requested}", $uid);
+    }
+    $u->close();
 } elseif ($action === 'update') {
     $taskId = isset($_POST['task_id']) ? (int)$_POST['task_id'] : 0;
-    $project = isset($_POST['project']) && $_POST['project'] !== '' ? (int)$_POST['project'] : null;
-    $assigned_to = isset($_POST['assigned_to']) && $_POST['assigned_to'] !== '' ? (int)$_POST['assigned_to'] : null;
+    $project = trim($_POST['project'] ?? '');
+    $project = $project !== '' ? (string)((int)$project) : '';
+    $assigned_to = trim($_POST['assigned_to'] ?? '');
+    $assigned_to = $assigned_to !== '' ? (string)((int)$assigned_to) : '';
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $deadline = !empty($_POST['deadline']) ? $_POST['deadline'] : null;
+    $deadline = trim($_POST['deadline'] ?? '');
 
     if ($title === '') {
         http_response_code(400);
@@ -74,13 +104,20 @@ if ($action === 'toggle_status') {
         die('Forbidden');
     }
 
-    $u = $conn->prepare("UPDATE tasks SET project_id = ?, assigned_to = ?, title = ?, description = ?, deadline = ? WHERE id = ?");
-    $u->bind_param('iisssi', $project, $assigned_to, $title, $description, $deadline, $taskId);
+    $u = $conn->prepare("UPDATE tasks SET project_id = NULLIF(?, ''), assigned_to = NULLIF(?, ''), title = ?, description = ?, deadline = NULLIF(?, '') WHERE id = ?");
+    $u->bind_param('sssssi', $project, $assigned_to, $title, $description, $deadline, $taskId);
     if ($u->execute()) {
         if (function_exists('audit_log')) audit_log('task_update', "Task {$taskId} updated", $uid);
     }
     $u->close();
 }
 
-header('Location: tasks_view.php');
+$redirect = $_POST['redirect'] ?? '';
+if ($redirect === '') {
+    $redirect = $_SERVER['HTTP_REFERER'] ?? '';
+}
+if (!preg_match('/^tasks_(dashboard|view)\\.php(\\?.*)?$/', $redirect)) {
+    $redirect = 'tasks_view.php';
+}
+header('Location: ' . $redirect);
 exit();

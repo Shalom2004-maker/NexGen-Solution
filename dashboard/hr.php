@@ -245,10 +245,10 @@ include "../includes/db.php";
                         <small>View public contact inquiries</small>
                     </a>
 
-                    <a href="admin_user_view.php" class="action-card danger">
-                        <i class="bi bi-shield-lock"></i>
-                        <h5>System Users</h5>
-                        <small>Manage system user accounts</small>
+                    <a href="employee.php" class="action-card danger">
+                        <i class="bi bi-people"></i>
+                        <h5>Employee Records</h5>
+                        <small>Create and maintain employee profiles</small>
                     </a>
                 </div>
             </div>

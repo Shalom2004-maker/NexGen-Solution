@@ -1,11 +1,12 @@
 <?php
 include "../includes/auth.php";
-allow("Employee");
+allow(["Employee", "ProjectLeader", "Admin"]);
 include "../includes/db.php";
 include "../includes/logger.php";
 
 // Get employee ID
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
+$role = $_SESSION['role'] ?? '';
 
 // Initialize form variables
 $error = '';
@@ -59,6 +60,8 @@ $approved_count = 0;
 $rejected_count = 0;
 $days_approved = 0;
 
+$can_view_all = in_array($role, ['ProjectLeader', 'Admin'], true);
+
 // Get employee_id from user_id
 $emp_stmt = $conn->prepare("SELECT id FROM employees WHERE user_id = ?");
 if ($emp_stmt) {
@@ -72,11 +75,17 @@ if ($emp_stmt) {
     $employee_id = 0;
 }
 
-if ($employee_id > 0) {
+$scope_where = $can_view_all ? '' : 'WHERE employee_id = ?';
+$scope_types = $can_view_all ? '' : 'i';
+$scope_params = $can_view_all ? [] : [$employee_id];
+
+if ($can_view_all || $employee_id > 0) {
     // Pending Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND status = 'pending'");
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " status = 'pending'");
     if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
+        if (!$can_view_all) {
+            $stmt->bind_param($scope_types, ...$scope_params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
@@ -85,9 +94,11 @@ if ($employee_id > 0) {
     }
 
     // Approved Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND (status = 'hr_approved' OR status = 'leader_approved')");
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " (status = 'hr_approved' OR status = 'leader_approved')");
     if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
+        if (!$can_view_all) {
+            $stmt->bind_param($scope_types, ...$scope_params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
@@ -96,9 +107,11 @@ if ($employee_id > 0) {
     }
 
     // Rejected Requests
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests WHERE employee_id = ? AND status = 'rejected'");
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " status = 'rejected'");
     if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
+        if (!$can_view_all) {
+            $stmt->bind_param($scope_types, ...$scope_params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
@@ -107,9 +120,11 @@ if ($employee_id > 0) {
     }
 
     // Days Approved
-    $stmt = $conn->prepare("SELECT SUM(DATEDIFF(end_date, start_date)) as total_days FROM leave_requests WHERE employee_id = ? AND (status = 'hr_approved' OR status = 'leader_approved')");
+    $stmt = $conn->prepare("SELECT SUM(DATEDIFF(end_date, start_date)) as total_days FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " (status = 'hr_approved' OR status = 'leader_approved')");
     if ($stmt) {
-        $stmt->bind_param('i', $employee_id);
+        if (!$can_view_all) {
+            $stmt->bind_param($scope_types, ...$scope_params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
@@ -803,7 +818,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                                             <div class="modal-footer border-top">
                                                 <button type="button" class="btn btn-outline-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">
+                                                <button type="submit" class="btn-primary-custom">
                                                     <i class="bi bi-send"></i> &nbsp; Submit Request
                                                 </button>
                                             </div>
@@ -875,29 +890,36 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 
             <!-- Leave Requests List -->
             <div class="section-title">
-                <span>My Leave Requests</span>
+                <span><?= $can_view_all ? 'Leave Requests' : 'My Leave Requests' ?></span>
             </div>
 
             <?php
-            if ($employee_id > 0) {
+            if ($can_view_all || $employee_id > 0) {
                 // Build query based on filter
-                $where = 'WHERE employee_id = ?';
-                $params = [$employee_id];
-                $types = 'i';
+                $where = $can_view_all ? 'WHERE 1=1' : 'WHERE lr.employee_id = ?';
+                $params = $can_view_all ? [] : [$employee_id];
+                $types = $can_view_all ? '' : 'i';
 
                 if ($filterStatus === 'pending') {
-                    $where .= " AND status = 'pending'";
+                    $where .= " AND lr.status = 'pending'";
                 } elseif ($filterStatus === 'approved') {
-                    $where .= " AND (status = 'approved' OR status = 'hr_approved' OR status = 'leader_approved')";
+                    $where .= " AND (lr.status = 'hr_approved' OR lr.status = 'leader_approved')";
                 } elseif ($filterStatus === 'rejected') {
-                    $where .= " AND status = 'rejected'";
+                    $where .= " AND lr.status = 'rejected'";
                 }
 
                 // Fetch leave requests for the employee based on filter
-                $query = "SELECT id, leave_type, reason, start_date, end_date, status FROM leave_requests " . $where . " ORDER BY applied_at DESC";
+                $query = "SELECT lr.id, lr.leave_type, lr.reason, lr.start_date, lr.end_date, lr.status, u.full_name as requestor_name
+                          FROM leave_requests lr
+                          LEFT JOIN employees e ON lr.employee_id = e.id
+                          LEFT JOIN users u ON e.user_id = u.id
+                          $where
+                          ORDER BY lr.applied_at DESC";
                 $stmt = $conn->prepare($query);
                 if ($stmt) {
-                    $stmt->bind_param($types, ...$params);
+                    if ($types !== '') {
+                        $stmt->bind_param($types, ...$params);
+                    }
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $has_requests = false;
@@ -924,7 +946,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                 <div class="leave-request-content">
                     <div class="leave-request-header">
                         <div class="leave-requestor">
-                            <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>
+                            <?= htmlspecialchars($leave['requestor_name'] ?: ($_SESSION['name'] ?? 'Employee')) ?>
                         </div>
                         <span class="leave-status <?= $status_badge_class ?>">
                             <?= $status_display ?>

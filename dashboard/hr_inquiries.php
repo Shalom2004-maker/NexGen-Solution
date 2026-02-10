@@ -171,7 +171,7 @@ if (isset($_GET["close"])) {
                         <h3 class="mb-1">Website Inquiries</h3>
                         <p class="text-muted mb-0">Track and respond to incoming inquiries</p>
                     </div>
-                    <a href="inquiries_view.php" class="btn btn-primary">
+                    <a href="inquiries_dashboard.php" class="btn btn-primary">
                         <i class="bi bi-eye"></i>&nbsp; View Inquiries</a>
                 </div>
 
@@ -202,8 +202,10 @@ if (isset($_GET["close"])) {
                                 <td><?= $i["message"] ?></td>
                                 <td><?= $i["status"] ?></td>
                                 <td>
-                                    <a href="?reply=<?= $i["id"] ?>" class="btn btn-sm btn-primary">Mark Replied</a>
-                                    <a href="?close=<?= $i["id"] ?>" class="btn btn-sm btn-danger">Close</a>
+                                    <a href="inquiries_dashboard.php?reply=<?= $i["id"] ?>"
+                                        class="btn btn-sm btn-primary">Mark Replied</a>
+                                    <a href="inquiries_dashboard.php?close=<?= $i["id"] ?>"
+                                        class="btn btn-sm btn-danger">Close</a>
                                 </td>
                             </tr>
                             <?php }

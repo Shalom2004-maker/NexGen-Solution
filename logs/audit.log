@@ -86,3 +86,61 @@
 [2026-02-05 14:46:52] ip=::1 user=5 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
 [2026-02-05 14:54:34] ip=::1 user=5 action=profile_photo msg=Profile photo updated for user 5
 [2026-02-05 15:06:16] ip=::1 user=1 action=profile_photo msg=Profile photo updated for user 1
+[2026-02-06 08:51:43] ip=::1 user=4 action=profile_photo msg=Profile photo updated for user 4
+[2026-02-06 08:52:54] ip=::1 user=4 action=profile_update msg=Profile updated for user 4
+[2026-02-06 09:08:08] ip=::1 user=4 action=profile_update msg=Profile updated for user 4
+[2026-02-06 09:24:33] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 6
+[2026-02-06 09:30:31] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 6
+[2026-02-06 09:30:53] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 6
+[2026-02-06 09:31:20] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 6
+[2026-02-06 09:32:13] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 6
+[2026-02-06 09:56:15] ip=::1 user=3 action=leave_update msg=Updated leave request ID: 11
+[2026-02-06 09:56:24] ip=::1 user=3 action=leave_update msg=Updated leave request ID: 11
+[2026-02-06 10:02:10] ip=::1 user=3 action=profile_photo msg=Profile photo updated for user 3
+[2026-02-06 10:02:20] ip=::1 user=3 action=profile_photo_remove msg=Profile photo removed for user 3
+[2026-02-06 10:03:14] ip=::1 user=3 action=profile_photo msg=Profile photo updated for user 3
+[2026-02-06 10:04:23] ip=::1 user=2 action=leave_update msg=Updated leave request ID: 10
+[2026-02-06 10:10:27] ip=::1 user=2 action=inquiry_update msg=Updated inquiry ID: 8
+[2026-02-06 10:11:51] ip=::1 user=2 action=inquiry_update msg=Updated inquiry ID: 8
+[2026-02-06 10:12:12] ip=::1 user=2 action=inquiry_update msg=Updated inquiry ID: 3
+[2026-02-07 19:51:54] ip=::1 user=1 action=task_status msg=Task 10 set to done
+[2026-02-07 19:51:58] ip=::1 user=1 action=task_status msg=Task 10 set to todo
+[2026-02-07 19:52:00] ip=::1 user=1 action=task_status msg=Task 10 set to done
+[2026-02-07 19:52:02] ip=::1 user=1 action=task_status msg=Task 10 set to todo
+[2026-02-07 19:52:03] ip=::1 user=1 action=task_status msg=Task 10 set to done
+[2026-02-07 19:56:53] ip=::1 user=2 action=profile_photo msg=Profile photo updated for user 2
+[2026-02-08 14:27:15] ip=::1 user=1 action=bulk_upload msg=Bulk upload projects: inserted 120 / processed 120
+[2026-02-08 14:32:41] ip=::1 user=3 action=bulk_upload msg=Bulk upload users: inserted 120 / processed 120
+[2026-02-08 14:35:28] ip=::1 user=1 action=bulk_upload msg=Bulk upload employees: inserted 120 / processed 120
+[2026-02-08 14:35:45] ip=::1 user=1 action=bulk_upload msg=Bulk upload leave_requests: inserted 120 / processed 120
+[2026-02-08 14:36:05] ip=::1 user=1 action=bulk_upload msg=Bulk upload payroll_inputs: inserted 120 / processed 120
+[2026-02-08 14:50:04] ip=::1 user=2 action=bulk_upload msg=Bulk upload tasks: inserted 39 / processed 40
+[2026-02-08 14:52:08] ip=::1 user=1 action=task_status msg=Task 19 set to done
+[2026-02-08 14:52:11] ip=::1 user=1 action=task_status msg=Task 11 set to done
+[2026-02-08 14:52:24] ip=::1 user=1 action=task_status msg=Task 47 set to done
+[2026-02-08 14:52:27] ip=::1 user=1 action=task_status msg=Task 13 set to done
+[2026-02-08 14:52:30] ip=::1 user=1 action=task_status msg=Task 17 set to done
+[2026-02-08 14:52:36] ip=::1 user=1 action=task_status msg=Task 37 set to done
+[2026-02-08 14:52:52] ip=::1 user=1 action=task_update msg=Task 29 updated
+[2026-02-08 14:52:55] ip=::1 user=1 action=task_status msg=Task 20 set to done
+[2026-02-08 14:53:08] ip=::1 user=1 action=task_update msg=Task 16 updated
+[2026-02-08 14:53:17] ip=::1 user=1 action=task_status msg=Task 28 set to done
+[2026-02-08 15:52:58] ip=::1 user=3 action=project_update msg=Project 124 updated
+[2026-02-08 15:53:08] ip=::1 user=3 action=project_update msg=Project 124 updated
+[2026-02-08 15:56:09] ip=::1 user=3 action=project_update msg=Project 123 updated
+[2026-02-08 15:56:28] ip=::1 user=3 action=project_update msg=Project 122 updated
+[2026-02-08 15:56:37] ip=::1 user=3 action=project_update msg=Project 119 updated
+[2026-02-08 15:56:51] ip=::1 user=3 action=project_update msg=Project 102 updated
+[2026-02-08 17:01:12] ip=::1 user=3 action=project_update msg=Project 123 updated
+[2026-02-08 17:07:32] ip=::1 user=2 action=leave_update msg=Updated leave request ID: 102
+[2026-02-08 17:07:46] ip=::1 user=2 action=leave_update msg=Updated leave request ID: 107
+[2026-02-09 06:50:16] ip=::1 user=1 action=task_status msg=Task 23 set to todo
+[2026-02-09 06:56:06] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 84
+[2026-02-09 06:56:28] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 106
+[2026-02-09 06:59:48] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 8
+[2026-02-09 07:03:44] ip=::1 user=1 action=user_update msg=Updated user user1001@company.com (ID: 6)
+[2026-02-09 07:03:54] ip=::1 user=1 action=user_update msg=Updated user user1002@company.com (ID: 7)
+[2026-02-09 07:27:04] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 107
+[2026-02-09 07:27:25] ip=::1 user=3 action=leave_update msg=Updated leave request ID: 105
+[2026-02-09 07:27:58] ip=::1 user=3 action=project_delete msg=Project 81 deleted
+[2026-02-09 09:46:33] ip=::1 user=1 action=task_status msg=Task 19 set to in_progress

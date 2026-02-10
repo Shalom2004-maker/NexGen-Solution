@@ -226,56 +226,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="main-content">
             <div class="dashboard-shell">
-            <div class="page-header">
-                <div>
-                    <h3>Payroll Input</h3>
-                    <p>Submit payroll information for team members</p>
+                <div class="page-header">
+                    <div>
+                        <h3>Payroll Input</h3>
+                        <p>Submit payroll information for team members</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-container">
-                <h5 class="mb-4">Add Payroll Information</h5>
-                <form method="post">
-                    <input type="hidden" name="csrf_token"
-                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <div class="form-container mx-auto">
+                    <h5 class="mb-4">Add Payroll Information</h5>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token"
+                            value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
-                    <div class="mb-3">
-                        <label for="emp" class="form-label">Employee ID *</label>
-                        <input type="number" id="emp" name="emp" class="form-control" placeholder="Enter employee ID"
-                            required>
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label for="month" class="form-label">Month *</label>
-                            <input type="number" id="month" name="month" class="form-control" placeholder="1-12" min="1"
-                                max="12" required>
+                        <div class="mb-3">
+                            <label for="emp" class="form-label">Employee ID *</label>
+                            <input type="number" id="emp" name="emp" class="form-control"
+                                placeholder="Enter employee ID" required>
                         </div>
-                        <div class="col-md-6">
-                            <label for="year" class="form-label">Year *</label>
-                            <input type="number" id="year" name="year" class="form-control" placeholder="YYYY" required>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="month" class="form-label">Month *</label>
+                                <input type="number" id="month" name="month" class="form-control" placeholder="1-12"
+                                    min="1" max="12" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="year" class="form-label">Year *</label>
+                                <input type="number" id="year" name="year" class="form-control" placeholder="YYYY"
+                                    required>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="ot" class="form-label">Overtime Hours</label>
-                        <input type="number" id="ot" name="ot" class="form-control" step="0.5" placeholder="Hours">
-                    </div>
+                        <div class="mb-3">
+                            <label for="ot" class="form-label">Overtime Hours</label>
+                            <input type="number" id="ot" name="ot" class="form-control" step="0.5" placeholder="Hours">
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="bonus" class="form-label">Bonus</label>
-                        <input type="number" id="bonus" name="bonus" class="form-control" step="0.01"
-                            placeholder="Amount">
-                    </div>
+                        <div class="mb-3">
+                            <label for="bonus" class="form-label">Bonus</label>
+                            <input type="number" id="bonus" name="bonus" class="form-control" step="0.01"
+                                placeholder="Amount">
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="ded" class="form-label">Deductions</label>
-                        <input type="number" id="ded" name="ded" class="form-control" step="0.01" placeholder="Amount">
-                    </div>
+                        <div class="mb-3">
+                            <label for="ded" class="form-label">Deductions</label>
+                            <input type="number" id="ded" name="ded" class="form-control" step="0.01"
+                                placeholder="Amount">
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
-                </form>
-            </div>
+                        <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

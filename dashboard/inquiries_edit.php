@@ -20,7 +20,7 @@ $inquiry = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$inquiry) {
-    header('Location: inquiries_view.php');
+    header('Location: inquiries_dashboard.php');
     exit();
 }
 
@@ -148,6 +148,22 @@ if (empty($_SESSION['csrf_token'])) {
         display: block;
     }
 
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+        color: #fff;
+        border: none;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
+    }
+
+    .btn-primary-custom:hover {
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
     @media (max-width: 768px) {
         .main-wrapper {
             flex-direction: column;
@@ -234,10 +250,10 @@ if (empty($_SESSION['csrf_token'])) {
                                 <select name="status" class="form-select" required>
                                     <option value="new" <?= ($inquiry['status'] === 'new') ? 'selected' : '' ?>>New
                                     </option>
-                                    <option value="replied"
-                                        <?= ($inquiry['status'] === 'replied') ? 'selected' : '' ?>>Replied</option>
-                                    <option value="closed"
-                                        <?= ($inquiry['status'] === 'closed') ? 'selected' : '' ?>>Closed</option>
+                                    <option value="replied" <?= ($inquiry['status'] === 'replied') ? 'selected' : '' ?>>
+                                        Replied</option>
+                                    <option value="closed" <?= ($inquiry['status'] === 'closed') ? 'selected' : '' ?>>
+                                        Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -255,8 +271,8 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 justify-content-end">
-                            <button type="submit" class="btn btn-primary">Update Inquiry</button>
-                            <a href="inquiries_view.php" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn-primary-custom">Update Inquiry</button>
+                            <a href="inquiries_dashboard.php" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
