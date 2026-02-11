@@ -163,6 +163,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: #6c757d;
     }
 
+    .form-field .input-group {
+        margin-bottom: 0;
+    }
+
+    .validation-error {
+        display: none;
+        margin-top: 0.4rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #dc3545;
+        line-height: 1.2;
+    }
+
+    .input-group .input-group-text {
+        transition: all 0.2s ease;
+    }
+
+    .input-group:focus-within .input-group-text {
+        color: #1d4ed8;
+        border-color: #667eea;
+        background-color: #eef3ff;
+    }
+
+    .input-group.has-error .input-group-text {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: #fff1f1;
+    }
+
+    .form-control.input-error,
+    .form-select.input-error {
+        border-color: #dc3545 !important;
+        background-color: #fff8f8;
+    }
+
+    .form-control.input-error:focus,
+    .form-select.input-error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.18) !important;
+    }
+
     .form-check {
         margin-bottom: 0.75rem;
     }
@@ -307,27 +348,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-3">
                     <label class="form-label">Full Name *</label>
                     <div class="row g-2">
-                        <div class="col-6">
+                        <div class="col-6 form-field">
                             <input type="text" name="first_name" class="form-control" placeholder="First Name"
-                                value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>" required>
+                                data-validation="required min-length max-length" data-min-length="2"
+                                data-max-length="50" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
+                            <div id="first_name_error" class="validation-error"></div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 form-field">
                             <input type="text" name="last_name" class="form-control" placeholder="Last Name"
-                                value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>" required>
+                                data-validation="required min-length max-length" data-min-length="2"
+                                data-max-length="50" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+                            <div id="last_name_error" class="validation-error"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Email -->
-                <div class="mb-3">
+                <div class="mb-3 form-field">
                     <label class="form-label">Email Address *</label>
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="bi bi-envelope"></i>
                         </span>
-                        <input type="email" class="form-control" name="email" placeholder="example@company.com"
-                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                        <input type="text" class="form-control" name="email" data-validation="required email"
+                            placeholder="example@company.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                     </div>
+                    <div id="email_error" class="validation-error"></div>
                 </div>
 
                 <!-- Phone Number -->
@@ -412,11 +458,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <!-- Description -->
-                <div class="mb-4">
+                <div class="mb-4 form-field">
                     <label class="form-label">Description of Problem *</label>
                     <textarea name="message" class="form-control" rows="5"
+                        data-validation="required min-length max-length" data-min-length="10" data-max-length="2000"
                         placeholder="Please describe your inquiry or problem in detail..."
-                        required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+                        ><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+                    <div id="message_error" class="validation-error"></div>
                 </div>
 
                 <!-- Submit Button -->
@@ -428,6 +476,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="../js/validate.js"></script>
     <script>
     // Show/hide "If Others" field based on checkbox
     document.getElementById('type4').addEventListener('change', function() {

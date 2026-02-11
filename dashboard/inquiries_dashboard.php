@@ -612,7 +612,7 @@ body {
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-light">
                     <?php if ($inquiries_result->num_rows > 0): ?>
                     <?php while ($row = $inquiries_result->fetch_assoc()): ?>
                     <tr>
@@ -628,10 +628,14 @@ body {
                             </span>
                         </td>
                         <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
-                        <td>
+                        <td class="d-flex gap-2 mb-0 mt-2" style="height: 9vh">
                             <a href="inquiries_edit.php?id=<?= urlencode($row['id']) ?>"
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-pen"></i>
+                            </a>
+                            <a href="inquiries_delete.php?id=<?= urlencode($row['id']) ?>"
+                                class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i>
                             </a>
                         </td>
                     </tr>

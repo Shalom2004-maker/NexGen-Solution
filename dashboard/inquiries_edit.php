@@ -214,7 +214,7 @@ if (empty($_SESSION['csrf_token'])) {
                         <h3>Edit Inquiry</h3>
                         <p>Modify inquiry details and track status</p>
                     </div>
-                    <a href="inquiries_view.php" class="btn btn-outline-secondary">
+                    <a href="inquiries_dashboard.php" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-1"></i>Back to Inquiries
                     </a>
                 </div>

@@ -90,9 +90,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </script>
 
     <!-- Local Bootstrap CSS Link -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/validate.js"></script>
 
     <style>
     * {
@@ -183,8 +186,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
 
-    .input-group {
-        margin-bottom: 1.5rem;
+    .form-field {
+        margin-bottom: 1rem;
+    }
+
+    .form-field .input-group {
+        margin-bottom: 0;
+    }
+
+    .validation-error {
+        display: none;
+        margin-top: 0.4rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #dc3545;
+        line-height: 1.2;
+    }
+
+    .input-group .input-group-text {
+        transition: all 0.2s ease;
+    }
+
+    .input-group:focus-within .input-group-text {
+        color: #1d4ed8;
+        border-color: #667eea;
+        background-color: #eef3ff;
+    }
+
+    .input-group.has-error .input-group-text {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: #fff1f1;
+    }
+
+    .form-control.input-error {
+        border-color: #dc3545 !important;
+        background-color: #fff8f8;
+    }
+
+    .form-control.input-error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.18) !important;
     }
 
     .input-group-text {
@@ -311,24 +353,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php endif; ?>
 
                 <div class="col-lg-7 col-md-10 col-12 w-100">
-                    <form method="POST" action="login.php" class="w-100">
-                        <label for="emailInput" class="form-label">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-envelope"></i>
-                            </span>
-                            <input type="email" class="form-control" id="emailInput" name="email"
-                                placeholder="Enter your email" required
-                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    <form method="POST" id="login-form" action="#" onsubmit="return validateForm()" class="w-100">
+                        <div class="form-field">
+                            <label for="emailInput" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="text" class="form-control" id="emailInput" name="email"
+                                    data-validation="required email" placeholder="Enter your email"
+                                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                            </div>
+                            <div id="email_error" class="text-danger validation-error"></div>
                         </div>
 
-                        <label for="passwordInput" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="bi bi-lock"></i>
-                            </span>
-                            <input type="password" class="form-control" id="passwordInput" name="password"
-                                placeholder="Enter your password" required>
+                        <div class="form-field">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="passwordInput" name="password"
+                                    data-validation="required min-length max-length" data-min-length="7"
+                                    data-max-length="128" placeholder="Enter your password">
+                            </div>
+                            <div id="password_error" class="text-danger validation-error"></div>
                         </div>
 
                         <button type="submit" class="btn-login">
