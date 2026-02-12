@@ -120,6 +120,9 @@
     .hero-section {
         padding: 4rem 2rem;
         text-align: center;
+        background-image: url(../assets/svgs/Team-Development.jpg);
+        background-size: cover;
+        background-position: center;
         color: white;
         min-height: 60vh;
         display: flex;
@@ -135,8 +138,12 @@
         line-height: 1.2;
     }
 
-    .hero-section .highlight {
-        color: #ffd700;
+    h1,
+    .highlight {
+        background: linear-gradient(135deg, rgba(55, 219, 222, 0.9), #1d81d8, #0ea5a4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .hero-section p {
@@ -146,26 +153,82 @@
         color: rgba(255, 255, 255, 0.9);
     }
 
-    .btn-primary-large {
-        background-color: #ffd700;
-        color: #333;
-        padding: 1rem 2.5rem;
-        border-radius: 50px;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        border: none;
+    button {
+        position: relative;
+        display: inline-block;
         cursor: pointer;
+        outline: none;
+        border: 0;
+        vertical-align: middle;
+        text-decoration: none;
+        background: transparent;
+        padding: 0;
+        font-size: inherit;
+        font-family: inherit;
     }
 
-    .btn-primary-large:hover {
-        background-color: #ffed4e;
-        transform: scale(1.05);
-        color: #333;
+    button.learn-more {
+        width: 12rem;
+        height: auto;
     }
+
+    button.learn-more .circle {
+        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+        position: relative;
+        display: block;
+        margin: 0;
+        width: 3rem;
+        height: 3rem;
+        background-color: #ffed4e;
+        border-radius: 1.625rem;
+    }
+
+    button.learn-more .circle .icon {
+        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+    }
+
+    button.learn-more .circle .icon.arrow {
+        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+        left: 0.625rem;
+        width: 1.125rem;
+        height: 0.125rem;
+        background: none;
+    }
+
+    button.learn-more .circle .icon.arrow::before {
+        position: absolute;
+        content: "";
+        top: -0.29rem;
+        right: 0.0625rem;
+        width: 0.625rem;
+        height: 0.625rem;
+        border-top: 0.125rem solid #000;
+        border-right: 0.125rem solid #000;
+        transform: rotate(45deg);
+    }
+
+    button.learn-more .button-text {
+        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0.75rem 0;
+        margin: 0 0 0 1.85rem;
+        font-weight: 700;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    button:hover .circle {
+        width: 100%;
+    }
+
 
     /* Features Section */
     .features-section {
@@ -343,13 +406,33 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-        <h1>Manage your team with <span class="highlight">precision</span></h1>
-        <p>The all-in-one platform for task management, payroll processing, and leave tracking. Built for modern
-            enterprises that value efficiency.</p>
-        <a href="login.php" class="btn-primary-large">
-            Get Started
-            <i class="bi bi-arrow-right"></i>
-        </a>
+        <div class="col-lg-9 col-md-8 col-12 p-5 bg-dark rounded-4 bg-opacity-75">
+            <center>
+                <h1>Manage your team with <span class="highlight">precision</span></h1>
+                <p>The all-in-one platform for task management, payroll processing, and leave tracking. Built for modern
+                    enterprises that value efficiency. </p>
+
+                <div class="d-flex gap-3 mx-auto justify-content-center">
+                    <button class="learn-more">
+                        <span class="circle" aria-hidden="true">
+                            <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">
+                            <a href="login.php" style="text-decoration: none; color: #000;">Get started</a>
+                        </span>
+                    </button>
+
+                    <button class="learn-more">
+                        <span class="circle" aria-hidden="true">
+                            <span class="icon arrow"></span>
+                        </span>
+                        <span class="button-text">
+                            <a href="contact.php" style="text-decoration: none; color: #000;">Get in touch</a>
+                        </span>
+                    </button>
+                </div>
+        </div>
+        </center>
     </section>
 
     <!-- Features Section -->
