@@ -11,9 +11,16 @@ if (empty($_SESSION['csrf_token'])) {
 
 $uid = (int)($_SESSION['uid'] ?? 0);
 $role = $_SESSION['role'] ?? '';
+$role_lc = strtolower(trim((string)$role));
+$is_admin = $role_lc === 'admin';
 
 // Search & pagination
 $q = trim($_GET['q'] ?? '');
+$filter = trim($_GET['filter'] ?? 'all');
+$allowedFilters = ['all', 'todo', 'in_progress', 'done'];
+if (!in_array($filter, $allowedFilters, true)) {
+    $filter = 'all';
+}
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
@@ -29,6 +36,15 @@ if (!in_array($role, ['ProjectLeader', 'Admin'], true)) {
     $where = 'WHERE t.assigned_to = ?';
     $params[] = $uid;
     $types .= 'i';
+}
+if ($filter !== 'all') {
+    if ($where === '') {
+        $where = 'WHERE t.status = ?';
+    } else {
+        $where .= ' AND t.status = ?';
+    }
+    $params[] = $filter;
+    $types .= 's';
 }
 if ($q !== '') {
     $like = "%{$q}%";
@@ -377,8 +393,8 @@ $res = $stmt->get_result();
             <div class="dashboard-shell">
                 <div class="page-header d-flex justify-content-between align-items-center end-0">
                     <div>
-                        <h3>View All Tasks</h3>
-                        <p>Manage and track all tasks</p>
+                        <h3><?= in_array($role, ['ProjectLeader', 'Admin'], true) ? 'All Tasks' : 'My Tasks' ?></h3>
+                        <p><?= in_array($role, ['ProjectLeader', 'Admin'], true) ? 'Monitor all assigned tasks' : 'Manage and track your assigned tasks' ?></p>
                     </div>
 
                     <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
@@ -389,6 +405,23 @@ $res = $stmt->get_result();
                     </button>
                     <?php endif; ?>
 
+                </div>
+
+                <?php
+                $filterBase = [];
+                if ($q !== '') {
+                    $filterBase['q'] = $q;
+                }
+                ?>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a class="btn btn-sm <?= $filter === 'all' ? 'btn-primary' : 'btn-outline-secondary' ?>"
+                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'all', 'page' => 1]))) ?>">All</a>
+                    <a class="btn btn-sm <?= $filter === 'todo' ? 'btn-primary' : 'btn-outline-secondary' ?>"
+                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'todo', 'page' => 1]))) ?>">Pending</a>
+                    <a class="btn btn-sm <?= $filter === 'in_progress' ? 'btn-primary' : 'btn-outline-secondary' ?>"
+                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'in_progress', 'page' => 1]))) ?>">In Progress</a>
+                    <a class="btn btn-sm <?= $filter === 'done' ? 'btn-primary' : 'btn-outline-secondary' ?>"
+                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'done', 'page' => 1]))) ?>">Completed</a>
                 </div>
 
                 <div class="table-responsive rounded shadow">
@@ -419,7 +452,12 @@ $res = $stmt->get_result();
                                 <td>
                                     <?php
                                         $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in_progress' ? 'status-in-progress' : 'status-todo');
-                                        $statusLabel = ucfirst(str_replace('_', ' ', $t['status']));
+                                        $statusLabel = match ($t['status']) {
+                                            'todo' => 'Pending',
+                                            'in_progress' => 'In Progress',
+                                            'done' => 'Completed',
+                                            default => ucfirst(str_replace('_', ' ', (string)$t['status']))
+                                        };
                                         ?>
                                     <span
                                         class="status-badge <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span>
@@ -429,7 +467,7 @@ $res = $stmt->get_result();
                                 <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <?php if ((int)$t['assigned_to'] === $uid || in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
+                                        <?php if ((int)$t['assigned_to'] === $uid || $is_admin) : ?>
                                         <form method="post" action="tasks_update.php" style="display: inline">
                                             <input type="hidden" name="csrf_token"
                                                 value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -437,7 +475,7 @@ $res = $stmt->get_result();
                                             <input type="hidden" name="task_id"
                                                 value="<?= htmlspecialchars($t['id']) ?>">
                                             <button type="submit" class="btn btn-outline-success"
-                                                title="Toggle status">
+                                                title="Advance status">
                                                 <i class="bi bi-check2-circle"></i>
                                             </button>
                                         </form>
@@ -474,7 +512,7 @@ $res = $stmt->get_result();
                         for ($p = 1; $p <= $pages; $p++):
                             $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
                         ?>
-                        <a href="?q=<?= urlencode($q) ?>&page=<?= $p ?>" <?= $active ?>>
+                        <a href="?q=<?= urlencode($q) ?>&filter=<?= urlencode($filter) ?>&page=<?= $p ?>" <?= $active ?>>
                             <?= $p ?>
                         </a>
                         <?php endfor; ?>

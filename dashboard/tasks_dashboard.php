@@ -7,6 +7,8 @@ include "../includes/logger.php";
 // Get user ID
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
 $role = $_SESSION['role'] ?? '';
+$role_lc = strtolower(trim((string)$role));
+$is_admin = $role_lc === 'admin';
 
 // Initialize form variables
 $error = '';
@@ -59,6 +61,8 @@ $all_tasks_count = 0;
 $pending_count = 0;
 $in_progress_count = 0;
 $completed_count = 0;
+$global_completion_rate = 0.0;
+$team_progress_rows = [];
 
 $can_view_all = in_array($role, ['ProjectLeader', 'Admin'], true);
 $scope_where = $can_view_all ? '' : 'WHERE assigned_to = ?';
@@ -117,6 +121,31 @@ if ($stmt) {
     $row = $result->fetch_assoc();
     $completed_count = (int)($row['count'] ?? 0);
     $stmt->close();
+}
+
+if ($all_tasks_count > 0) {
+    $global_completion_rate = round(($completed_count / $all_tasks_count) * 100, 1);
+}
+
+if ($can_view_all) {
+    $progress_sql = "SELECT u.id, u.full_name,
+                            COUNT(t.id) AS all_tasks,
+                            SUM(CASE WHEN t.status = 'todo' THEN 1 ELSE 0 END) AS pending_tasks,
+                            SUM(CASE WHEN t.status = 'in_progress' THEN 1 ELSE 0 END) AS in_progress_tasks,
+                            SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) AS completed_tasks
+                     FROM tasks t
+                     JOIN users u ON u.id = t.assigned_to
+                     GROUP BY u.id, u.full_name
+                     ORDER BY completed_tasks DESC, all_tasks DESC, u.full_name ASC";
+    $progress_result = $conn->query($progress_sql);
+    if ($progress_result) {
+        while ($row = $progress_result->fetch_assoc()) {
+            $user_total = (int)($row['all_tasks'] ?? 0);
+            $user_done = (int)($row['completed_tasks'] ?? 0);
+            $row['completion_rate'] = $user_total > 0 ? round(($user_done / $user_total) * 100, 1) : 0.0;
+            $team_progress_rows[] = $row;
+        }
+    }
 }
 
 // Search
@@ -422,6 +451,12 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         flex-wrap: wrap;
     }
 
+    .readonly-note {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
     .task-project {
         display: inline-block;
         padding: 0.3rem 0.75rem;
@@ -453,6 +488,29 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
     .task-status.done {
         background-color: #10b981;
         color: white;
+    }
+
+    .team-progress-wrap {
+        background: #ffffff;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .team-progress-table th,
+    .team-progress-table td {
+        vertical-align: middle;
+        font-size: 0.88rem;
+    }
+
+    .team-progress-table th {
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .team-progress-rate {
+        min-width: 180px;
     }
 
     /* Empty State */
@@ -711,7 +769,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 <div class="page-header">
                     <div>
                         <h2>Tasks</h2>
-                        <p>Manage and track your team's tasks</p>
+                        <p><?= $can_view_all ? 'Monitor all assigned tasks and team progress' : 'Manage and track your assigned tasks' ?></p>
                     </div>
 
                     <!-- Action Buttons -->
@@ -863,6 +921,56 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 </div>
             </div>
 
+            <?php if ($can_view_all) : ?>
+            <div class="section-title mt-2">
+                <span>Team Progress</span>
+                <span class="text-muted" style="font-size:0.85rem;">
+                    Global completion rate: <?= number_format($global_completion_rate, 1) ?>%
+                </span>
+            </div>
+            <div class="team-progress-wrap">
+                <div class="table-responsive">
+                    <table class="table table-hover team-progress-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>All</th>
+                                <th>Pending</th>
+                                <th>In Progress</th>
+                                <th>Completed</th>
+                                <th class="team-progress-rate">Completion Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($team_progress_rows)) : ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">No assigned tasks found.</td>
+                            </tr>
+                            <?php else : ?>
+                            <?php foreach ($team_progress_rows as $progress_row) : ?>
+                            <?php $rate = (float)($progress_row['completion_rate'] ?? 0.0); ?>
+                            <tr>
+                                <td><?= htmlspecialchars($progress_row['full_name'] ?? 'Unknown User') ?></td>
+                                <td><?= (int)($progress_row['all_tasks'] ?? 0) ?></td>
+                                <td><?= (int)($progress_row['pending_tasks'] ?? 0) ?></td>
+                                <td><?= (int)($progress_row['in_progress_tasks'] ?? 0) ?></td>
+                                <td><?= (int)($progress_row['completed_tasks'] ?? 0) ?></td>
+                                <td class="team-progress-rate">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar"
+                                            style="width: <?= max(0, min(100, $rate)) ?>%;"></div>
+                                    </div>
+                                    <small class="text-muted"><?= number_format($rate, 1) ?>%</small>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Search & Filter Buttons -->
             <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3">
                 <form method="get" class="mb-0">
@@ -904,7 +1012,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
 
             <!-- Tasks List -->
             <div class="section-title">
-                <span>My Tasks</span>
+                <span><?= $can_view_all ? 'All Tasks' : 'My Tasks' ?></span>
             </div>
 
             <?php
@@ -930,9 +1038,11 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                     $types .= 'ss';
                 }
 
-                $query = "SELECT t.id, t.title, t.description, t.status, t.deadline, t.created_at, p.project_name
+                $query = "SELECT t.id, t.assigned_to, t.title, t.description, t.status, t.deadline, t.created_at,
+                                 p.project_name, u.full_name AS assigned_name
                           FROM tasks t
                           LEFT JOIN projects p ON t.project_id = p.id
+                          LEFT JOIN users u ON u.id = t.assigned_to
                           $where
                           ORDER BY t.created_at DESC";
                 $stmt = $conn->prepare($query);
@@ -953,9 +1063,38 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                             'done' => 'done',
                             default => 'todo'
                         };
-                        $status_display = ucfirst(str_replace('_', ' ', $task['status']));
+                        $status_display = match ($status) {
+                            'todo' => 'Pending',
+                            'in_progress' => 'In Progress',
+                            'done' => 'Completed',
+                            default => ucfirst(str_replace('_', ' ', (string)$task['status']))
+                        };
                         $deadline_display = $task['deadline'] ? date('M d, Y', strtotime($task['deadline'])) : 'No deadline';
                         $project_display = $task['project_name'] ?: 'Unassigned';
+                        $assigned_display = trim((string)($task['assigned_name'] ?? '')) ?: 'Unassigned';
+                        $assigned_to = (int)($task['assigned_to'] ?? 0);
+                        $can_update_status = $is_admin || $assigned_to === $uid;
+                        if ($is_admin) {
+                            $status_options = [
+                                'todo' => 'Pending',
+                                'in_progress' => 'In Progress',
+                                'done' => 'Completed'
+                            ];
+                        } elseif ($status === 'todo') {
+                            $status_options = [
+                                'todo' => 'Pending',
+                                'in_progress' => 'In Progress'
+                            ];
+                        } elseif ($status === 'in_progress') {
+                            $status_options = [
+                                'in_progress' => 'In Progress',
+                                'done' => 'Completed'
+                            ];
+                        } else {
+                            $status_options = [
+                                'done' => 'Completed'
+                            ];
+                        }
             ?>
             <div class="task-card">
                 <div class="task-icon-box">
@@ -973,7 +1112,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                     <div class="task-description">
                         <?= htmlspecialchars($task['description']) ?>
                     </div>
-                <div class="task-meta">
+                    <div class="task-meta">
                         <span class="task-meta-item">
                             <i class="bi bi-calendar2"></i>
                             Deadline: <?= htmlspecialchars($deadline_display) ?>
@@ -982,11 +1121,18 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                             <i class="bi bi-clock"></i>
                             Created: <?= date('M d, Y', strtotime($task['created_at'])) ?>
                         </span>
+                        <?php if ($can_view_all) : ?>
+                        <span class="task-meta-item">
+                            <i class="bi bi-person"></i>
+                            Assigned: <?= htmlspecialchars($assigned_display) ?>
+                        </span>
+                        <?php endif; ?>
                     </div>
                     <div class="task-badges">
                         <span class="task-project">
                             <?= htmlspecialchars($project_display) ?>
                         </span>
+                        <?php if ($can_update_status) : ?>
                         <form method="post" action="tasks_update.php" class="d-flex align-items-center gap-2 ms-auto">
                             <input type="hidden" name="csrf_token"
                                 value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -994,14 +1140,19 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                             <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
                             <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect_url) ?>">
                             <select name="status" class="form-select form-select-sm" style="width:auto;">
-                                <option value="todo" <?= $status === 'todo' ? 'selected' : '' ?>>To Do</option>
-                                <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>>
-                                    In Progress
+                                <?php foreach ($status_options as $option_value => $option_label) : ?>
+                                <option value="<?= htmlspecialchars($option_value) ?>"
+                                    <?= $status === $option_value ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($option_label) ?>
                                 </option>
-                                <option value="done" <?= $status === 'done' ? 'selected' : '' ?>>Completed</option>
+                                <?php endforeach; ?>
                             </select>
-                            <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                            <button type="submit" class="btn btn-sm btn-outline-primary"
+                                <?= count($status_options) === 1 ? 'disabled' : '' ?>>Update</button>
                         </form>
+                        <?php else : ?>
+                        <span class="readonly-note ms-auto">Read only</span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

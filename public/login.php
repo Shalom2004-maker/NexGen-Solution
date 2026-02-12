@@ -41,12 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $_SESSION["role"]    = $user["role_name"];
                         $_SESSION["profile_photo"] = $user["profile_photo"] ?? null;
 
-                        if ($user["role_name"] === "Admin") {
-                            header("Location: ../dashboard/admin_dashboard.php");
-                        } elseif ($user["role_name"] === "HR") {
+                        if ($user["role_name"] === "HR") {
                             header("Location: ../dashboard/hr.php");
-                        } elseif ($user["role_name"] === "ProjectLeader") {
-                            header("Location: ../dashboard/leader.php");
+                        } elseif (in_array($user["role_name"], ["Admin", "ProjectLeader", "Employee"], true)) {
+                            header("Location: ../dashboard/tasks_dashboard.php");
                         } else {
                             header("Location: ../dashboard/employee.php");
                         }

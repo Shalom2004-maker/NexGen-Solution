@@ -144,3 +144,8 @@
 [2026-02-09 07:27:25] ip=::1 user=3 action=leave_update msg=Updated leave request ID: 105
 [2026-02-09 07:27:58] ip=::1 user=3 action=project_delete msg=Project 81 deleted
 [2026-02-09 09:46:33] ip=::1 user=1 action=task_status msg=Task 19 set to in_progress
+[2026-02-12 14:53:43] ip=::1 user=44 action=task_status msg=Task 49 set to in_progress
+[2026-02-12 15:00:50] ip=::1 user=1 action=task_delete msg=Task 11 deleted
+[2026-02-12 15:00:54] ip=::1 user=1 action=task_delete msg=Task 12 deleted
+[2026-02-12 15:01:00] ip=::1 user=1 action=task_delete msg=Task 22 deleted
+[2026-02-12 15:01:10] ip=::1 user=1 action=task_delete msg=Task 9 deleted

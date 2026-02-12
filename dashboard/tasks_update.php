@@ -11,6 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $uid = (int)($_SESSION['uid'] ?? 0);
 $role = $_SESSION['role'] ?? '';
+$role_lc = strtolower(trim((string)$role));
+$is_admin = $role_lc === 'admin';
 
 $token = $_POST['csrf_token'] ?? '';
 if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
@@ -33,18 +35,26 @@ if ($action === 'toggle_status') {
     }
     $assigned = (int)$r['assigned_to'];
     $current = $r['status'];
-    if (!in_array($role, ['ProjectLeader', 'Admin'], true) && $assigned !== $uid) {
+    if (!$is_admin && $assigned !== $uid) {
         http_response_code(403);
         die('Forbidden');
     }
-    // Toggle between 'done' and 'todo' to match schema values
-    $newStatus = ($current === 'done') ? 'todo' : 'done';
-    $u = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
-    $u->bind_param('si', $newStatus, $taskId);
-    if ($u->execute()) {
-        if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$newStatus}", $uid);
+    // Move forward in workflow: todo -> in_progress -> done
+    if ($current === 'todo') {
+        $newStatus = 'in_progress';
+    } elseif ($current === 'in_progress') {
+        $newStatus = 'done';
+    } else {
+        $newStatus = 'done';
     }
-    $u->close();
+    if ($newStatus !== $current) {
+        $u = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
+        $u->bind_param('si', $newStatus, $taskId);
+        if ($u->execute()) {
+            if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$newStatus}", $uid);
+        }
+        $u->close();
+    }
 } elseif ($action === 'set_status') {
     $taskId = isset($_POST['task_id']) ? (int)$_POST['task_id'] : 0;
     $requested = trim($_POST['status'] ?? '');
@@ -53,7 +63,7 @@ if ($action === 'toggle_status') {
         http_response_code(400);
         die('Invalid status');
     }
-    $q = $conn->prepare("SELECT assigned_to FROM tasks WHERE id = ?");
+    $q = $conn->prepare("SELECT assigned_to, status FROM tasks WHERE id = ?");
     $q->bind_param('i', $taskId);
     $q->execute();
     $r = $q->get_result()->fetch_assoc();
@@ -63,16 +73,31 @@ if ($action === 'toggle_status') {
         die('Not found');
     }
     $assigned = (int)$r['assigned_to'];
-    if (!in_array($role, ['ProjectLeader', 'Admin'], true) && $assigned !== $uid) {
+    $current = (string)($r['status'] ?? '');
+    if (!$is_admin && $assigned !== $uid) {
         http_response_code(403);
         die('Forbidden');
     }
-    $u = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
-    $u->bind_param('si', $requested, $taskId);
-    if ($u->execute()) {
-        if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$requested}", $uid);
+    if (!$is_admin) {
+        $allowedTransitions = [
+            'todo' => ['todo', 'in_progress'],
+            'in_progress' => ['in_progress', 'done'],
+            'done' => ['done'],
+        ];
+        $valid = $allowedTransitions[$current] ?? [$current];
+        if (!in_array($requested, $valid, true)) {
+            http_response_code(400);
+            die('Invalid status transition');
+        }
     }
-    $u->close();
+    if ($requested !== $current) {
+        $u = $conn->prepare("UPDATE tasks SET status = ? WHERE id = ?");
+        $u->bind_param('si', $requested, $taskId);
+        if ($u->execute()) {
+            if (function_exists('audit_log')) audit_log('task_status', "Task {$taskId} set to {$requested}", $uid);
+        }
+        $u->close();
+    }
 } elseif ($action === 'update') {
     $taskId = isset($_POST['task_id']) ? (int)$_POST['task_id'] : 0;
     $project = trim($_POST['project'] ?? '');
