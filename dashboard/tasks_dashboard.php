@@ -769,7 +769,8 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 <div class="page-header">
                     <div>
                         <h2>Tasks</h2>
-                        <p><?= $can_view_all ? 'Monitor all assigned tasks and team progress' : 'Manage and track your assigned tasks' ?></p>
+                        <p><?= $can_view_all ? 'Monitor all assigned tasks and team progress' : 'Manage and track your assigned tasks' ?>
+                        </p>
                     </div>
 
                     <!-- Action Buttons -->
@@ -929,8 +930,8 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 </span>
             </div>
             <div class="team-progress-wrap">
-                <div class="table-responsive">
-                    <table class="table table-hover team-progress-table mb-0">
+                <div class="table-responsive" style=" overflow-y: scroll; height: 300px;">
+                    <table class=" table table-hover team-progress-table mb-0">
                         <thead>
                             <tr>
                                 <th>User</th>
@@ -938,7 +939,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                                 <th>Pending</th>
                                 <th>In Progress</th>
                                 <th>Completed</th>
-                                <th class="team-progress-rate">Completion Rate</th>
+                                <th class=" team-progress-rate">Completion Rate</th>
                             </tr>
                         </thead>
                         <tbody>

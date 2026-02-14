@@ -99,7 +99,8 @@
     }
 
     .btn-nav {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
+        background: linear-gradient(135deg, rgba(55, 219, 222, 0.9), #1d81d8, #0ea5a4);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         color: white;
         padding: 0.6rem 1.5rem;
         border-radius: 6px;
@@ -138,12 +139,11 @@
         line-height: 1.2;
     }
 
-    h1,
     .highlight {
-        background: linear-gradient(135deg, rgba(55, 219, 222, 0.9), #1d81d8, #0ea5a4);
+        color: #0ea5a4;
+        background: linear-gradient(135deg, #0ea5a4, #1d4ed8, #0ea5a4);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .hero-section p {
@@ -154,81 +154,30 @@
     }
 
     button {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-        outline: none;
-        border: 0;
-        vertical-align: middle;
-        text-decoration: none;
+        padding: 10px 20px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        font-size: 17px;
+        font-weight: 500;
+        color: #ffffff;
+        text-shadow: none;
         background: transparent;
-        padding: 0;
-        font-size: inherit;
-        font-family: inherit;
+        cursor: pointer;
+        box-shadow: transparent;
+        border: 1px solid #ffffffd8;
+        transition: 0.5s ease;
+        user-select: none;
     }
 
-    button.learn-more {
-        width: 12rem;
-        height: auto;
+    #btn:hover,
+    :focus {
+        color: #ffffff;
+        background: linear-gradient(135deg, #0ea5a4, #008cff, #0ea5a4);
+        border: 1px solid #008cff;
+        text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff;
+        box-shadow: 0 0 5px #0ea5a4, 0 0 20px #008cff, 0 0 50px #0ea5a4,
+            0 0 100px #008cff;
     }
-
-    button.learn-more .circle {
-        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
-        position: relative;
-        display: block;
-        margin: 0;
-        width: 3rem;
-        height: 3rem;
-        background-color: #ffed4e;
-        border-radius: 1.625rem;
-    }
-
-    button.learn-more .circle .icon {
-        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-    }
-
-    button.learn-more .circle .icon.arrow {
-        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
-        left: 0.625rem;
-        width: 1.125rem;
-        height: 0.125rem;
-        background: none;
-    }
-
-    button.learn-more .circle .icon.arrow::before {
-        position: absolute;
-        content: "";
-        top: -0.29rem;
-        right: 0.0625rem;
-        width: 0.625rem;
-        height: 0.625rem;
-        border-top: 0.125rem solid #000;
-        border-right: 0.125rem solid #000;
-        transform: rotate(45deg);
-    }
-
-    button.learn-more .button-text {
-        transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 0.75rem 0;
-        margin: 0 0 0 1.85rem;
-        font-weight: 700;
-        line-height: 1.6;
-        text-align: center;
-    }
-
-    button:hover .circle {
-        width: 100%;
-    }
-
 
     /* Features Section */
     .features-section {
@@ -413,23 +362,8 @@
                     enterprises that value efficiency. </p>
 
                 <div class="d-flex gap-3 mx-auto justify-content-center">
-                    <button class="learn-more">
-                        <span class="circle" aria-hidden="true">
-                            <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">
-                            <a href="login.php" style="text-decoration: none; color: #000;">Get started</a>
-                        </span>
-                    </button>
+                    <button id="btn">Get Started</button>
 
-                    <button class="learn-more">
-                        <span class="circle" aria-hidden="true">
-                            <span class="icon arrow"></span>
-                        </span>
-                        <span class="button-text">
-                            <a href="contact.php" style="text-decoration: none; color: #000;">Get in touch</a>
-                        </span>
-                    </button>
                 </div>
         </div>
         </center>
