@@ -149,3 +149,4 @@
 [2026-02-12 15:00:54] ip=::1 user=1 action=task_delete msg=Task 12 deleted
 [2026-02-12 15:01:00] ip=::1 user=1 action=task_delete msg=Task 22 deleted
 [2026-02-12 15:01:10] ip=::1 user=1 action=task_delete msg=Task 9 deleted
+[2026-02-16 09:34:19] ip=::1 user=5 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com

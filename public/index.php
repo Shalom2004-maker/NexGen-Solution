@@ -362,7 +362,9 @@
                     enterprises that value efficiency. </p>
 
                 <div class="d-flex gap-3 mx-auto justify-content-center">
-                    <button id="btn">Get Started</button>
+                    <button id="btn">
+                        <a href="login.php" class="text-light text-decoration-none">Get Started</a>
+                    </button>
 
                 </div>
         </div>
