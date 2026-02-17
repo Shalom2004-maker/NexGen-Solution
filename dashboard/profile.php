@@ -83,70 +83,80 @@ $photoUrl = resolve_avatar_url($data['profile_photo'] ?? '');
 </head>
 
 <body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
 
-    <div class="container mt-4">
-        <div class="dashboard-shell">
-            <div class="d-flex justify-content-between align-items-center end-2 mb-3">
-                <div>
-                    <h3 class="mb-3">My Profile</h3>
-                </div>
-                <a href="employee.php">
-                    <button class="btn btn-outline-primary">Back</button>
-                </a>
-            </div>
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php render_sidebar(); ?>
+        </div>
 
-            <?php if ($profileMissing): ?>
-            <div class="py-4">
-                <div class="text-center">
-                    <div class="profile-avatar mx-auto mb-3">!</div>
-                    <h4 class="mb-2">Profile not found</h4>
-                    <p class="text-muted mb-3">We couldn't find your employee profile details. Please contact HR to finish onboarding.</p>
-                    <a href="employee.php" class="btn btn-primary">Back to Dashboard</a>
+        <div class="main-content">
+            <div class="dashboard-shell">
+                <div class="d-flex justify-content-between align-items-center end-2 mb-3">
+                    <div>
+                        <h3 class="mb-3">My Profile</h3>
+                    </div>
+                    <a href="employee.php">
+                        <button class="btn btn-outline-primary">Back</button>
+                    </a>
                 </div>
-            </div>
-            <?php else: ?>
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="profile-avatar">
-                    <?php if ($photoUrl): ?>
-                    <img src="<?= htmlspecialchars($photoUrl) ?>" alt="Profile photo">
-                    <?php else: ?>
-                    <?= htmlspecialchars(substr($data['full_name'] ?? 'U', 0, 1)) ?>
-                    <?php endif; ?>
+
+                <?php if ($profileMissing): ?>
+                <div class="py-4">
+                    <div class="text-center">
+                        <div class="profile-avatar mx-auto mb-3">!</div>
+                        <h4 class="mb-2">Profile not found</h4>
+                        <p class="text-muted mb-3">We couldn't find your employee profile details. Please contact HR to finish onboarding.</p>
+                        <a href="employee.php" class="btn btn-primary">Back to Dashboard</a>
+                    </div>
                 </div>
-                <div>
-                    <h5 class="mb-0"><?= htmlspecialchars($data['full_name'] ?? '') ?></h5>
-                    <small class="text-muted"><?= htmlspecialchars($data['email'] ?? '') ?></small>
+                <?php else: ?>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="profile-avatar">
+                        <?php if ($photoUrl): ?>
+                        <img src="<?= htmlspecialchars($photoUrl) ?>" alt="Profile photo">
+                        <?php else: ?>
+                        <?= htmlspecialchars(substr($data['full_name'] ?? 'U', 0, 1)) ?>
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <h5 class="mb-0"><?= htmlspecialchars($data['full_name'] ?? '') ?></h5>
+                        <small class="text-muted"><?= htmlspecialchars($data['email'] ?? '') ?></small>
+                    </div>
                 </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered m-0">
+                        <tr>
+                            <th>Name</th>
+                            <td><?= htmlspecialchars($data["full_name"] ?? "Not available") ?></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><?= htmlspecialchars($data["email"] ?? "Not available") ?></td>
+                        </tr>
+                        <tr>
+                            <th>Job Title</th>
+                            <td><?= htmlspecialchars($data["job_title"] ?? "Not available") ?></td>
+                        </tr>
+                        <tr>
+                            <th>Department</th>
+                            <td><?= htmlspecialchars($data["department"] ?? "Not available") ?></td>
+                        </tr>
+                        <tr>
+                            <th>Hire Date</th>
+                            <td><?= htmlspecialchars($data["hire_date"] ?? "Not available") ?></td>
+                        </tr>
+                        <tr>
+                            <th>Base Salary</th>
+                            <td><?= htmlspecialchars($data["salary_base"] ?? "Not available") ?></td>
+                        </tr>
+                    </table>
+                </div>
+                <?php endif; ?>
             </div>
-            <div class="table-responsive">
-                <table class="table table-bordered m-0">
-                    <tr>
-                        <th>Name</th>
-                        <td><?= htmlspecialchars($data["full_name"] ?? "Not available") ?></td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td><?= htmlspecialchars($data["email"] ?? "Not available") ?></td>
-                    </tr>
-                    <tr>
-                        <th>Job Title</th>
-                        <td><?= htmlspecialchars($data["job_title"] ?? "Not available") ?></td>
-                    </tr>
-                    <tr>
-                        <th>Department</th>
-                        <td><?= htmlspecialchars($data["department"] ?? "Not available") ?></td>
-                    </tr>
-                    <tr>
-                        <th>Hire Date</th>
-                        <td><?= htmlspecialchars($data["hire_date"] ?? "Not available") ?></td>
-                    </tr>
-                    <tr>
-                        <th>Base Salary</th>
-                        <td><?= htmlspecialchars($data["salary_base"] ?? "Not available") ?></td>
-                    </tr>
-                </table>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 </body>

@@ -9,7 +9,7 @@ if (isset($_GET["reply"])) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->close();
-    header('Location: inquiries_view.php');
+    header('Location: hr_inquiries.php');
     exit();
 }
 
@@ -19,7 +19,7 @@ if (isset($_GET["close"])) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->close();
-    header('Location: inquiries_view.php');
+    header('Location: hr_inquiries.php');
     exit();
 }
 ?>
@@ -202,9 +202,9 @@ if (isset($_GET["close"])) {
                                 <td><?= $i["message"] ?></td>
                                 <td><?= $i["status"] ?></td>
                                 <td>
-                                    <a href="inquiries_dashboard.php?reply=<?= $i["id"] ?>"
-                                        class="btn btn-sm btn-primary">Mark Replied</a>
-                                    <a href="inquiries_dashboard.php?close=<?= $i["id"] ?>"
+                                    <a href="hr_inquiries.php?reply=<?= $i["id"] ?>" class="btn btn-sm btn-primary">Mark
+                                        Replied</a>
+                                    <a href="hr_inquiries.php?close=<?= $i["id"] ?>"
                                         class="btn btn-sm btn-danger">Close</a>
                                 </td>
                             </tr>

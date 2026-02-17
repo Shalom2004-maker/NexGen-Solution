@@ -4,6 +4,15 @@
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
         <p>Admin Portal</p>
+        <div class="theme-switcher sidebar-theme neo-panel" role="group" aria-label="Theme switcher">
+            <span class="theme-switcher-label">Theme</span>
+            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
+                aria-pressed="true">Nebula</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
+                aria-pressed="false">Ember</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
+                aria-pressed="false">Aurora</button>
+        </div>
     </div>
 
     <div class="nexgen-sidebar-menu">
@@ -50,12 +59,12 @@
     </div>
 
     <div class="nexgen-sidebar-footer">
-        <div class="nexgen-sidebar-footer-content">
+        <div class="nexgen-sidebar-footer-content mb-3 mx-auto">
             <?php $avatarUrl = function_exists('sidebar_avatar_url') ? sidebar_avatar_url() : ''; ?>
             <div class="nexgen-sidebar-footer-avatar">
                 <?php if ($avatarUrl): ?>
                 <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Profile photo"
-                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    style="width: 100%; height: 90%; object-fit: cover; border-radius: 50%;">
                 <?php else: ?>
                 <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
                 <?php endif; ?>

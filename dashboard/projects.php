@@ -576,7 +576,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');

@@ -1,0 +1,3 @@
+﻿/* Backward compatibility shim.
+   Use ../css/ui-universal.css directly in new pages. */
+@import url('./ui-universal.css');

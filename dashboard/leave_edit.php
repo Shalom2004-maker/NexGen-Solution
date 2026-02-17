@@ -3,6 +3,7 @@ include "../includes/auth.php";
 allow(["Employee", "ProjectLeader", "HR", "Admin"]);
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
+include "../includes/sidebar_helper.php";
 
 if (!isset($_GET['id'])) {
     header('Location: leave_view.php');
@@ -105,96 +106,109 @@ if (empty($_SESSION['csrf_token'])) {
     </style>
 </head>
 
-<body class="container py-4">
-    <div class="dashboard-shell">
-        <h3 class="mb-2">View/Edit Leave Request</h3>
-        <a href="leave_view.php" class="btn btn-secondary mb-3">Back to Leave Requests</a>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <button class="sidebar-toggle" id="sidebarToggleBtn" type="button" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
 
-        <div class="card">
-            <div class="card-body">
-                <form method="post" action="leave_update.php">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="leave_id" value="<?= htmlspecialchars($leave['id']) ?>">
+    <div class="main-wrapper">
+        <div id="sidebarContainer">
+            <?php render_sidebar(); ?>
+        </div>
 
-                    <?php if ($role !== 'Employee'): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Employee</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($leave['employee_name']) ?>"
-                            readonly>
-                    </div>
-                    <?php endif; ?>
+        <div class="main-content">
+            <div class="dashboard-shell">
+                <h3 class="mb-2">View/Edit Leave Request</h3>
+                <a href="leave_view.php" class="btn btn-secondary mb-3">Back to Leave Requests</a>
 
-                    <div class="mb-3">
-                        <label class="form-label">Start Date</label>
-                        <input name="start_date" type="date" class="form-control"
-                            value="<?= htmlspecialchars($leave['start_date']) ?>" required>
-                    </div>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" action="leave_update.php">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="leave_id" value="<?= htmlspecialchars($leave['id']) ?>">
 
-                    <div class="mb-3">
-                        <label class="form-label">End Date</label>
-                        <input name="end_date" type="date" class="form-control"
-                            value="<?= htmlspecialchars($leave['end_date']) ?>" required>
-                    </div>
+                            <?php if ($role !== 'Employee'): ?>
+                            <div class="mb-3">
+                                <label class="form-label">Employee</label>
+                                <input type="text" class="form-control" value="<?= htmlspecialchars($leave['employee_name']) ?>"
+                                    readonly>
+                            </div>
+                            <?php endif; ?>
 
-                    <div class="mb-3">
-                        <label class="form-label">Leave Type</label>
-                        <select name="leave_type" class="form-control" required>
-                            <option value="sick" <?= ($leave['leave_type'] === 'sick') ? 'selected' : '' ?>>Sick
-                            </option>
-                            <option value="annual" <?= ($leave['leave_type'] === 'annual') ? 'selected' : '' ?>>Annual
-                            </option>
-                            <option value="unpaid" <?= ($leave['leave_type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid
-                            </option>
-                            <option value="personal" <?= ($leave['leave_type'] === 'personal') ? 'selected' : '' ?>>
-                                Personal
-                            </option>
-                            <option value="vacation" <?= ($leave['leave_type'] === 'vacation') ? 'selected' : '' ?>>
-                                Vacation
-                            </option>
-                        </select>
-                    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input name="start_date" type="date" class="form-control"
+                                    value="<?= htmlspecialchars($leave['start_date']) ?>" required>
+                            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Reason</label>
-                        <textarea name="reason" class="form-control" rows="4"
-                            required><?= htmlspecialchars($leave['reason']) ?></textarea>
-                    </div>
+                            <div class="mb-3">
+                                <label class="form-label">End Date</label>
+                                <input name="end_date" type="date" class="form-control"
+                                    value="<?= htmlspecialchars($leave['end_date']) ?>" required>
+                            </div>
 
-                    <?php if (in_array($role, ['ProjectLeader', 'HR', 'Admin'])): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control" required>
-                            <option value="pending" <?= ($leave['status'] === 'pending') ? 'selected' : '' ?>>Pending
-                            </option>
-                            <option value="leader_approved"
-                                <?= ($leave['status'] === 'leader_approved') ? 'selected' : '' ?>>Leader Approved
-                            </option>
-                            <option value="hr_approved" <?= ($leave['status'] === 'hr_approved') ? 'selected' : '' ?>>HR
-                                Approved</option>
-                            <option value="rejected" <?= ($leave['status'] === 'rejected') ? 'selected' : '' ?>>Rejected
-                            </option>
-                        </select>
-                    </div>
-                    <?php else: ?>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($leave['status']) ?>"
-                            readonly>
-                    </div>
-                    <?php endif; ?>
+                            <div class="mb-3">
+                                <label class="form-label">Leave Type</label>
+                                <select name="leave_type" class="form-control" required>
+                                    <option value="sick" <?= ($leave['leave_type'] === 'sick') ? 'selected' : '' ?>>Sick
+                                    </option>
+                                    <option value="annual" <?= ($leave['leave_type'] === 'annual') ? 'selected' : '' ?>>Annual
+                                    </option>
+                                    <option value="unpaid" <?= ($leave['leave_type'] === 'unpaid') ? 'selected' : '' ?>>Unpaid
+                                    </option>
+                                    <option value="personal" <?= ($leave['leave_type'] === 'personal') ? 'selected' : '' ?>>
+                                        Personal
+                                    </option>
+                                    <option value="vacation" <?= ($leave['leave_type'] === 'vacation') ? 'selected' : '' ?>>
+                                        Vacation
+                                    </option>
+                                </select>
+                            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Applied At</label>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($leave['applied_at']) ?>"
-                            readonly>
-                    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reason</label>
+                                <textarea name="reason" class="form-control" rows="4"
+                                    required><?= htmlspecialchars($leave['reason']) ?></textarea>
+                            </div>
 
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">Update Leave Request</button>
-                        <a href="leave_view.php" class="btn btn-secondary">Cancel</a>
+                            <?php if (in_array($role, ['ProjectLeader', 'HR', 'Admin'])): ?>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-control" required>
+                                    <option value="pending" <?= ($leave['status'] === 'pending') ? 'selected' : '' ?>>Pending
+                                    </option>
+                                    <option value="leader_approved"
+                                        <?= ($leave['status'] === 'leader_approved') ? 'selected' : '' ?>>Leader Approved
+                                    </option>
+                                    <option value="hr_approved" <?= ($leave['status'] === 'hr_approved') ? 'selected' : '' ?>>HR
+                                        Approved</option>
+                                    <option value="rejected" <?= ($leave['status'] === 'rejected') ? 'selected' : '' ?>>Rejected
+                                    </option>
+                                </select>
+                            </div>
+                            <?php else: ?>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <input type="text" class="form-control" value="<?= htmlspecialchars($leave['status']) ?>"
+                                    readonly>
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="mb-3">
+                                <label class="form-label">Applied At</label>
+                                <input type="text" class="form-control" value="<?= htmlspecialchars($leave['applied_at']) ?>"
+                                    readonly>
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Update Leave Request</button>
+                                <a href="leave_view.php" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

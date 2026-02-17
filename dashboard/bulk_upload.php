@@ -803,5 +803,3 @@ body {
         <?php endif; ?>
     </div>
 </div>
-
-<?php include "../includes/sidebar_scripts.php"; ?>

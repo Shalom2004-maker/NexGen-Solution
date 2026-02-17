@@ -192,10 +192,6 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
-    </script>
-
     <!-- Local Bootstrap CSS Link -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -1188,7 +1184,6 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
     </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function filterRequests(filter) {
         // Update active button

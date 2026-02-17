@@ -150,3 +150,8 @@
 [2026-02-12 15:01:00] ip=::1 user=1 action=task_delete msg=Task 22 deleted
 [2026-02-12 15:01:10] ip=::1 user=1 action=task_delete msg=Task 9 deleted
 [2026-02-16 09:34:19] ip=::1 user=5 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-02-17 13:06:03] ip=::1 user=1 action=task_status msg=Task 13 set to in_progress
+[2026-02-17 13:06:19] ip=::1 user=1 action=task_status msg=Task 13 set to done
+[2026-02-17 15:12:25] ip=::1 user=3 action=payroll_submit msg=Payroll input added for emp 5
+[2026-02-17 15:13:06] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 30
+[2026-02-17 15:13:24] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 7

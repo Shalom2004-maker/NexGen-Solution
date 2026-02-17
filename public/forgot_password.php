@@ -37,7 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $u->close();
 
                 $resetLink = 'reset_password.php?token=' . $rawToken;
-                if (function_exists('audit_log')) audit_log('password_reset_request', "Password reset requested for {$email}", $user['id']);
+                if (function_exists('audit_log')) {
+                    audit_log('password_reset_request', "Password reset requested for {$email}", $user['id']);
+                }
             }
 
             $success = 'If the email exists, a reset link has been generated.';
@@ -57,112 +59,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
         rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-    }
-
-    html,
-    body {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .auth-card {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        width: min(520px, 90vw);
-    }
-
-    .auth-header {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        text-align: center;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .auth-body {
-        padding: 1.6rem;
-    }
-
-    .btn-action {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        color: white;
-        font-weight: bold;
-        padding: 0.55rem;
-        border: none;
-        border-radius: 6px;
-        width: 100%;
-    }
-
-    .home-link {
-        display: block;
-        text-align: center;
-        color: #667eea;
-        text-decoration: none;
-        margin-top: .6rem;
-        font-weight: 500;
-    }
-    </style>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
+    <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body>
-    <div class="auth-card">
-        <div class="auth-header">
-            <h4>Forgot Password</h4>
-            <p class="text-muted mb-0">Request a password reset link</p>
-        </div>
-        <div class="auth-body">
-            <?php if ($error): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php endif; ?>
+<body class="future-page future-forgot" data-theme="nebula">
+    <div class="future-grid" aria-hidden="true"></div>
+    <div class="future-orb future-orb-a" aria-hidden="true"></div>
+    <div class="future-orb future-orb-b" aria-hidden="true"></div>
+    <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-            <?php if ($success): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($resetLink): ?>
-            <div class="alert alert-info">
-                <strong>Reset link (dev):</strong>
-                <a href="<?= htmlspecialchars($resetLink) ?>">Reset your password</a>
-            </div>
-            <?php endif; ?>
-
-            <form method="post" action="forgot_password.php">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <label for="emailInput" class="form-label">Email Address</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                    <input type="email" class="form-control" id="emailInput" name="email"
-                        placeholder="Enter your email" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-                </div>
-                <button type="submit" class="btn-action">Generate Reset Link</button>
-            </form>
-
-            <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
+    <div class="theme-float">
+        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
+            <span class="theme-switcher-label">Theme</span>
+            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
+                aria-pressed="true">Nebula</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
+                aria-pressed="false">Ember</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
+                aria-pressed="false">Aurora</button>
         </div>
     </div>
+
+    <div class="auth-wrap">
+        <div class="auth-card tilt-surface" data-tilt="6">
+            <div class="auth-header">
+                <h4>Forgot Password</h4>
+                <p class="mb-0">Request a password reset link</p>
+            </div>
+
+            <div class="auth-body">
+                <?php if ($error): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($success): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($resetLink): ?>
+                <div class="alert alert-info dev-link-box">
+                    <strong>Reset link (dev):</strong>
+                    <a class="dev-link" href="<?= htmlspecialchars($resetLink) ?>">Reset your password</a>
+                </div>
+                <?php endif; ?>
+
+                <form method="post" action="forgot_password.php">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <label for="emailInput" class="form-label">Email Address</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="emailInput" name="email" placeholder="Enter your email"
+                            required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    </div>
+                    <button type="submit" class="btn-action pressable" data-tilt="8">Generate Reset Link</button>
+                </form>
+
+                <a href="login.php" class="home-link">
+                    <i class="bi bi-arrow-left"></i> Back To Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

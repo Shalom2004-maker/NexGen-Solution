@@ -236,8 +236,10 @@ $projects = [
 
     .task-item {
         padding: 0.9rem;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        background: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03));
+        box-shadow: 8px 8px 16px var(--shadow-dark),
+            -6px -6px 12px var(--shadow-light);
         border-radius: 12px;
         margin-bottom: 0.9rem;
         transition: all 0.12s ease;
@@ -248,18 +250,19 @@ $projects = [
     }
 
     .task-item:hover {
-        background: #f8fafc;
+        background: rgba(130, 214, 255, 0.12);
+        border-color: rgba(130, 214, 255, 0.45);
         transform: translateX(2px);
     }
 
     .task-title {
         font-weight: 600;
-        color: #0f172a;
+        color: var(--text);
         margin-bottom: 0.25rem;
     }
 
     .task-meta {
-        color: #64748b;
+        color: var(--muted);
         font-size: 0.85rem;
     }
 

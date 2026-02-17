@@ -5,8 +5,6 @@ session_start();
 $success = false;
 $error = '';
 
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim($_POST['first_name'] ?? '');
     $lastName = trim($_POST['last_name'] ?? '');
@@ -20,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $otherType = trim($_POST['other_type'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    // Validation
     if (empty($firstName) || empty($lastName)) {
         $error = 'Please provide both first and last name.';
     } elseif (!$email) {
@@ -28,16 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($message)) {
         $error = 'Please provide a message description.';
     } else {
-        // Combine first and last name
         $fullName = $firstName . ' ' . $lastName;
-
-        // Combine inquiry types
         $inquiryTypes = implode(', ', $inquiryType);
-        if (!empty($otherType) && in_array('others', $inquiryType)) {
+
+        if (!empty($otherType) && in_array('others', $inquiryType, true)) {
             $inquiryTypes .= ' (' . $otherType . ')';
         }
 
-        // Add contact preference to message if provided
         $fullMessage = $message;
         if (!empty($contactDate) || !empty($contactTime)) {
             $fullMessage .= "\n\nPreferred Contact Time: " . $contactDate . ' ' . $contactTime . ' ' . $contactPeriod;
@@ -46,13 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fullMessage .= "\nInquiry Type: " . $inquiryTypes;
         }
 
-        // Insert into database
         $stmt = $conn->prepare("INSERT INTO inquiries(name, email, company, message) VALUES(?, ?, ?, ?)");
         $stmt->bind_param("ssss", $fullName, $email, $company, $fullMessage);
 
         if ($stmt->execute()) {
             $success = true;
-            // Clear form data
             $_POST = [];
         } else {
             $error = 'Failed to submit your inquiry. Please try again.';
@@ -69,265 +61,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - NexGen Solution</title>
 
-    <!-- Google Fonts Link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
         rel="stylesheet">
 
-    <!-- Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
 
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-    }
-
-    html,
-    body {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        min-height: 100vh;
-    }
-
-    .page-wrapper {
-        min-height: 100vh;
-        padding: 2rem 1rem;
-    }
-
-    .back-button {
-        display: inline-block;
-        margin-bottom: 2rem;
-        color: white;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .back-button:hover {
-        color: #ffd700;
-    }
-
-    .form-container {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        padding: 2.5rem;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    .form-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-        text-align: center;
-    }
-
-    .form-subtitle {
-        color: #6c757d;
-        margin-bottom: 2rem;
-        font-size: 1rem;
-        text-align: center;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.6rem;
-        font-size: 0.95rem;
-    }
-
-    .form-control,
-    .form-select,
-    .form-check-input {
-        border: 1px solid #d4d4d4;
-        padding: 0.75rem;
-        border-radius: 6px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .input-group-text {
-        background-color: #f8f9fa;
-        border: 1px solid #d4d4d4;
-        color: #6c757d;
-    }
-
-    .form-field .input-group {
-        margin-bottom: 0;
-    }
-
-    .validation-error {
-        display: none;
-        margin-top: 0.4rem;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #dc3545;
-        line-height: 1.2;
-    }
-
-    .input-group .input-group-text {
-        transition: all 0.2s ease;
-    }
-
-    .input-group:focus-within .input-group-text {
-        color: #1d4ed8;
-        border-color: #667eea;
-        background-color: #eef3ff;
-    }
-
-    .input-group.has-error .input-group-text {
-        color: #dc3545;
-        border-color: #dc3545;
-        background-color: #fff1f1;
-    }
-
-    .form-control.input-error,
-    .form-select.input-error {
-        border-color: #dc3545 !important;
-        background-color: #fff8f8;
-    }
-
-    .form-control.input-error:focus,
-    .form-select.input-error:focus {
-        border-color: #dc3545 !important;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.18) !important;
-    }
-
-    .form-check {
-        margin-bottom: 0.75rem;
-    }
-
-    .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
-    }
-
-    .form-check-label {
-        font-weight: 500;
-        color: #495057;
-        cursor: pointer;
-    }
-
-    .alert {
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        border: none;
-    }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        color: white;
-        padding: 0.8rem 2.5rem;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 1rem;
-        width: 100%;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 0.5rem;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        color: white;
-    }
-
-    .time-input-group {
-        display: grid;
-        grid-template-columns: 1fr 1fr 0.8fr;
-        gap: 0.75rem;
-        align-items: flex-end;
-    }
-
-    .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .form-check-input {
-        cursor: pointer;
-    }
-
-    @media (max-width: 768px) {
-        .form-container {
-            padding: 1.75rem;
-        }
-
-        .form-title {
-            font-size: 1.5rem;
-        }
-
-        .form-subtitle {
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .time-input-group {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .page-wrapper {
-            padding: 1rem 0.5rem;
-        }
-
-        .form-container {
-            padding: 1.25rem;
-            border-radius: 8px;
-        }
-
-        .form-title {
-            font-size: 1.25rem;
-        }
-
-        .form-subtitle {
-            font-size: 0.9rem;
-        }
-
-        .form-label {
-            font-size: 0.9rem;
-        }
-
-        .form-control,
-        .form-select {
-            padding: 0.65rem;
-            font-size: 0.9rem;
-        }
-
-        .btn-submit {
-            padding: 0.7rem 1.5rem;
-            font-size: 0.95rem;
-        }
-    }
-    </style>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/validate.js"></script>
+    <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body>
-    <div class="page-wrapper">
-        <a href="index.php" class="back-button">
-            <i class="bi bi-arrow-left"></i> Back to Home
-        </a>
+<body class="future-page future-contact" data-theme="nebula">
+    <div class="future-grid" aria-hidden="true"></div>
+    <div class="future-orb future-orb-a" aria-hidden="true"></div>
+    <div class="future-orb future-orb-b" aria-hidden="true"></div>
+    <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-        <div class="form-container">
-            <h1 class="form-title">Get in touch</h1>
-            <p class="form-subtitle">Have questions about NexGen? We're here to help.</p>
+    <div class="theme-float">
+        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
+            <span class="theme-switcher-label">Theme</span>
+            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
+                aria-pressed="true">Nebula</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
+                aria-pressed="false">Ember</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
+                aria-pressed="false">Aurora</button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="page-nav">
+            <a href="index.php" class="back-button pressable" data-tilt="7">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="form-container tilt-surface" data-tilt="6">
+            <h1 class="form-title">Get In Touch</h1>
+            <p class="form-subtitle">Have questions about NexGen? We are here to help.</p>
 
             <?php if ($success): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -345,18 +121,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <?php endif; ?>
 
-            <form method="post" action="" id="contactForm">
-                <!-- Full Name -->
+            <form method="post" action="" id="contactForm" class="w-100">
                 <div class="mb-3">
                     <label class="form-label">Full Name *</label>
                     <div class="row g-2">
-                        <div class="col-6 form-field">
+                        <div class="col-12 col-sm-6 form-field">
                             <input type="text" name="first_name" class="form-control" placeholder="First Name"
                                 data-validation="required min-length max-length" data-min-length="2"
                                 data-max-length="50" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
                             <div id="first_name_error" class="validation-error"></div>
                         </div>
-                        <div class="col-6 form-field">
+                        <div class="col-12 col-sm-6 form-field">
                             <input type="text" name="last_name" class="form-control" placeholder="Last Name"
                                 data-validation="required min-length max-length" data-min-length="2"
                                 data-max-length="50" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
@@ -365,7 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- Email -->
                 <div class="mb-3 form-field">
                     <label class="form-label">Email Address *</label>
                     <div class="input-group">
@@ -378,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div id="email_error" class="validation-error"></div>
                 </div>
 
-                <!-- Phone Number -->
                 <div class="mb-3">
                     <label class="form-label">Phone Number</label>
                     <div class="input-group">
@@ -390,7 +163,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- Company -->
                 <div class="mb-3">
                     <label class="form-label">Company</label>
                     <div class="input-group">
@@ -402,9 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- Best time to contact -->
                 <div class="mb-3">
-                    <label class="form-label">Best Time to Contact</label>
+                    <label class="form-label">Best Time To Contact</label>
                     <div class="time-input-group">
                         <input type="date" name="contact_date" class="form-control"
                             value="<?= htmlspecialchars($_POST['contact_date'] ?? '') ?>">
@@ -415,81 +186,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?= (isset($_POST['contact_period']) && $_POST['contact_period'] === 'AM') ? 'selected' : '' ?>>
                                 AM</option>
                             <option value="PM"
-                                <?= (isset($_POST['contact_period']) && $_POST['contact_period'] === 'PM') ? 'selected' : 'selected' ?>>
+                                <?= (!isset($_POST['contact_period']) || $_POST['contact_period'] === 'PM') ? 'selected' : '' ?>>
                                 PM</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Inquiry Type -->
                 <div class="mb-3">
                     <label class="form-label">Inquiry Type</label>
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="inquiry_type[]"
                                 value="General Inquiry" id="type1"
-                                <?= (isset($_POST['inquiry_type']) && in_array('General Inquiry', $_POST['inquiry_type'])) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type1"> &nbsp; General Inquiry</label>
+                                <?= (isset($_POST['inquiry_type']) && in_array('General Inquiry', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="type1">General Inquiry</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="inquiry_type[]"
                                 value="Service Request" id="type2"
-                                <?= (isset($_POST['inquiry_type']) && in_array('Service Request', $_POST['inquiry_type'])) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type2"> &nbsp; Service Request</label>
+                                <?= (isset($_POST['inquiry_type']) && in_array('Service Request', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="type2">Service Request</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="Support"
                                 id="type3"
-                                <?= (isset($_POST['inquiry_type']) && in_array('Support', $_POST['inquiry_type'])) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type3"> &nbsp; Support</label>
+                                <?= (isset($_POST['inquiry_type']) && in_array('Support', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="type3">Support</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="others"
                                 id="type4"
-                                <?= (isset($_POST['inquiry_type']) && in_array('others', $_POST['inquiry_type'])) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type4"> &nbsp; Others</label>
+                                <?= (isset($_POST['inquiry_type']) && in_array('others', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="type4">Others</label>
                         </div>
                     </div>
                 </div>
 
-                <!-- If Others -->
                 <div class="mb-3" id="otherTypeField" style="display: none;">
                     <label class="form-label">Please Specify</label>
                     <input type="text" name="other_type" class="form-control" placeholder="Please describe..."
                         value="<?= htmlspecialchars($_POST['other_type'] ?? '') ?>">
                 </div>
 
-                <!-- Description -->
                 <div class="mb-4 form-field">
-                    <label class="form-label">Description of Problem *</label>
+                    <label class="form-label">Description Of Problem *</label>
                     <textarea name="message" class="form-control" rows="5"
                         data-validation="required min-length max-length" data-min-length="10" data-max-length="2000"
-                        placeholder="Please describe your inquiry or problem in detail..."
-                        ><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+                        placeholder="Please describe your inquiry or problem in detail..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
                     <div id="message_error" class="validation-error"></div>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit pressable" data-tilt="8">
                     <i class="bi bi-send"></i> Send Message
                 </button>
             </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
-    <script src="../js/validate.js"></script>
+    <script src="../js/bootstrap.bundle.min.js"></script>
     <script>
-    // Show/hide "If Others" field based on checkbox
-    document.getElementById('type4').addEventListener('change', function() {
-        document.getElementById('otherTypeField').style.display = this.checked ? 'block' : 'none';
-    });
+    (function() {
+        var otherTypeCheckbox = document.getElementById("type4");
+        var otherTypeField = document.getElementById("otherTypeField");
 
-    // Check on page load if "Others" is already checked
-    if (document.getElementById('type4').checked) {
-        document.getElementById('otherTypeField').style.display = 'block';
-    }
+        if (!otherTypeCheckbox || !otherTypeField) {
+            return;
+        }
+
+        function syncOtherType() {
+            otherTypeField.style.display = otherTypeCheckbox.checked ? "block" : "none";
+        }
+
+        otherTypeCheckbox.addEventListener("change", syncOtherType);
+        syncOtherType();
+    })();
     </script>
 </body>
 

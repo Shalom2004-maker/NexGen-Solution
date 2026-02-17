@@ -1,4 +1,5 @@
 <?php
+
 include "../includes/auth.php";
 allow(["Employee", "HR", "Admin"]);
 include "../includes/db.php";
@@ -795,8 +796,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 } else {
                                     $status_badge = '<span class="badge bg-danger">Rejected</span>';
                                 }
-                                $start_date_str = ($start_date instanceof DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
-                                $end_date_str = ($end_date instanceof DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
+                                $start_date_str = ($start_date instanceof \DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
+                                $end_date_str = ($end_date instanceof \DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
                                 echo '<div class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
                                             <strong>' . htmlspecialchars($reason) . '</strong><br>
@@ -824,7 +825,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                     <div class="card-container">
                         <h4><i class="bi bi-people"></i>&nbsp; Newest Employees</h4>
                         <?php
-                        $stmt = $conn->prepare("SELECT u.full_name, u.email, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.id DESC LIMIT 5");
+                        $stmt = $conn->prepare("SELECT u.full_name, u.email, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.id DESC LIMIT 12");
                         if ($stmt) {
                             $stmt->execute();
                             $stmt->bind_result($emp_name, $emp_email, $emp_department, $emp_job, $emp_hire);
@@ -832,7 +833,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                             echo '<div class="list-group">';
                             while ($stmt->fetch()) {
                                 $has_employees = true;
-                                $emp_hire_str = ($emp_hire instanceof DateTime) ? $emp_hire->format('Y-m-d') : (string)($emp_hire ?? 'Not set');
+                                $emp_hire_str = ($emp_hire instanceof \DateTime) ? $emp_hire->format('Y-m-d') : (string)($emp_hire ?? 'Not set');
                                 echo '<div class="list-group-item">
                                         <strong>' . htmlspecialchars($emp_name) . '</strong>
                                         <small>' . htmlspecialchars($emp_job ?? 'Not set') . ' - ' . htmlspecialchars($emp_department ?? 'Not set') . '</small><br>
