@@ -65,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
+    <script src="../js/jquery.js"></script>
+    <script src="../js/validate.js"></script>
     <script src="../js/future-ui.js" defer></script>
 </head>
 
@@ -116,12 +118,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="post" action="forgot_password.php">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                     <label for="emailInput" class="form-label">Email Address</label>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control" id="emailInput" name="email" placeholder="Enter your email"
-                            required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="text" class="form-control" data-validation="required email" id="emailInput"
+                                name="email" placeholder="Enter your email"
+                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+
+                        </div>
+                        <span id="email_error" class="text-danger"></span>
                     </div>
                     <button type="submit" class="btn-action pressable" data-tilt="8">Generate Reset Link</button>
                 </form>
