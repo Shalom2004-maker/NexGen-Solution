@@ -155,3 +155,4 @@
 [2026-02-17 15:12:25] ip=::1 user=3 action=payroll_submit msg=Payroll input added for emp 5
 [2026-02-17 15:13:06] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 30
 [2026-02-17 15:13:24] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 7
+[2026-02-18 20:06:32] ip=::1 user=2 action=inquiry_update msg=Updated inquiry ID: 9

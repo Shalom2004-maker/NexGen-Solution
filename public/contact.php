@@ -158,9 +158,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span class="input-group-text">
                             <i class="bi bi-telephone"></i>
                         </span>
-                        <input type="tel" class="form-control" name="phone" placeholder="(000) 000-0000"
-                            value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+                        <input type="tel" class="form-control" data-validation="required" name="phone"
+                            placeholder="(000) 000-0000" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
                     </div>
+                    <div id="phone_error" class="validation-error"></div>
                 </div>
 
                 <div class="mb-3">
@@ -169,9 +170,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span class="input-group-text">
                             <i class="bi bi-building"></i>
                         </span>
-                        <input type="text" name="company" class="form-control" placeholder="Company Name"
+                        <input type="text" name="company" data-validation="required min-length max-length"
+                            data-min-length="2" data-max-length="100" class="form-control" placeholder="Company Name"
                             value="<?= htmlspecialchars($_POST['company'] ?? '') ?>">
                     </div>
+                    <div id="company_error" class="validation-error"></div>
                 </div>
 
                 <div class="mb-3">

@@ -82,28 +82,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $u_stmt = $conn->prepare("INSERT INTO users(full_name, email, password_hash, role_id) VALUES(?,?,?,?)");
                 if (!$u_stmt) {
-                    throw new Exception('Failed to create user.');
+                    throw new \Exception('Failed to create user.');
                 }
                 $u_stmt->bind_param("sssi", $name, $email, $hash, $role_id);
                 if (!$u_stmt->execute()) {
-                    throw new Exception('Failed to create user.');
+                    throw new \Exception('Failed to create user.');
                 }
                 $user_id = (int)$u_stmt->insert_id;
                 $u_stmt->close();
 
                 $e_stmt = $conn->prepare("INSERT INTO employees(user_id, job_title, department, hire_date, salary_base, status) VALUES(?,?,?,?,?,?)");
                 if (!$e_stmt) {
-                    throw new Exception('Failed to create employee record.');
+                    throw new \Exception('Failed to create employee record.');
                 }
                 $e_stmt->bind_param("isssds", $user_id, $job_title, $department, $hire_date, $salary_base, $status);
                 if (!$e_stmt->execute()) {
-                    throw new Exception('Failed to create employee record.');
+                    throw new \Exception('Failed to create employee record.');
                 }
                 $e_stmt->close();
 
                 $conn->commit();
                 $create_success = 'Employee created successfully.';
-            } catch (Exception $ex) {
+            } catch (\Exception $ex) {
                 $conn->rollback();
                 $create_error = $ex->getMessage();
             }
