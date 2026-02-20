@@ -206,6 +206,67 @@
     parallaxBound = true;
   }
 
+  function initHomeNavEnhancements() {
+    var navMenus = Array.prototype.slice.call(document.querySelectorAll("details.home-nav-menu"));
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var anchorLinks = Array.prototype.slice.call(document.querySelectorAll(".navbar-actions a[href^='#']"));
+
+    function closeMenus() {
+      navMenus.forEach(function (menu) {
+        menu.open = false;
+      });
+    }
+
+    navMenus.forEach(function (menu) {
+      if (menu.dataset.futureMenuBound === "1") {
+        return;
+      }
+
+      var menuLinks = Array.prototype.slice.call(menu.querySelectorAll("a[href]"));
+      menuLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+          menu.open = false;
+        });
+      });
+
+      menu.dataset.futureMenuBound = "1";
+    });
+
+    anchorLinks.forEach(function (link) {
+      if (link.dataset.futureSmoothBound === "1") {
+        return;
+      }
+
+      link.addEventListener("click", function (event) {
+        var targetSelector = link.getAttribute("href");
+        if (!targetSelector || targetSelector.length < 2) {
+          return;
+        }
+
+        var target = document.querySelector(targetSelector);
+        if (!target) {
+          return;
+        }
+
+        event.preventDefault();
+        target.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start"
+        });
+
+        if (window.history && typeof window.history.pushState === "function") {
+          window.history.pushState(null, "", targetSelector);
+        } else {
+          window.location.hash = targetSelector;
+        }
+
+        closeMenus();
+      });
+
+      link.dataset.futureSmoothBound = "1";
+    });
+  }
+
   function isFutureContext(body) {
     return !!body && (body.classList.contains("future-page") || !!document.querySelector("[data-theme-choice]"));
   }
@@ -220,6 +281,7 @@
     registerPressDepth();
     registerTiltAndGlow();
     registerParallax();
+    initHomeNavEnhancements();
     return true;
   }
 

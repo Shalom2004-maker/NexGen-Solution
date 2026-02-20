@@ -127,7 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="text" class="form-control" data-validation="required email" id="emailInput"
                                 name="email" placeholder="Enter your email"
                                 value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-
                         </div>
                         <span id="email_error" class="text-danger"></span>
                     </div>

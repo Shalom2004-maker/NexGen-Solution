@@ -101,148 +101,194 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
         </div>
 
-        <div class="form-container tilt-surface" data-tilt="6">
-            <h1 class="form-title">Get In Touch</h1>
-            <p class="form-subtitle">Have questions about NexGen? We are here to help.</p>
+        <div class="d-flex gap-4 flex-column flex-lg-row align-items-stretch">
+            <div class="form-container tilt-surface" data-tilt="6" style="height: max-content;">
+                <h1 class="form-title">Get In Touch</h1>
+                <p class="form-subtitle">Have questions about NexGen? We are here to help. <br> Fill up the form and our
+                    team will get back with Response in 24 hours.</p>
 
-            <?php if ($success): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle"></i>
-                <strong>Success!</strong> Your inquiry has been submitted successfully. We will contact you soon.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <ul class="info-details">
+                    <li>
+                        <i class="bi bi-telephone-fill me-3"></i>
+                        <span>Phone: </span> <a href="tel:+123456789">123456789</a>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope-at-fill me-3"></i>
+                        <span>Email: </span> <a
+                            href="mailto:info@nexgensolutions.com">mailto:nexgensolutions@info.com</a>
+                    </li>
+                    <li>
+                        <i class="bi bi-globe2 me-3"></i>
+                        <span>Website: </span> <a href="https://nexgensolutions.com">nexgensolutions.com</a>
+                    </li>
+                    <ul class="social-icons">
+                        <li class="social-icon">
+                            <a class="social-link" href="#">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                        </li>
+                        <li class="social-icon">
+                            <a class="social-link" href="#">
+                                <i class="bi bi-whatsapp"></i>
+                            </a>
+                        </li>
+                        <li class="social-icon">
+                            <a class="social-link" href="#">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                        </li>
+                        <li class="social-icon">
+                            <a class="social-link" href="#">
+                                <i class="bi bi-pinterest"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </ul>
             </div>
-            <?php endif; ?>
+            <div class="form-container tilt-surface" data-tilt="6">
+                <h1 class="form-title mb-3">Send Us a Message</h1>
 
-            <?php if ($error): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-circle"></i>
-                <strong>Error!</strong> <?= htmlspecialchars($error) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <?php if ($success): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>Success!</strong> Your inquiry has been submitted successfully. We will contact you soon.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($error): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <strong>Error!</strong> <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+
+                <form method="post" action="" id="contactForm" class="w-100">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name *</label>
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-6 form-field">
+                                <input type="text" name="first_name" class="form-control" placeholder="First Name"
+                                    data-validation="required min-length max-length" data-min-length="2"
+                                    data-max-length="50" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
+                                <div id="first_name_error" class="validation-error"></div>
+                            </div>
+                            <div class="col-12 col-sm-6 form-field">
+                                <input type="text" name="last_name" class="form-control" placeholder="Last Name"
+                                    data-validation="required min-length max-length" data-min-length="2"
+                                    data-max-length="50" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+                                <div id="last_name_error" class="validation-error"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-field">
+                        <label class="form-label">Email Address *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="text" class="form-control" name="email" data-validation="required email"
+                                placeholder="example@company.com"
+                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                        </div>
+                        <div id="email_error" class="validation-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-telephone"></i>
+                            </span>
+                            <input type="tel" class="form-control" data-validation="required" name="phone"
+                                placeholder="(000) 000-0000" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+                        </div>
+                        <div id="phone_error" class="validation-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Company</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-building"></i>
+                            </span>
+                            <input type="text" name="company" data-validation="required min-length max-length"
+                                data-min-length="2" data-max-length="100" class="form-control"
+                                placeholder="Company Name" value="<?= htmlspecialchars($_POST['company'] ?? '') ?>">
+                        </div>
+                        <div id="company_error" class="validation-error"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Best Time To Contact</label>
+                        <div class="time-input-group">
+                            <input type="date" name="contact_date" class="form-control"
+                                value="<?= htmlspecialchars($_POST['contact_date'] ?? '') ?>">
+                            <input type="time" name="contact_time" class="form-control"
+                                value="<?= htmlspecialchars($_POST['contact_time'] ?? '') ?>">
+                            <select name="contact_period" class="form-select">
+                                <option value="AM"
+                                    <?= (isset($_POST['contact_period']) && $_POST['contact_period'] === 'AM') ? 'selected' : '' ?>>
+                                    AM</option>
+                                <option value="PM"
+                                    <?= (!isset($_POST['contact_period']) || $_POST['contact_period'] === 'PM') ? 'selected' : '' ?>>
+                                    PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Inquiry Type</label>
+                        <div class="checkbox-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="inquiry_type[]"
+                                    value="General Inquiry" id="type1"
+                                    <?= (isset($_POST['inquiry_type']) && in_array('General Inquiry', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="type1">General Inquiry</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="inquiry_type[]"
+                                    value="Service Request" id="type2"
+                                    <?= (isset($_POST['inquiry_type']) && in_array('Service Request', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="type2">Service Request</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="Support"
+                                    id="type3"
+                                    <?= (isset($_POST['inquiry_type']) && in_array('Support', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="type3">Support</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="others"
+                                    id="type4"
+                                    <?= (isset($_POST['inquiry_type']) && in_array('others', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="type4">Others</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="otherTypeField" style="display: none;">
+                        <label class="form-label">Please Specify</label>
+                        <input type="text" name="other_type" class="form-control" placeholder="Please describe..."
+                            value="<?= htmlspecialchars($_POST['other_type'] ?? '') ?>">
+                    </div>
+
+                    <div class="mb-4 form-field">
+                        <label class="form-label">Description Of Problem *</label>
+                        <textarea name="message" class="form-control" rows="5"
+                            data-validation="required min-length max-length" data-min-length="10" data-max-length="2000"
+                            placeholder="Please describe your inquiry or problem in detail..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
+                        <div id="message_error" class="validation-error"></div>
+                    </div>
+
+                    <button type="submit" class="btn-submit pressable" data-tilt="8">
+                        <i class="bi bi-send"></i> Send Message
+                    </button>
+                </form>
             </div>
-            <?php endif; ?>
 
-            <form method="post" action="" id="contactForm" class="w-100">
-                <div class="mb-3">
-                    <label class="form-label">Full Name *</label>
-                    <div class="row g-2">
-                        <div class="col-12 col-sm-6 form-field">
-                            <input type="text" name="first_name" class="form-control" placeholder="First Name"
-                                data-validation="required min-length max-length" data-min-length="2"
-                                data-max-length="50" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
-                            <div id="first_name_error" class="validation-error"></div>
-                        </div>
-                        <div class="col-12 col-sm-6 form-field">
-                            <input type="text" name="last_name" class="form-control" placeholder="Last Name"
-                                data-validation="required min-length max-length" data-min-length="2"
-                                data-max-length="50" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
-                            <div id="last_name_error" class="validation-error"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3 form-field">
-                    <label class="form-label">Email Address *</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-envelope"></i>
-                        </span>
-                        <input type="text" class="form-control" name="email" data-validation="required email"
-                            placeholder="example@company.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-                    </div>
-                    <div id="email_error" class="validation-error"></div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Phone Number</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-telephone"></i>
-                        </span>
-                        <input type="tel" class="form-control" data-validation="required" name="phone"
-                            placeholder="(000) 000-0000" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-                    </div>
-                    <div id="phone_error" class="validation-error"></div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Company</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-building"></i>
-                        </span>
-                        <input type="text" name="company" data-validation="required min-length max-length"
-                            data-min-length="2" data-max-length="100" class="form-control" placeholder="Company Name"
-                            value="<?= htmlspecialchars($_POST['company'] ?? '') ?>">
-                    </div>
-                    <div id="company_error" class="validation-error"></div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Best Time To Contact</label>
-                    <div class="time-input-group">
-                        <input type="date" name="contact_date" class="form-control"
-                            value="<?= htmlspecialchars($_POST['contact_date'] ?? '') ?>">
-                        <input type="time" name="contact_time" class="form-control"
-                            value="<?= htmlspecialchars($_POST['contact_time'] ?? '') ?>">
-                        <select name="contact_period" class="form-select">
-                            <option value="AM"
-                                <?= (isset($_POST['contact_period']) && $_POST['contact_period'] === 'AM') ? 'selected' : '' ?>>
-                                AM</option>
-                            <option value="PM"
-                                <?= (!isset($_POST['contact_period']) || $_POST['contact_period'] === 'PM') ? 'selected' : '' ?>>
-                                PM</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Inquiry Type</label>
-                    <div class="checkbox-group">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="inquiry_type[]"
-                                value="General Inquiry" id="type1"
-                                <?= (isset($_POST['inquiry_type']) && in_array('General Inquiry', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type1">General Inquiry</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="inquiry_type[]"
-                                value="Service Request" id="type2"
-                                <?= (isset($_POST['inquiry_type']) && in_array('Service Request', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type2">Service Request</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="Support"
-                                id="type3"
-                                <?= (isset($_POST['inquiry_type']) && in_array('Support', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type3">Support</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="others"
-                                id="type4"
-                                <?= (isset($_POST['inquiry_type']) && in_array('others', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="type4">Others</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3" id="otherTypeField" style="display: none;">
-                    <label class="form-label">Please Specify</label>
-                    <input type="text" name="other_type" class="form-control" placeholder="Please describe..."
-                        value="<?= htmlspecialchars($_POST['other_type'] ?? '') ?>">
-                </div>
-
-                <div class="mb-4 form-field">
-                    <label class="form-label">Description Of Problem *</label>
-                    <textarea name="message" class="form-control" rows="5"
-                        data-validation="required min-length max-length" data-min-length="10" data-max-length="2000"
-                        placeholder="Please describe your inquiry or problem in detail..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
-                    <div id="message_error" class="validation-error"></div>
-                </div>
-
-                <button type="submit" class="btn-submit pressable" data-tilt="8">
-                    <i class="bi bi-send"></i> Send Message
-                </button>
-            </form>
         </div>
     </div>
 
