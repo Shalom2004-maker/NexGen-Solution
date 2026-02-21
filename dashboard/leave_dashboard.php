@@ -157,10 +157,6 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
-    </script>
-
     <!-- Local Bootstrap CSS Link -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -560,6 +556,14 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         padding: 1rem;
     }
 
+    .modal-backdrop {
+        z-index: 2000 !important;
+    }
+
+    .modal {
+        z-index: 2005 !important;
+    }
+
     .btn-primary {
         background-color: #337ccfe2;
         border-color: #337ccfe2;
@@ -586,7 +590,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         position: fixed;
         top: 1rem;
         left: 1rem;
-        z-index: 1040;
+        z-index: 1200;
         background-color: #337ccfe2;
         color: white;
         border: none;
@@ -604,11 +608,15 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1040;
+        z-index: 1038;
     }
 
     .sidebar-overlay.show {
         display: block;
+    }
+
+    body.modal-open .sidebar-overlay {
+        display: none !important;
     }
 
     @media (max-width: 768px) {
@@ -1002,7 +1010,6 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
     </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function filterRequests(filter) {
         // Update active button
@@ -1019,36 +1026,62 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const nexgenSidebar = document.getElementById('nexgenSidebar');
+        const leaveRequestModal = document.getElementById('leaveRequestModal');
+
+        if (leaveRequestModal && leaveRequestModal.parentElement !== document.body) {
+            document.body.appendChild(leaveRequestModal);
+        }
+
+        const closeSidebar = function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.remove('show');
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.remove('show');
+            }
+        };
+
+        const cleanupModalArtifacts = function() {
+            if (document.querySelector('.modal.show')) {
+                return;
+            }
+
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                backdrop.remove();
+            });
+
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('padding-right');
+        };
 
         if (sidebarToggleBtn && nexgenSidebar) {
             sidebarToggleBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                nexgenSidebar.classList.toggle('show');
+                const isOpening = !nexgenSidebar.classList.contains('show');
+                nexgenSidebar.classList.toggle('show', isOpening);
                 if (sidebarOverlay) {
-                    sidebarOverlay.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show', isOpening);
                 }
             });
         }
 
-        if (sidebarOverlay && nexgenSidebar) {
-            sidebarOverlay.addEventListener('click', function() {
-                nexgenSidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
         }
 
         if (nexgenSidebar) {
             document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
+                        closeSidebar();
                     }
                 });
             });
         }
+
+        document.addEventListener('show.bs.modal', closeSidebar);
+        document.addEventListener('hidden.bs.modal', cleanupModalArtifacts);
     });
     </script>
 </body>

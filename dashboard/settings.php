@@ -196,6 +196,8 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/validate.js"></script>
 
     <style>
     * {
@@ -446,8 +448,7 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                 <div class="settings-card">
                     <h5 class="mb-3">Account Information</h5>
                     <form method="post">
-                        <input type="hidden" name="csrf_token"
-                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="action" value="update_profile">
 
                         <div class="row g-3">
@@ -472,8 +473,7 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                 <div class="settings-card">
                     <h5 class="mb-3">Change Password</h5>
                     <form method="post">
-                        <input type="hidden" name="csrf_token"
-                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="action" value="change_password">
 
                         <div class="row g-3">

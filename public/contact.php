@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
 
-                <form method="post" action="" id="contactForm" class="w-100">
+                <form method="post" action="" id="contactForm" class="col-lg-10 col-md-10 col-12">
                     <div class="mb-3">
                         <label class="form-label">Full Name *</label>
                         <div class="row g-2">

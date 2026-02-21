@@ -604,6 +604,14 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         padding: 1rem;
     }
 
+    .modal-backdrop {
+        z-index: 2000 !important;
+    }
+
+    .modal {
+        z-index: 2005 !important;
+    }
+
     .btn-primary {
         background-color: #1d4ed8;
         border-color: #1d4ed8;
@@ -630,7 +638,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         position: fixed;
         top: 1rem;
         left: 1rem;
-        z-index: 1040;
+        z-index: 1200;
         background-color: #337ccfe2;
         color: white;
         border: none;
@@ -648,11 +656,15 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1040;
+        z-index: 1038;
     }
 
     .sidebar-overlay.show {
         display: block;
+    }
+
+    body.modal-open .sidebar-overlay {
+        display: none !important;
     }
 
     @media (max-width: 768px) {
@@ -1200,36 +1212,62 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
         const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const nexgenSidebar = document.getElementById('nexgenSidebar');
+        const taskCreateModal = document.getElementById('taskCreateModal');
+
+        if (taskCreateModal && taskCreateModal.parentElement !== document.body) {
+            document.body.appendChild(taskCreateModal);
+        }
+
+        const closeSidebar = function() {
+            if (nexgenSidebar) {
+                nexgenSidebar.classList.remove('show');
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.remove('show');
+            }
+        };
+
+        const cleanupModalArtifacts = function() {
+            if (document.querySelector('.modal.show')) {
+                return;
+            }
+
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                backdrop.remove();
+            });
+
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('padding-right');
+        };
 
         if (sidebarToggleBtn && nexgenSidebar) {
             sidebarToggleBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                nexgenSidebar.classList.toggle('show');
+                const isOpening = !nexgenSidebar.classList.contains('show');
+                nexgenSidebar.classList.toggle('show', isOpening);
                 if (sidebarOverlay) {
-                    sidebarOverlay.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show', isOpening);
                 }
             });
         }
 
-        if (sidebarOverlay && nexgenSidebar) {
-            sidebarOverlay.addEventListener('click', function() {
-                nexgenSidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
         }
 
         if (nexgenSidebar) {
             document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
+                        closeSidebar();
                     }
                 });
             });
         }
+
+        document.addEventListener('show.bs.modal', closeSidebar);
+        document.addEventListener('hidden.bs.modal', cleanupModalArtifacts);
     });
     </script>
 </body>

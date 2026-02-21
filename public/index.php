@@ -65,10 +65,13 @@
 
     <section class="hero-section">
         <div class="hero-shell glass-panel tilt-surface" data-tilt="8">
-            <p class="hero-eyebrow">Intelligent Workforce Platform</p>
-            <h1>Manage your team with <span class="highlight">precision</span></h1>
-            <p>The all-in-one platform for task management, payroll processing, and leave tracking. Built for modern
-                enterprises that value efficiency.</p>
+            <center>
+                <span class="hero-eyebrow">✨ Intelligent Workforce Platform</span>
+                <h1>Manage your team with <span class="highlight">precision</span></h1>
+                <p>The all-in-one platform for task management, payroll processing, and leave tracking. Built for
+                    modern
+                    enterprises that value efficiency.</p>
+            </center>
 
             <div class="d-flex gap-3 mx-auto justify-content-center flex-wrap">
                 <a href="login.php" class="btn-hero pressable" data-tilt="8">
