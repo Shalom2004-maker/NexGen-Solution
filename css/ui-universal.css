@@ -650,6 +650,7 @@ body.future-login .input-group {
   border-radius: 14px;
   border: 1px solid transparent;
   background: var(--surface);
+  height: fit-content;
   box-shadow:
     inset 4px 4px 8px rgba(5, 13, 24, 0.55),
     inset -4px -4px 10px rgba(44, 88, 132, 0.26);
