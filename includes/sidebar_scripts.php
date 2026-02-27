@@ -1,3 +1,4 @@
+<script src="../js/validate.js"></script>
 <script src="../js/future-ui.js"></script>
 <script>
 (function () {

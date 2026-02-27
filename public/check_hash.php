@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <title>Check Password Hash</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../js/validate.js"></script>
 </head>
 
 <body class="p-4">
@@ -33,13 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h4>Verify Password Hash</h4>
         <p class="text-muted">Local debug: paste plaintext and bcrypt hash to verify.</p>
         <form method="post">
+            <button class="d-flex justify-content-end end-0 btn btn-primary mb-3 mx-auto">
+                <a href="hash.php" class="nav-link">Hash Password</a>
+            </button>
             <div class="mb-2">
                 <label class="form-label">Plaintext password</label>
-                <input name="plain" class="form-control" autocomplete="off">
+                <input name="plain" class="form-control" autocomplete="off" data-validation="required" required>
+                <div id="plain_error" class="text-danger validation-error"></div>
             </div>
             <div class="mb-2">
                 <label class="form-label">Hash</label>
-                <textarea name="hash" class="form-control" rows="2"></textarea>
+                <textarea name="hash" class="form-control" rows="2" data-validation="required" required></textarea>
+                <div id="hash_error" class="text-danger validation-error"></div>
             </div>
             <button class="btn btn-primary">Check</button>
         </form>

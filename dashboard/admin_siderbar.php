@@ -64,12 +64,12 @@
             <div class="nexgen-sidebar-footer-avatar">
                 <?php if ($avatarUrl): ?>
                 <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Profile photo"
-                    style="width: 100%; height: 90%; object-fit: cover; border-radius: 50%;">
+                    style="width: 110%; margin-top: -0.5rem; height: 90%; object-fit: cover; border-radius: 50%; margin-left: 0.5rem">
                 <?php else: ?>
                 <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
                 <?php endif; ?>
             </div>
-            <div class="nexgen-sidebar-footer-info">
+            <div class="nexgen-sidebar-footer-info mx-2">
                 <b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b>
                 <small><?= htmlspecialchars($_SESSION['role'] ?? '') ?></small>
             </div>

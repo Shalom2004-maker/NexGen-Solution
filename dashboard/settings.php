@@ -430,7 +430,10 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                             <input type="hidden" name="csrf_token"
                                 value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="update_photo">
-                            <input class="form-control" type="file" name="profile_photo" accept="image/*" required>
+                            <input class="form-control" type="file" name="profile_photo" accept="image/*"
+                                data-validation="required file" data-filesize="2097152"
+                                data-filetype="^image\\/(jpeg|png)$" required>
+                            <div id="profile_photo_error" class="text-danger validation-error w-100"></div>
                             <button type="submit" class="btn btn-primary-custom">Upload Photo</button>
                         </form>
 
@@ -479,15 +482,22 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label">Current Password</label>
-                                <input type="password" name="current_password" class="form-control" required>
+                                <input type="password" name="current_password" class="form-control"
+                                    data-validation="required" required>
+                                <div id="current_password_error" class="text-danger validation-error"></div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">New Password</label>
-                                <input type="password" name="new_password" class="form-control" required>
+                                <input type="password" id="new_password_settings" name="new_password" class="form-control"
+                                    data-validation="required min-length" data-min-length="8" required>
+                                <div id="new_password_error" class="text-danger validation-error"></div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Confirm Password</label>
-                                <input type="password" name="confirm_password" class="form-control" required>
+                                <input type="password" name="confirm_password" class="form-control"
+                                    data-validation="required confirm-password"
+                                    data-confirm-password="new_password_settings" required>
+                                <div id="confirm_password_error" class="text-danger validation-error"></div>
                             </div>
                         </div>
 

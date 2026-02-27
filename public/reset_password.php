@@ -162,13 +162,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">New Password</label>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" name="new_password" required>
+                    <input type="password" class="form-control" id="new_password" name="new_password"
+                        data-validation="required min-length" data-min-length="8" required>
                 </div>
+                <div id="new_password_error" class="text-danger validation-error"></div>
                 <label class="form-label">Confirm Password</label>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                    <input type="password" class="form-control" name="confirm_password" required>
+                    <input type="password" class="form-control" name="confirm_password"
+                        data-validation="required confirm-password" data-confirm-password="new_password" required>
                 </div>
+                <div id="confirm_password_error" class="text-danger validation-error"></div>
                 <button type="submit" class="btn-action">Update Password</button>
             </form>
             <?php endif; ?>
@@ -176,6 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
         </div>
     </div>
+    <script src="../js/validate.js"></script>
 </body>
 
 </html>

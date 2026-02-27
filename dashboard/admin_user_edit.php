@@ -162,7 +162,8 @@ select.form-control {
 
                 <div class="mb-3">
                     <label class="form-label">Full Name</label>
-                    <input name="name" class="form-control" value="<?= htmlspecialchars($user['full_name']) ?>" required>
+                    <input name="name" class="form-control" value="<?= htmlspecialchars($user['full_name']) ?>"
+                        minlength="2" required>
                 </div>
 
                 <div class="mb-3">
@@ -173,7 +174,9 @@ select.form-control {
 
                 <div class="mb-3">
                     <label class="form-label">New Password (leave blank to keep current)</label>
-                    <input name="pass" type="password" class="form-control" placeholder="Enter new password">
+                    <input name="pass" type="password" class="form-control" placeholder="Enter new password"
+                        data-validation="min-length" data-min-length="6">
+                    <div id="pass_error" class="text-danger validation-error"></div>
                     <small class="form-text text-muted">Minimum 6 characters</small>
                 </div>
 
