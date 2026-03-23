@@ -59,33 +59,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet">
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
     <script src="../js/jquery.js"></script>
     <script src="../js/validate.js"></script>
     <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body class="future-page future-forgot" data-theme="nebula">
+<body class="future-page future-forgot" data-theme="dark">
     <div class="future-grid" aria-hidden="true"></div>
     <div class="future-orb future-orb-a" aria-hidden="true"></div>
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-    <div class="theme-float">
-        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                aria-pressed="true">Nebula</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                aria-pressed="false">Ember</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                aria-pressed="false">Aurora</button>
-        </div>
+    <div class="theme-switcher" role="group" aria-label="Theme toggle">
+        <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+            data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+            <i class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
     </div>
 
     <div class="auth-wrap">

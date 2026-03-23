@@ -1,14 +1,19 @@
 (function () {
   var THEME_KEY = "nexgen_future_theme";
   var SUPPORTED_THEMES = {
-    nebula: true,
-    ember: true,
-    aurora: true
+    dark: true,
+    light: true
+  };
+  var LEGACY_THEME_MAP = {
+    nebula: "dark",
+    ember: "light",
+    aurora: "light"
   };
   var parallaxBound = false;
 
   function normalizeTheme(theme, fallback) {
-    return SUPPORTED_THEMES[theme] ? theme : fallback;
+    var mapped = LEGACY_THEME_MAP[theme] || theme;
+    return SUPPORTED_THEMES[mapped] ? mapped : fallback;
   }
 
   function safeReadTheme(defaultTheme) {
@@ -28,14 +33,33 @@
     }
   }
 
-  function applyTheme(body, theme, buttons, fallbackTheme) {
+  function updateToggleButton(button, theme) {
+    var icon = button.querySelector("i");
+    var lightIcon = button.dataset.iconLight || "bi-sun-fill";
+    var darkIcon = button.dataset.iconDark || "bi-moon-fill";
+    var nextIcon = theme === "dark" ? darkIcon : lightIcon;
+
+    if (icon) {
+      icon.className = "bi " + nextIcon;
+    }
+
+    button.setAttribute("aria-pressed", String(theme === "dark"));
+    button.setAttribute("aria-label", "Toggle theme");
+    button.title = theme === "dark" ? "Switch to light" : "Switch to dark";
+  }
+
+  function applyTheme(body, theme, choiceButtons, toggleButtons, fallbackTheme) {
     var nextTheme = normalizeTheme(theme, fallbackTheme);
     body.dataset.theme = nextTheme;
 
-    buttons.forEach(function (button) {
+    choiceButtons.forEach(function (button) {
       var active = button.dataset.themeChoice === nextTheme;
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-pressed", String(active));
+    });
+
+    toggleButtons.forEach(function (button) {
+      updateToggleButton(button, nextTheme);
     });
 
     safeWriteTheme(nextTheme);
@@ -46,18 +70,33 @@
       return;
     }
 
-    var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-theme-choice]"));
-    var defaultTheme = normalizeTheme(body.dataset.theme || "nebula", "nebula");
+    var choiceButtons = Array.prototype.slice.call(document.querySelectorAll("[data-theme-choice]"));
+    var toggleButtons = Array.prototype.slice.call(document.querySelectorAll("[data-theme-toggle]"));
+    var defaultTheme = normalizeTheme(body.dataset.theme || "dark", "dark");
     var activeTheme = safeReadTheme(defaultTheme);
-    applyTheme(body, activeTheme, buttons, defaultTheme);
+    applyTheme(body, activeTheme, choiceButtons, toggleButtons, defaultTheme);
 
-    buttons.forEach(function (button) {
+    choiceButtons.forEach(function (button) {
       if (button.dataset.futureThemeBound === "1") {
         return;
       }
 
       button.addEventListener("click", function () {
-        applyTheme(body, button.dataset.themeChoice || defaultTheme, buttons, defaultTheme);
+        applyTheme(body, button.dataset.themeChoice || defaultTheme, choiceButtons, toggleButtons, defaultTheme);
+      });
+
+      button.dataset.futureThemeBound = "1";
+    });
+
+    toggleButtons.forEach(function (button) {
+      if (button.dataset.futureThemeBound === "1") {
+        return;
+      }
+
+      button.addEventListener("click", function () {
+        var currentTheme = normalizeTheme(body.dataset.theme || defaultTheme, defaultTheme);
+        var nextTheme = currentTheme === "dark" ? "light" : "dark";
+        applyTheme(body, nextTheme, choiceButtons, toggleButtons, defaultTheme);
       });
 
       button.dataset.futureThemeBound = "1";
@@ -268,7 +307,9 @@
   }
 
   function isFutureContext(body) {
-    return !!body && (body.classList.contains("future-page") || !!document.querySelector("[data-theme-choice]"));
+    return !!body && (body.classList.contains("future-page") ||
+      !!document.querySelector("[data-theme-choice]") ||
+      !!document.querySelector("[data-theme-toggle]"));
   }
 
   function initializeFutureUi() {

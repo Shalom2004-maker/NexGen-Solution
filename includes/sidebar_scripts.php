@@ -14,7 +14,7 @@
 
         body.classList.add("future-page", "future-dashboard");
         if (!body.dataset.theme) {
-            body.dataset.theme = "nebula";
+            body.dataset.theme = "dark";
         }
         dispatchFutureUiInit();
 

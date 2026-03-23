@@ -55,10 +55,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } elseif ($action === 'update_photo') {
-            if (!isset($_FILES['profile_photo']) || $_FILES['profile_photo']['error'] !== UPLOAD_ERR_OK) {
-                $error = 'Please choose a valid image file.';
+            if (!isset($_FILES['profile_photo'])) {
+                $error = 'Please choose an image file.';
             } else {
                 $file = $_FILES['profile_photo'];
+                if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                    $uploadError = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
+                    if ($uploadError === UPLOAD_ERR_NO_FILE) {
+                        $error = 'Please choose an image file.';
+                    } elseif (in_array($uploadError, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+                        $error = 'Uploaded image is too large.';
+                    } else {
+                        $error = 'Upload failed. Please try again.';
+                    }
+                } elseif (!is_uploaded_file((string)($file['tmp_name'] ?? ''))) {
+                    $error = 'Invalid upload request.';
+                } else {
                 $maxSize = 2 * 1024 * 1024; // 2MB
                 if ($file['size'] > $maxSize) {
                     $error = 'Image must be less than 2MB.';
@@ -106,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
                     }
+                }
                 }
             }
         } elseif ($action === 'remove_photo') {
@@ -198,190 +211,48 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="../js/jquery.js"></script>
     <script src="../js/validate.js"></script>
-
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Sora", sans-serif;
+    .profile-avatar-wrapper {
+        width: 10rem;
+        height: 10rem;
+        margin: -4rem auto 1rem;
     }
 
-    html,
-    body {
-        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
-        color: #1f2937;
-        min-height: 100vh;
-    }
-
-    .main-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    .main-content {
-        flex: 1;
-        background-color: transparent;
-        padding-top: 2rem;
-        padding-left: 18rem;
-        padding-right: 2.5rem;
-        padding-bottom: 2rem;
-        overflow-x: hidden;
-        width: 75%;
-    }
-
-    .dashboard-shell {
-        position: relative;
-        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
-            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
-        border-radius: 20px;
-        padding: 1.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .page-header h3 {
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 0.35rem;
-        letter-spacing: -0.02em;
-    }
-
-    .page-header p {
-        color: #5b6777;
-        margin: 0;
-    }
-
-    .settings-card {
-        background-color: #ffffff;
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #475569;
-    }
-
-    .form-control {
-        border: 1px solid rgba(148, 163, 184, 0.45);
-        border-radius: 12px;
-        padding: 0.75rem;
-    }
-
-    .form-control:focus {
-        border-color: #1d4ed8;
-        box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.15);
-    }
-
-    .avatar-wrap {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-    }
-
-    .avatar {
-        width: 84px;
-        height: 84px;
+    .profile-avatar,
+    .profile-avatar-fallback {
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
-        background: #e2e8f0;
+        border: 4px solid hsl(var(--card));
+        box-shadow: var(--shadow-md);
+    }
+
+    .profile-avatar {
+        object-fit: cover;
+        background: hsl(var(--card));
+    }
+
+    .profile-avatar-fallback {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #1d4ed8;
+        background: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(var(--secondary) / 0.55));
+        color: hsl(var(--primary-foreground));
+        font-size: 2.5rem;
         font-weight: 700;
-        font-size: 2rem;
-        overflow: hidden;
-        border: 2px solid rgba(29, 78, 216, 0.25);
-    }
-
-    .avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        border: none;
-        color: white;
-        padding: 0.6rem 1.4rem;
-        border-radius: 999px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.12s ease;
-        text-decoration: none;
-        display: inline-block;
-        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
-    }
-
-    .btn-primary-custom:hover {
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 12px 24px rgba(29, 78, 216, 0.3);
-    }
-
-    .sidebar-toggle {
-        display: none;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1040;
-        background-color: #337ccfe2;
-        color: white;
-        border: none;
-        padding: 0.6rem 0.8rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1.25rem;
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1040;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
     }
 
     @media (max-width: 768px) {
-        .main-wrapper {
-            flex-direction: column;
-        }
-
-        .sidebar-toggle {
-            display: block;
-        }
-
-        .main-content {
-            padding: 1.25rem;
-            padding-top: 3.5rem;
-            width: 100%;
+        .profile-avatar-wrapper {
+            width: 8.5rem;
+            height: 8.5rem;
+            margin-top: -3.4rem;
         }
     }
     </style>
 </head>
 
-<body>
+<body class="future-page future-dashboard" data-theme="dark">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
         <i class="bi bi-list"></i>
@@ -415,30 +286,33 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                 </div>
                 <?php endif; ?>
 
-                <div class="settings-card">
+                <div class="settings-card mb-4">
                     <h5 class="mb-3">Profile Photo</h5>
-                    <div class="avatar-wrap">
-                        <div class="avatar">
+                    <div class="avatar-wrap d-flex justify-content-center">
+                        <div class="profile-avatar-wrapper mt-2">
                             <?php if ($photoUrl): ?>
-                            <img src="<?= htmlspecialchars($photoUrl) ?>" alt="Profile photo">
+                            <img src="<?= htmlspecialchars($photoUrl) ?>" class="profile-avatar" alt="Profile photo">
                             <?php else: ?>
-                            <?= htmlspecialchars(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+                            <div class="profile-avatar-fallback">
+                                <?= htmlspecialchars(substr($_SESSION['name'] ?? 'U', 0, 1)) ?></div>
                             <?php endif; ?>
                         </div>
 
-                        <form method="post" enctype="multipart/form-data" class="d-flex gap-2 flex-wrap">
-                            <input type="hidden" name="csrf_token"
-                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                            <input type="hidden" name="action" value="update_photo">
-                            <input class="form-control" type="file" name="profile_photo" accept="image/*"
-                                data-validation="required file" data-filesize="2097152"
-                                data-filetype="^image\\/(jpeg|png)$" required>
-                            <div id="profile_photo_error" class="text-danger validation-error w-100"></div>
-                            <button type="submit" class="btn btn-primary-custom">Upload Photo</button>
-                        </form>
+                        <div class="">
+                            <form method="post" enctype="multipart/form-data" class="d-flex gap-2 flex-wrap">
+                                <input type="hidden" name="csrf_token"
+                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="update_photo">
+                                <input class="form-control" type="file" name="profile_photo"
+                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png" data-validation="required file"
+                                    data-filesize="2097152" required>
+                                <div id="profile_photo_error" class="text-danger validation-error w-100"></div>
+                                <button type="submit" class="btn btn-primary-custom">Upload Photo</button>
+                            </form>
+                        </div>
 
                         <?php if ($photoUrl): ?>
-                        <form method="post" class="ms-0">
+                        <form method="post" class="ms-1">
                             <input type="hidden" name="csrf_token"
                                 value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="remove_photo">
@@ -448,7 +322,7 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                     </div>
                 </div>
 
-                <div class="settings-card">
+                <div class="settings-card mb-4">
                     <h5 class="mb-3">Account Information</h5>
                     <form method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -488,8 +362,9 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">New Password</label>
-                                <input type="password" id="new_password_settings" name="new_password" class="form-control"
-                                    data-validation="required min-length" data-min-length="8" required>
+                                <input type="password" id="new_password_settings" name="new_password"
+                                    class="form-control" data-validation="required min-length" data-min-length="8"
+                                    required>
                                 <div id="new_password_error" class="text-danger validation-error"></div>
                             </div>
                             <div class="col-md-4">

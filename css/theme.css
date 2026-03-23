@@ -1,0 +1,137 @@
+:root,
+body[data-theme="light"] {
+  --background: var(--slate-25);
+  --foreground: var(--slate-900);
+
+  --card: var(--white);
+  --card-soft: var(--white);
+  --popover: var(--white);
+
+  --primary: var(--brand-600);
+  --secondary: var(--teal-500); 
+  --accent: var(--brand-50);
+
+  --muted: var(--slate-500);
+  --muted-foreground: var(--slate-500);
+  --success: var(--success-500);
+  --warning: var(--warning-500);
+  --destructive: var(--danger-500);
+
+  --border: var(--slate-200);
+  --input: var(--slate-200);
+  --ring: var(--brand-500);
+
+  --primary-foreground: var(--white);
+  --secondary-foreground: var(--white);
+  --accent-foreground: var(--brand-700);
+  --success-foreground: var(--white);
+  --warning-foreground: var(--slate-900);
+  --destructive-foreground: var(--white);
+
+  --text: hsl(var(--foreground));
+  --muted-text: hsl(var(--slate-500));
+  --accent-color: hsl(var(--brand-600));
+
+  --surface: hsl(var(--white));
+  --surface-high: hsl(var(--white));
+
+  --glass-bg: var(--glass-light-bg);
+  --glass-border: var(--glass-light-border);
+  --glass-line: hsl(var(--slate-200) / 0.75);
+  --glass-fill: hsl(var(--white) / 0.82);
+  --glass-blur: 18px;
+
+  --hover-glow: hsl(var(--brand-500) / 0.25);
+  --grid-glow-a: hsl(var(--brand-500) / 0.18);
+  --grid-glow-b: hsl(var(--teal-500) / 0.16);
+  --orb-a: hsl(var(--brand-400) / 0.16);
+  --orb-b: hsl(var(--teal-400) / 0.16);
+  --orb-c: hsl(var(--brand-300) / 0.12);
+  --hero-overlay: var(--hero-light-overlay);
+
+  --primary-a: hsl(var(--brand-600));
+  --primary-b: hsl(var(--teal-500));
+
+  --shadow-color: var(--slate-900);
+  --shadow-ambient: hsl(var(--shadow-color) / 0.08);
+  --shadow-strong: hsl(var(--shadow-color) / 0.16);
+  --shadow-dark: hsl(var(--shadow-color) / 0.16);
+  --shadow-light: hsl(var(--white) / 0.85);
+
+  --sidebar-background: var(--white);
+  --sidebar-foreground: var(--slate-900);
+  --sidebar-border: var(--slate-200);
+  --sidebar-ring: var(--brand-500);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-accent: var(--brand-50);
+  --sidebar-accent-foreground: var(--brand-700);
+}
+
+.dark,
+body[data-theme="dark"] {
+  --background: var(--slate-950);
+  --foreground: var(--slate-50);
+
+  --card: var(--slate-900);
+  --card-soft: var(--slate-900);
+  --popover: var(--slate-900);
+
+  --primary: var(--brand-500);
+  --secondary: var(--teal-400);
+  --accent: var(--slate-800);
+
+  --muted: var(--slate-400);
+  --muted-foreground: var(--slate-400);
+  --success: var(--success-500);
+  --warning: var(--warning-500);
+  --destructive: var(--danger-500);
+
+  --border: var(--slate-800);
+  --input: var(--slate-800);
+  --ring: var(--brand-400);
+
+  --primary-foreground: var(--white);
+  --secondary-foreground: var(--white);
+  --accent-foreground: var(--slate-50);
+  --success-foreground: var(--white);
+  --warning-foreground: var(--slate-900);
+  --destructive-foreground: var(--white);
+
+  --text: hsl(var(--foreground));
+  --muted-text: hsl(var(--slate-400));
+  --accent-color: hsl(var(--brand-400));
+
+  --surface: hsl(var(--slate-900));
+  --surface-high: hsl(var(--slate-800));
+
+  --glass-bg: var(--glass-dark-bg);
+  --glass-border: var(--glass-dark-border);
+  --glass-line: hsl(var(--slate-800) / 0.72);
+  --glass-fill: hsl(var(--slate-900) / 0.86);
+  --glass-blur: 18px;
+
+  --hover-glow: hsl(var(--brand-400) / 0.35);
+  --grid-glow-a: hsl(var(--brand-500) / 0.2);
+  --grid-glow-b: hsl(var(--teal-500) / 0.16);
+  --orb-a: hsl(var(--brand-500) / 0.2);
+  --orb-b: hsl(var(--teal-500) / 0.18);
+  --orb-c: hsl(var(--brand-600) / 0.14);
+  --hero-overlay: var(--hero-dark-overlay);
+
+  --primary-a: hsl(var(--brand-500));
+  --primary-b: hsl(var(--teal-400));
+
+  --shadow-color: var(--black);
+  --shadow-ambient: hsl(var(--black) / 0.4);
+  --shadow-strong: hsl(var(--black) / 0.7);
+  --shadow-dark: hsl(var(--black) / 0.65);
+  --shadow-light: hsl(var(--white) / 0.04);
+
+  --sidebar-background: var(--slate-900);
+  --sidebar-foreground: var(--slate-50);
+  --sidebar-border: var(--slate-800);
+  --sidebar-ring: var(--brand-400);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-accent: var(--slate-800);
+  --sidebar-accent-foreground: var(--slate-50);
+}

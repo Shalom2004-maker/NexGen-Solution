@@ -9,16 +9,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet">
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
     <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body class="future-page future-home" data-theme="nebula">
+<body class="future-page future-home dark" data-theme="dark">
     <div class="future-grid" aria-hidden="true"></div>
     <div class="future-orb future-orb-a" aria-hidden="true"></div>
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
@@ -49,14 +52,11 @@
                 </div>
             </details>
 
-            <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
-                <span class="theme-switcher-label">Theme</span>
-                <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                    aria-pressed="true">Nebula</button>
-                <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                    aria-pressed="false">Ember</button>
-                <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                    aria-pressed="false">Aurora</button>
+            <div class="theme-switcher mx-2 ms-2 me-2" role="group" aria-label="Theme toggle">
+                <button class="theme-chip pressable" type=" button" data-theme-toggle data-icon-light="bi-sun-fill"
+                    data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+                    <i class="bi bi-moon-fill" aria-hidden="true"></i>
+                </button>
             </div>
 
             <a href="login.php" class="btn-nav pressable" data-tilt="8">Login</a>

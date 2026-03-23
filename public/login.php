@@ -41,8 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         if ($user["role_name"] === "HR") {
                             header("Location: ../dashboard/hr.php");
-                        } elseif (in_array($user["role_name"], ["Admin", "ProjectLeader", "Employee"], true)) {
-                            header("Location: ../dashboard/tasks_dashboard.php");
+                        } elseif ($user["role_name"] === "Admin") {
+                            header("Location: ../dashboard/admin_dashboard.php");
+                        } elseif ($user["role_name"] === "ProjectLeader") {
+                            header("Location: ../dashboard/leader.php");
                         } else {
                             header("Location: ../dashboard/employee.php");
                         }
@@ -73,11 +75,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet">
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
 
     <script src="../js/jquery.js"></script>
@@ -85,22 +90,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body class="future-page future-login" data-theme="nebula">
+<body class="future-page future-login" data-theme="dark">
     <div class="future-grid" aria-hidden="true"></div>
     <div class="future-orb future-orb-a" aria-hidden="true"></div>
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-    <div class="theme-float">
-        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                aria-pressed="true">Nebula</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                aria-pressed="false">Ember</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                aria-pressed="false">Aurora</button>
-        </div>
+    <div class="theme-switcher" role="group" aria-label="Theme toggle">
+        <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+            data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+            <i class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
     </div>
 
     <div class="login-container">
@@ -121,8 +121,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <form method="POST" id="login-form" action="#" onsubmit="return validateForm()" class="w-100">
                     <div class="form-field">
-                        <label for="emailInput" class="form-label">Email Address</label>
-                        <div class="input-group">
+                        <label for="emailInput" class="form-label mb-2">Email Address</label>
+                        <div class="input-group mb-3">
                             <span class="input-group-text">
                                 <i class="bi bi-envelope"></i>
                             </span>
@@ -134,8 +134,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
                     <div class="form-field">
-                        <label for="passwordInput" class="form-label">Password</label>
-                        <div class="input-group">
+                        <label for="passwordInput" class="form-label mb-2">Password</label>
+                        <div class="input-group mb-3">
                             <span class="input-group-text">
                                 <i class="bi bi-lock"></i>
                             </span>
@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div id="password_error" class="text-danger validation-error"></div>
                     </div>
 
-                    <button type="submit" class="btn-login pressable" data-tilt="8">
+                    <button type="submit" class="btn-login pressable mt-3" data-tilt="8">
                         <i class="bi bi-box-arrow-in-right"></i> Sign In
                     </button>
 

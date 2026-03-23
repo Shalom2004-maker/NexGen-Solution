@@ -1,0 +1,48 @@
+:root {
+  /* Neutral scale */
+  --white: 0 0% 100%;
+  --black: 0 0% 0%;
+  --slate-25: 210 20% 98%;
+  --slate-50: 210 20% 96%;
+  --slate-100: 210 16% 92%;
+  --slate-200: 210 14% 86%;
+  --slate-300: 210 12% 78%;
+  --slate-400: 210 10% 62%;
+  --slate-500: 210 9% 46%;
+  --slate-600: 210 10% 36%;
+  --slate-700: 210 15% 24%;
+  --slate-800: 210 20% 16%;
+  --slate-900: 210 26% 10%;
+  --slate-950: 210 30% 6%;
+
+  /* Brand scale */
+  --brand-50: 214 100% 97%;
+  --brand-100: 214 95% 93%;
+  --brand-200: 214 90% 86%;
+  --brand-300: 214 85% 76%;
+  --brand-400: 214 85% 66%;
+  --brand-500: 214 85% 56%;
+  --brand-600: 214 85% 50%;
+  --brand-700: 214 80% 44%;
+  --brand-800: 214 70% 36%;
+  --brand-900: 214 60% 28%;
+
+  /* Accent scale */
+  --teal-300: 186 70% 62%;
+  --teal-400: 186 75% 54%;
+  --teal-500: 186 80% 45%;
+  --teal-600: 186 75% 40%;
+
+  /* Status */
+  --success-500: 152 60% 42%;
+  --warning-500: 38 92% 50%;
+  --danger-500: 0 72% 51%;
+
+  /* Glass + overlay helpers (HSL components with alpha) */
+  --glass-light-bg: 0 0% 100% / 0.78;
+  --glass-light-border: 210 16% 88% / 0.7;
+  --glass-dark-bg: 210 28% 10% / 0.82;
+  --glass-dark-border: 210 18% 24% / 0.7;
+  --hero-light-overlay: 0 0% 100% / 0.62;
+  --hero-dark-overlay: 210 30% 6% / 0.7;
+}

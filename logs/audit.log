@@ -160,3 +160,22 @@
 [2026-02-25 09:51:14] ip=::1 user=4 action=task_status msg=Task 49 set to done
 [2026-02-27 13:14:26] ip=::1 user=1 action=leader_approve msg=Leader 1 approved leave 10
 [2026-02-27 13:15:39] ip=::1 user=1 action=leave_update msg=Updated leave request ID: 104
+[2026-03-02 10:25:03] ip=::1 user=1 action=task_update msg=Task 13 updated
+[2026-03-02 17:51:37] ip=::1 user=1 action=task_status msg=Task 14 set to done
+[2026-03-02 17:51:43] ip=::1 user=1 action=task_status msg=Task 14 set to todo
+[2026-03-02 17:53:48] ip=::1 user=1 action=inquiry_update msg=Updated inquiry ID: 9
+[2026-03-02 17:56:22] ip=::1 user=1 action=profile_photo_remove msg=Profile photo removed for user 1
+[2026-03-19 13:40:54] ip=::1 user=1 action=task_status msg=Task 19 set to done
+[2026-03-19 13:41:32] ip=::1 user=1 action=task_status msg=Task 26 set to todo
+[2026-03-19 13:42:10] ip=::1 user=1 action=task_status msg=Task 43 set to in_progress
+[2026-03-19 13:42:19] ip=::1 user=1 action=task_status msg=Task 26 set to in_progress
+[2026-03-19 20:27:01] ip=::1 user=5 action=task_status msg=Task 35 set to done
+[2026-03-20 05:00:22] ip=::1 user=5 action=task_status msg=Task 46 set to in_progress
+[2026-03-23 16:04:00] ip=::1 user=5 action=profile_photo_remove msg=Profile photo removed for user 5
+[2026-03-23 16:04:46] ip=::1 user=5 action=profile_photo msg=Profile photo updated for user 5
+[2026-03-23 16:05:18] ip=::1 user=5 action=profile_update msg=Profile updated for user 5
+[2026-03-23 16:09:17] ip=::1 user=5 action=password_change msg=Password changed for user 5
+[2026-03-23 16:10:14] ip=::1 user=5 action=password_change msg=Password changed for user 5
+[2026-03-23 16:16:38] ip=::1 user=5 action=profile_update msg=Profile updated for user 5
+[2026-03-23 16:17:05] ip=::1 user=5 action=csrf_fail msg=CSRF token mismatch on settings
+[2026-03-23 16:29:15] ip=::1 user=1 action=profile_photo msg=Profile photo updated for user 1

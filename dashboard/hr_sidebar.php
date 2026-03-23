@@ -4,14 +4,11 @@
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
         <p>HR Portal</p>
-        <div class="theme-switcher sidebar-theme neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                aria-pressed="true">Nebula</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                aria-pressed="false">Ember</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                aria-pressed="false">Aurora</button>
+        <div class="theme-switcher sidebar-theme" role="group" aria-label="Theme toggle">
+            <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+                data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+                <i class="bi bi-moon-fill" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 

@@ -22,193 +22,9 @@ include "../includes/db.php";
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Sora", sans-serif;
-    }
-
-    html,
-    body {
-        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
-        color: #1f2937;
-        min-height: 100vh;
-    }
-
-    .main-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    .main-content {
-        flex: 1;
-        background-color: transparent;
-        padding-top: 2rem;
-        padding-left: 18rem;
-        padding-right: 2.5rem;
-        padding-bottom: 2rem;
-        width: 75%;
-        overflow-y: auto;
-    }
-
-    .dashboard-shell {
-        position: relative;
-        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
-            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
-        border-radius: 20px;
-        padding: 1.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .page-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .page-header h3 {
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 0.35rem;
-        letter-spacing: -0.02em;
-    }
-
-    .page-header p {
-        color: #5b6777;
-        margin: 0;
-    }
-
-    .action-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .action-card {
-        background-color: #ffffff;
-        border-radius: 16px;
-        padding: 1.8rem;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        text-align: left;
-        text-decoration: none;
-        color: #0f172a;
-        transition: all 0.2s ease;
-    }
-
-    .action-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
-        border-color: rgba(37, 99, 235, 0.35);
-        text-decoration: none;
-        color: #0f172a;
-    }
-
-    .action-card i {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        font-size: 1.35rem;
-        margin-bottom: 1rem;
-        background: rgba(37, 99, 235, 0.12);
-        color: #1d4ed8;
-    }
-
-    .action-card h5 {
-        margin: 0 0 0.35rem;
-        font-weight: 700;
-        font-size: 1.05rem;
-    }
-
-    .action-card small {
-        color: #64748b;
-    }
-
-    .sidebar-toggle {
-        display: none;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1040;
-        background-color: #337ccfe2;
-        color: white;
-        border: none;
-        padding: 0.5rem 0.75rem;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1040;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-    @media (max-width: 768px) {
-        .main-wrapper {
-            flex-direction: column;
-        }
-
-        .sidebar-toggle {
-            display: block;
-        }
-
-        .main-content {
-            padding: 1.25rem;
-            padding-top: 3.5rem;
-            width: 100%;
-        }
-
-        .dashboard-shell {
-            padding: 1rem;
-        }
-
-        .action-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .main-content {
-            padding: 1rem;
-            padding-top: 3rem;
-            width: 100%;
-        }
-
-        .page-header h3 {
-            font-size: 1.35rem;
-        }
-
-        .action-card {
-            padding: 1.5rem;
-        }
-
-        .action-card i {
-            font-size: 1.25rem;
-        }
-
-        .action-card h5 {
-            font-size: 1rem;
-        }
-    }
-    </style>
 </head>
 
-<body>
+<body class="future-page future-dashboard" data-theme="dark">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
         <i class="bi bi-list"></i>
@@ -216,40 +32,65 @@ include "../includes/db.php";
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
+            <?php include "../includes/sidebar_helper.php";
+            render_sidebar(); ?>
         </div>
 
         <div class="main-content">
             <div class="dashboard-shell">
-                <div class="page-header">
+                <div class="page-header mb-4">
                     <h3>HR Dashboard</h3>
                     <p>Manage personnel, approvals, and payroll operations</p>
                 </div>
 
-                <div class="action-grid">
-                    <a href="leave_view.php" class="action-card warning">
-                        <i class="bi bi-calendar-check"></i>
-                        <h5>Leave Approvals</h5>
-                        <small>Review and approve employee leave requests</small>
-                    </a>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-12 p-2 d-flex flex-column justify-content-center">
+                        <a href="leave_view.php" class="action-card warning text-decoration-none">
+                            <div class="mb-3">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h5>Leave Approvals</h5>
+                                <small>Review and approve employee leave requests</small>
+                            </div>
+                        </a>
+                    </div>
 
-                    <a href="hr_payroll.php" class="action-card success">
-                        <i class="bi bi-currency-dollar"></i>
-                        <h5>Payroll</h5>
-                        <small>Manage salary and compensation</small>
-                    </a>
+                    <div class="col-12 col-md-6 col-lg-4 p-2 d-flex flex-column justify-content-center">
+                        <a href="hr_payroll.php" class="action-card success text-decoration-none">
+                            <div class="mb-3">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div>
+                                <h5>Payroll</h5>
+                                <small>Manage salary and compensation</small>
+                            </div>
+                        </a>
+                    </div>
 
-                    <a href="inquiries_dashboard.php" class="action-card info">
-                        <i class="bi bi-chat-left-text"></i>
-                        <h5>Inquiries</h5>
-                        <small>View public contact inquiries</small>
-                    </a>
+                    <div class="col-12 col-md-6 col-lg-4 p-2 d-flex flex-column justify-content-center">
+                        <a href="inquiries_dashboard.php" class="action-card info text-decoration-none">
+                            <div class="mb-3">
+                                <i class="bi bi-chat-left-text"></i>
+                            </div>
+                            <div>
+                                <h5>Inquiries</h5>
+                                <small>View public contact inquiries</small>
+                            </div>
+                        </a>
+                    </div>
 
-                    <a href="employee.php" class="action-card danger">
-                        <i class="bi bi-people"></i>
-                        <h5>Employee Records</h5>
-                        <small>Create and maintain employee profiles</small>
-                    </a>
+                    <div class="col-12 col-md-6 col-lg-4 p-2 d-flex flex-column justify-content-center">
+                        <a href="employee.php" class="action-card danger text-decoration-none">
+                            <div class="mb-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div>
+                                <h5>Employee Records</h5>
+                                <small>Create and maintain employee profiles</small>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

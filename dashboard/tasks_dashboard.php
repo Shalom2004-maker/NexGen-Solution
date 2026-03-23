@@ -198,570 +198,9 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
     <script src="/js/bootstrap.bundle.min.js"></script>
 
     <!-- CSS -->
-    <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Sora", sans-serif;
-    }
-
-    html,
-    body {
-        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
-        color: #1f2937;
-        min-height: 100vh;
-    }
-
-    .main-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    .main-content {
-        flex: 1;
-        background-color: transparent;
-        padding-top: 2rem;
-        padding-left: 18rem;
-        padding-right: 2.5rem;
-        padding-bottom: 2rem;
-        overflow-x: hidden;
-        width: 75%;
-    }
-
-    .dashboard-shell {
-        position: relative;
-        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
-            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
-        border-radius: 20px;
-        padding: 1.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .page-header h2 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0.35rem;
-        color: #0f172a;
-        letter-spacing: -0.02em;
-    }
-
-    .page-header p {
-        color: #5b6777;
-        font-size: 0.95rem;
-        margin: 0;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    /* Metric Cards */
-    .metric-card {
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 16px;
-        padding: 1.4rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .metric-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(37, 99, 235, 0.4);
-        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
-    }
-
-    .metric-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 70px;
-        height: 70px;
-        background: rgba(37, 99, 235, 0.08);
-        border-radius: 20px;
-        transform: translate(18px, -20px);
-    }
-
-    .metric-icon {
-        font-size: 1.6rem;
-        color: #1d4ed8;
-        margin-bottom: 0.6rem;
-    }
-
-    .metric-label {
-        color: #64748b;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        font-weight: 600;
-        margin-bottom: 0.4rem;
-    }
-
-    .metric-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 0.25rem;
-    }
-
-    /* Filter Buttons */
-    .filter-buttons {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .filter-btn {
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        padding: 0.5rem 1.1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-decoration: none;
-        color: #475569;
-        transition: all 0.12s ease;
-        cursor: pointer;
-        border-radius: 999px;
-    }
-
-    .filter-btn.active {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        border-color: transparent;
-        color: white;
-    }
-
-    .filter-btn:hover {
-        border-color: rgba(37, 99, 235, 0.6);
-        color: #1d4ed8;
-    }
-
-    /* Section Title */
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 1.25rem;
-        color: #0f172a;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .section-title a {
-        font-size: 0.85rem;
-        color: #1d4ed8;
-        text-decoration: none;
-        transition: all 0.15s ease;
-    }
-
-    .section-title a:hover {
-        color: #0f172a;
-    }
-
-    /* Task Cards */
-    .task-card {
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 16px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        transition: all 0.15s ease;
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .task-card:hover {
-        border-color: rgba(37, 99, 235, 0.4);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-        transform: translateX(2px);
-    }
-
-    .task-icon-box {
-        width: 50px;
-        height: 50px;
-        background: rgba(37, 99, 235, 0.12);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .task-icon-box i {
-        font-size: 1.5rem;
-        color: #1d4ed8;
-    }
-
-    .task-content {
-        flex: 1;
-    }
-
-    .task-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .task-title {
-        font-weight: 600;
-        color: #0f172a;
-    }
-
-    .task-description {
-        color: #64748b;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .task-meta {
-        color: #64748b;
-        font-size: 0.85rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .task-meta-item {
-        display: inline-block;
-        margin-right: 1.5rem;
-    }
-
-    .task-badges {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .readonly-note {
-        color: #64748b;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .task-project {
-        display: inline-block;
-        padding: 0.3rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background-color: #1d4ed8;
-        color: white;
-    }
-
-    .task-status {
-        display: inline-block;
-        padding: 0.3rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .task-status.todo {
-        background-color: #fbbf24;
-        color: white;
-    }
-
-    .task-status.in_progress {
-        background-color: #3b82f6;
-        color: white;
-    }
-
-    .task-status.done {
-        background-color: #10b981;
-        color: white;
-    }
-
-    .team-progress-wrap {
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 16px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .team-progress-table th,
-    .team-progress-table td {
-        vertical-align: middle;
-        font-size: 0.88rem;
-    }
-
-    .team-progress-table th {
-        color: #334155;
-        font-weight: 700;
-    }
-
-    .team-progress-rate {
-        min-width: 180px;
-    }
-
-    /* Empty State */
-    .empty-state {
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 16px;
-        padding: 3rem 2rem;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .empty-state i {
-        font-size: 3rem;
-        color: #cbd5f5;
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .empty-state p {
-        color: #64748b;
-        font-size: 0.95rem;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        border: none;
-        color: white;
-        padding: 0.6rem 1.4rem;
-        border-radius: 999px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.12s ease;
-        text-decoration: none;
-        display: inline-block;
-        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
-    }
-
-    .btn-primary-custom:hover {
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 12px 24px rgba(29, 78, 216, 0.3);
-    }
-
-    /* Modal Styles */
-    .modal-content {
-        border-radius: 18px;
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        box-shadow: 0 30px 50px rgba(15, 23, 42, 0.2);
-    }
-
-    .modal-header {
-        border-bottom: 1px solid rgba(148, 163, 184, 0.3);
-        background: linear-gradient(135deg, rgba(29, 78, 216, 0.1), rgba(14, 116, 144, 0.08));
-    }
-
-    .modal-title {
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .modal-body {
-        padding: 1.5rem;
-    }
-
-    .form-control,
-    .form-select {
-        border: 1px solid rgba(148, 163, 184, 0.45);
-        border-radius: 12px;
-        padding: 0.75rem;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #1d4ed8;
-        box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.15);
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 0.5rem;
-    }
-
-    .modal-footer {
-        border-top: 1px solid rgba(148, 163, 184, 0.3);
-        padding: 1rem;
-    }
-
-    .modal-backdrop {
-        z-index: 2000 !important;
-    }
-
-    .modal {
-        z-index: 2005 !important;
-    }
-
-    .btn-primary {
-        background-color: #1d4ed8;
-        border-color: #1d4ed8;
-    }
-
-    .btn-primary:hover {
-        background-color: #1e40af;
-        border-color: #1e40af;
-    }
-
-    .btn-outline-secondary {
-        color: #6c757d;
-        border-color: #6c757d;
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-    }
-
-    .sidebar-toggle {
-        display: none;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1200;
-        background-color: #337ccfe2;
-        color: white;
-        border: none;
-        padding: 0.6rem 0.8rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1.25rem;
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1038;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-    body.modal-open .sidebar-overlay {
-        display: none !important;
-    }
-
-    @media (max-width: 768px) {
-        .main-wrapper {
-            flex-direction: column;
-        }
-
-        .sidebar-toggle {
-            display: block;
-        }
-
-        .main-content {
-            padding: 1.25rem;
-            width: 100%;
-            padding-top: 3.5rem;
-            padding-left: 1.25rem;
-        }
-
-        .dashboard-shell {
-            padding: 1rem;
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .page-header h2 {
-            font-size: 1.6rem;
-        }
-
-        .metric-value {
-            font-size: 1.6rem;
-        }
-
-        .task-card {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .task-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .filter-buttons {
-            flex-direction: column;
-        }
-
-        .filter-btn {
-            width: 100%;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .main-content {
-            padding: 1rem;
-            padding-top: 3rem;
-        }
-
-        .page-header h2 {
-            font-size: 1.35rem;
-        }
-
-        .metric-card {
-            padding: 1rem;
-        }
-
-        .metric-value {
-            font-size: 1.5rem;
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-        }
-
-        .empty-state {
-            padding: 2rem 1rem;
-        }
-
-        .empty-state i {
-            font-size: 2rem;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-primary-custom {
-            width: 100%;
-            text-align: center;
-        }
-    }
-    </style>
 </head>
 
-<body>
+<body class="future-page future-dashboard" data-theme="dark">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <button class="sidebar-toggle" id="sidebarToggleBtn" type="button">
         <i class="bi bi-list"></i>
@@ -898,7 +337,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             <!-- Metrics Cards -->
             <div class="row mt-4">
                 <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
+                    <div class="metric-card mb-3">
                         <i class="bi bi-list-task metric-icon"></i>
                         <div class="metric-label">All Tasks</div>
                         <div class="metric-value"><?= $all_tasks_count ?></div>
@@ -906,7 +345,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 </div>
 
                 <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
+                    <div class="metric-card mb-3">
                         <i class="bi bi-clock-history metric-icon"></i>
                         <div class="metric-label">Pending</div>
                         <div class="metric-value"><?= $pending_count ?></div>
@@ -914,7 +353,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 </div>
 
                 <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
+                    <div class="metric-card mb-3">
                         <i class="bi bi-pie-chart metric-icon"></i>
                         <div class="metric-label">In Progress</div>
                         <div class="metric-value"><?= $in_progress_count ?></div>
@@ -922,7 +361,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                 </div>
 
                 <div class="col-lg-3 col-md-6 col-12">
-                    <div class="metric-card">
+                    <div class="metric-card mb-3">
                         <i class="bi bi-check2-circle metric-icon"></i>
                         <div class="metric-label">Completed</div>
                         <div class="metric-value"><?= $completed_count ?></div>
@@ -931,10 +370,10 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             </div>
 
             <?php if ($can_view_all) : ?>
-            <div class="section-title mt-2">
+            <div class="section-title mt-4 mb-3 mx-2">
                 <span>Team Progress</span>
                 <span class="text-muted" style="font-size:0.85rem;">
-                    Global completion rate: <?= number_format($global_completion_rate, 1) ?>%
+                    &nbsp; Global completion rate: <?= number_format($global_completion_rate, 1) ?>%
                 </span>
             </div>
             <div class="team-progress-wrap">
@@ -981,7 +420,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             <?php endif; ?>
 
             <!-- Search & Filter Buttons -->
-            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3">
+            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3 mt-4">
                 <form method="get" class="mb-0">
                     <div class="row g-2 d-flex">
                         <div class="col-lg-6 col-md-6 col-12" style="height: 8vh;">
@@ -1004,24 +443,24 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             </div>
 
             <!-- Filter Buttons -->
-            <div class="filter-buttons mb-3">
+            <div class="filter-buttons mb-3 mt-3">
                 <?php
                 $baseUrl = 'tasks_dashboard.php';
                 $queryBase = $search !== '' ? 'q=' . urlencode($search) . '&' : '';
                 ?>
-                <a class="filter-btn <?= $filterStatus === 'all' ? 'active' : '' ?>"
+                <a class="filter-btn text-decoration-none <?= $filterStatus === 'all' ? 'active' : '' ?>"
                     href="<?= $baseUrl . '?' . $queryBase . 'filter=all' ?>">All</a>
-                <a class="filter-btn <?= $filterStatus === 'todo' ? 'active' : '' ?>"
+                <a class="filter-btn text-decoration-none <?= $filterStatus === 'todo' ? 'active' : '' ?>"
                     href="<?= $baseUrl . '?' . $queryBase . 'filter=todo' ?>">Pending</a>
-                <a class="filter-btn <?= $filterStatus === 'in_progress' ? 'active' : '' ?>"
+                <a class="filter-btn text-decoration-none <?= $filterStatus === 'in_progress' ? 'active' : '' ?>"
                     href="<?= $baseUrl . '?' . $queryBase . 'filter=in_progress' ?>">In Progress</a>
-                <a class="filter-btn <?= $filterStatus === 'done' ? 'active' : '' ?>"
+                <a class="filter-btn text-decoration-none <?= $filterStatus === 'done' ? 'active' : '' ?>"
                     href="<?= $baseUrl . '?' . $queryBase . 'filter=done' ?>">Completed</a>
             </div>
 
             <!-- Tasks List -->
             <div class="section-title">
-                <span><?= $can_view_all ? 'All Tasks' : 'My Tasks' ?></span>
+                <span class="mx-2 mb-3 mt-3"><?= $can_view_all ? 'All Tasks' : 'My Tasks' ?></span>
             </div>
 
             <?php
@@ -1105,63 +544,69 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                             ];
                         }
             ?>
-            <div class="task-card">
+            <div class="task-card p-3 mb-3">
                 <div class="task-icon-box">
                     <i class="bi bi-list-check"></i>
                 </div>
                 <div class="task-content">
                     <div class="task-header">
                         <div class="task-title">
-                            <?= htmlspecialchars($task['title']) ?>
+                            <div class="col-lg-7 col-md-6 col-12">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <b><?= htmlspecialchars($task['title']) ?></b>
+                                    <span class="task-status mx-5 <?= $status_badge_class ?>">
+                                        <?= $status_display ?>
+                                    </span>
+                                </div>
+                                <div class="task-description">
+                                    <?= htmlspecialchars($task['description']) ?>
+                                </div>
+                                <div class="task-meta mt-2 mb-2">
+                                    <span class="task-meta-item">
+                                        <i class="bi bi-calendar2"></i> &nbsp;
+                                        Deadline: <?= htmlspecialchars($deadline_display) ?>
+                                    </span>
+                                    <span class="task-meta-item mx-5">
+                                        <i class="bi bi-clock"></i> &nbsp;
+                                        Created: <?= date('M d, Y', strtotime($task['created_at'])) ?>
+                                    </span>
+                                    <?php if ($can_view_all) : ?>
+                                    <span class="task-meta-item">
+                                        <i class="bi bi-person"></i> &nbsp;
+                                        Assigned: <?= htmlspecialchars($assigned_display) ?>
+                                    </span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="task-badges mt-2 d-flex gap-2 justify-content-end">
+                                    <span class="task-project">
+                                        <?= htmlspecialchars($project_display) ?>
+                                    </span>
+                                    <?php if ($can_update_status) : ?>
+                                    <form method="post" action="tasks_update.php"
+                                        class="d-flex align-items-center gap-2 ms-auto">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="set_status">
+                                        <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
+                                        <input type="hidden" name="redirect"
+                                            value="<?= htmlspecialchars($redirect_url) ?>">
+                                        <select name="status" class="form-select form-select-sm" style="width:auto;">
+                                            <?php foreach ($status_options as $option_value => $option_label) : ?>
+                                            <option value="<?= htmlspecialchars($option_value) ?>"
+                                                <?= $status === $option_value ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($option_label) ?>
+                                            </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary"
+                                            <?= count($status_options) === 1 ? 'disabled' : '' ?>>Update</button>
+                                    </form>
+                                    <?php else : ?>
+                                    <span class="readonly-note ms-auto">Read only</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
-                        <span class="task-status <?= $status_badge_class ?>">
-                            <?= $status_display ?>
-                        </span>
-                    </div>
-                    <div class="task-description">
-                        <?= htmlspecialchars($task['description']) ?>
-                    </div>
-                    <div class="task-meta">
-                        <span class="task-meta-item">
-                            <i class="bi bi-calendar2"></i>
-                            Deadline: <?= htmlspecialchars($deadline_display) ?>
-                        </span>
-                        <span class="task-meta-item">
-                            <i class="bi bi-clock"></i>
-                            Created: <?= date('M d, Y', strtotime($task['created_at'])) ?>
-                        </span>
-                        <?php if ($can_view_all) : ?>
-                        <span class="task-meta-item">
-                            <i class="bi bi-person"></i>
-                            Assigned: <?= htmlspecialchars($assigned_display) ?>
-                        </span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="task-badges">
-                        <span class="task-project">
-                            <?= htmlspecialchars($project_display) ?>
-                        </span>
-                        <?php if ($can_update_status) : ?>
-                        <form method="post" action="tasks_update.php" class="d-flex align-items-center gap-2 ms-auto">
-                            <input type="hidden" name="csrf_token"
-                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                            <input type="hidden" name="action" value="set_status">
-                            <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
-                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect_url) ?>">
-                            <select name="status" class="form-select form-select-sm" style="width:auto;">
-                                <?php foreach ($status_options as $option_value => $option_label) : ?>
-                                <option value="<?= htmlspecialchars($option_value) ?>"
-                                    <?= $status === $option_value ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($option_label) ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-outline-primary"
-                                <?= count($status_options) === 1 ? 'disabled' : '' ?>>Update</button>
-                        </form>
-                        <?php else : ?>
-                        <span class="readonly-note ms-auto">Read only</span>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1169,7 +614,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                     }
 
                     if (!$has_tasks) {
-                    ?>
+                ?>
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <p>No tasks found</p>

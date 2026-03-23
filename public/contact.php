@@ -64,11 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Orbitron:wght@500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet">
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
 
     <script src="../js/jquery.js"></script>
@@ -76,35 +79,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body class="future-page future-contact" data-theme="nebula">
+<body class="future-page future-contact d-flex justify-content-center" data-theme="dark">
     <div class="future-grid" aria-hidden="true"></div>
     <div class="future-orb future-orb-a" aria-hidden="true"></div>
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-    <div class="theme-float">
-        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                aria-pressed="true">Nebula</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                aria-pressed="false">Ember</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                aria-pressed="false">Aurora</button>
-        </div>
-    </div>
 
     <div class="page-wrapper">
-        <div class="page-nav">
-            <a href="index.php" class="back-button pressable" data-tilt="7">
-                <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
+        <div class="d-flex justify-content-center mt-3 align-items-center end-0 offset-lg-1">
+            <div class="page-nav">
+                <a href="index.php" class="back-button pressable" data-tilt="7">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
+            </div>
+            <div class="theme-switcher" role="group" aria-label="Theme toggle">
+                <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+                    data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+                    <i class="bi bi-moon-fill" aria-hidden="true"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="d-flex gap-4 flex-column flex-lg-row align-items-stretch">
-            <div class="form-container tilt-surface" data-tilt="6" style="height: max-content;">
+        <div class="d-flex gap-3 justify-content-center align-items-center offset-lg-1">
+            <div class="form-container col-lg-5 col-md-7 col-12 tilt-surface" data-tilt="6">
                 <h1 class="form-title">Get In Touch</h1>
-                <p class="form-subtitle">Have questions about NexGen? We are here to help. <br> Fill up the form and our
+                <p class="form-subtitle">Have questions about NexGen? <br> We are here to help.Fill up the form and our
                     team will get back with Response in 24 hours.</p>
 
                 <ul class="info-details">
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </ul>
                 </ul>
             </div>
-            <div class="form-container tilt-surface" data-tilt="6">
+            <div class="form-container col-lg-9 col-md-9 col-12 tilt-surface" data-tilt="6">
                 <h1 class="form-title mb-3">Send Us a Message</h1>
 
                 <?php if ($success): ?>
@@ -164,26 +164,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
 
-                <form method="post" action="" id="contactForm" class="col-lg-10 col-md-10 col-12">
-                    <div class="mb-3">
-                        <label class="form-label">Full Name *</label>
-                        <div class="row g-2">
-                            <div class="col-12 col-sm-6 form-field">
-                                <input type="text" name="first_name" class="form-control" placeholder="First Name"
-                                    data-validation="required min-length max-length" data-min-length="2"
-                                    data-max-length="50" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
-                                <div id="first_name_error" class="validation-error"></div>
-                            </div>
-                            <div class="col-12 col-sm-6 form-field">
-                                <input type="text" name="last_name" class="form-control" placeholder="Last Name"
-                                    data-validation="required min-length max-length" data-min-length="2"
-                                    data-max-length="50" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
-                                <div id="last_name_error" class="validation-error"></div>
-                            </div>
-                        </div>
+                <form class="row g-3" method="post" action="" id="contactForm">
+                    <div class="form-field col-md-4 col-12">
+                        <label class="form-label">First Name *</label>
+                        <input type="text" name="first_name" class="form-control" placeholder="First Name"
+                            data-validation="required min-length max-length" data-min-length="2" data-max-length="50"
+                            value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
+                        <div id="first_name_error" class="validation-error"></div>
+                    </div>
+                    <div class="form-field col-md-4 col-12">
+                        <label class="form-label">Last Name *</label>
+                        <input type="text" name="last_name" class="form-control" placeholder="Last Name"
+                            data-validation="required min-length max-length" data-min-length="2" data-max-length="50"
+                            value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+                        <div id="last_name_error" class="validation-error"></div>
                     </div>
 
-                    <div class="mb-3 form-field">
+                    <div class="col-md-4 col-12 mb-3 form-field">
                         <label class="form-label">Email Address *</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -196,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div id="email_error" class="validation-error"></div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="col-md-6 col-12 mb-3">
                         <label class="form-label">Phone Number</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -208,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div id="phone_error" class="validation-error"></div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="col-md-6 col-12 mb-3">
                         <label class="form-label">Company</label>
                         <div class="input-group">
                             <span class="input-group-text">
@@ -242,25 +239,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <label class="form-label">Inquiry Type</label>
                         <div class="checkbox-group">
-                            <div class="form-check">
+                            <div class="col-md-6 col-12 form-check">
                                 <input class="form-check-input" type="checkbox" name="inquiry_type[]"
                                     value="General Inquiry" id="type1"
                                     <?= (isset($_POST['inquiry_type']) && in_array('General Inquiry', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="type1">General Inquiry</label>
                             </div>
-                            <div class="form-check">
+                            <div class="col-md-6 col-12 form-check">
                                 <input class="form-check-input" type="checkbox" name="inquiry_type[]"
                                     value="Service Request" id="type2"
                                     <?= (isset($_POST['inquiry_type']) && in_array('Service Request', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="type2">Service Request</label>
                             </div>
-                            <div class="form-check">
+                            <div class="col-md-6 col-12 form-check">
                                 <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="Support"
                                     id="type3"
                                     <?= (isset($_POST['inquiry_type']) && in_array('Support', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="type3">Support</label>
                             </div>
-                            <div class="form-check">
+                            <div class="col-md-6 col-12 form-check">
                                 <input class="form-check-input" type="checkbox" name="inquiry_type[]" value="others"
                                     id="type4"
                                     <?= (isset($_POST['inquiry_type']) && in_array('others', $_POST['inquiry_type'], true)) ? 'checked' : '' ?>>

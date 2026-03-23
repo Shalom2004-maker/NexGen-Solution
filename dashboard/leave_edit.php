@@ -52,61 +52,9 @@ if (empty($_SESSION['csrf_token'])) {
     <title>View/Edit Leave Request</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
-    <style>
-    * {
-        box-sizing: border-box;
-        font-family: "Sora", sans-serif;
-    }
-
-    body {
-        background: linear-gradient(180deg, #f3f6ff 0%, #eff3f8 40%, #f7f9fc 100%);
-        color: #1f2937;
-        min-height: 100vh;
-    }
-
-    .dashboard-shell {
-        background: radial-gradient(1200px 400px at 20% -10%, rgba(30, 64, 175, 0.12), transparent 60%),
-            radial-gradient(800px 300px at 90% 10%, rgba(14, 116, 144, 0.12), transparent 60%);
-        border-radius: 20px;
-        padding: 1.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .card {
-        border-radius: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-    }
-
-    .form-control,
-    .form-select {
-        border: 1px solid rgba(148, 163, 184, 0.45);
-        border-radius: 12px;
-        padding: 0.75rem;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #1d4ed8;
-        box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.15);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #1d4ed8, #0ea5a4);
-        border: none;
-        border-radius: 999px;
-        font-weight: 600;
-        padding: 0.6rem 1.2rem;
-        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.25);
-    }
-
-    .btn-secondary {
-        border-radius: 999px;
-    }
-    </style>
 </head>
 
-<body>
+<body class="future-page future-dashboard" data-theme="dark">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <button class="sidebar-toggle" id="sidebarToggleBtn" type="button" onclick="toggleSidebar()">
         <i class="bi bi-list"></i>
@@ -215,3 +163,5 @@ if (empty($_SESSION['csrf_token'])) {
 </body>
 
 </html>
+
+

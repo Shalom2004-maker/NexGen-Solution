@@ -6,12 +6,10 @@
         <p>Project Leader</p>
         <div class="theme-switcher sidebar-theme neo-panel" role="group" aria-label="Theme switcher">
             <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="nebula"
-                aria-pressed="true">Nebula</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="ember"
-                aria-pressed="false">Ember</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="aurora"
-                aria-pressed="false">Aurora</button>
+            <button class="theme-chip pressable is-active" type="button" data-theme-choice="dark"
+                aria-pressed="true">Dark</button>
+            <button class="theme-chip pressable" type="button" data-theme-choice="light"
+                aria-pressed="false">Light</button>
         </div>
     </div>
 

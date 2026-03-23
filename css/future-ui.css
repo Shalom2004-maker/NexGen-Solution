@@ -1,3 +1,6 @@
-﻿/* Backward compatibility shim.
-   Use ../css/ui-universal.css directly in new pages. */
+/* Backward compatibility shim.
+   Use ../css/colors.css + theme.css + components.css + ui-universal.css directly in new pages. */
+@import url('./colors.css');
+@import url('./theme.css');
+@import url('./components.css');
 @import url('./ui-universal.css');
