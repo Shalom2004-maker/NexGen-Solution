@@ -179,3 +179,4 @@
 [2026-03-23 16:16:38] ip=::1 user=5 action=profile_update msg=Profile updated for user 5
 [2026-03-23 16:17:05] ip=::1 user=5 action=csrf_fail msg=CSRF token mismatch on settings
 [2026-03-23 16:29:15] ip=::1 user=1 action=profile_photo msg=Profile photo updated for user 1
+[2026-03-24 18:16:33] ip=::1 user=4 action=inquiry_update msg=Updated inquiry ID: 10

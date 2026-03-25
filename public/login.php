@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Email and password required";
     } else {
 
-        $sql = "SELECT users.id, users.full_name, users.password_hash, users.status, users.profile_photo, roles.role_name 
+        $sql = "SELECT users.id, users.full_name, users.password_hash, users.password, users.status, users.profile_photo, roles.role_name 
                 FROM users 
                 JOIN roles ON users.role_id = roles.id 
                 WHERE users.email = ?";
@@ -30,9 +30,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if (isset($user["status"]) && $user["status"] !== "active") {
                     $error = "Account is disabled. Please contact administrator.";
                 } else {
-                    $password_hash = trim($user["password_hash"]);
+                    $stored_hash = trim((string) ($user["password_hash"] ?? ""));
+                    $stored_password = (string) ($user["password"] ?? "");
+                    $is_valid_password = false;
 
-                    if (password_verify($password, $password_hash)) {
+                    if ($stored_hash !== "") {
+                        $password_info = password_get_info($stored_hash);
+                        if (!empty($password_info["algo"])) {
+                            $is_valid_password = password_verify($password, $stored_hash);
+                        }
+                    }
+
+                    if (!$is_valid_password && $stored_password !== "") {
+                        $is_valid_password = hash_equals($stored_password, $password);
+                    }
+
+                    if ($is_valid_password) {
 
                         $_SESSION["uid"] = $user["id"];
                         $_SESSION["name"]    = $user["full_name"];

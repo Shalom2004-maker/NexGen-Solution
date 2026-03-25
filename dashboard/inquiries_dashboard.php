@@ -149,39 +149,39 @@ $pages = max(1, ceil($total / $limit));
         <div class="row mb-4 g-3">
             <div class="col-md-4 col-sm-6">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="stat-label">Open Inquiries</div>
-                            <div class="stat-number"><?= $open_count ?></div>
-                        </div>
-                        <div class="stat-icon">
+                    <div class="d-flex justify-content-start">
+                        <div class="stat-icon mx-1">
                             <i class="bi bi-chat-dots"></i>
                         </div>
+                        <div class="mx-4">
+                            <div class="stat-label">Open Inquiries</div>
+                            <div class="stat-number fw-bold fs-4"><?= $open_count ?></div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 col-sm-6">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="stat-label">In Progress</div>
-                            <div class="stat-number"><?= $replied_count ?></div>
-                        </div>
-                        <div class="stat-icon">
+                    <div class="d-flex justify-content-start">
+                        <div class="stat-icon mx-1">
                             <i class="bi bi-hourglass-split"></i>
                         </div>
+                        <div class="mx-4">
+                            <div class="stat-label">In Progress</div>
+                            <div class="stat-number fw-bold fs-4"><?= $replied_count ?></div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 col-sm-6">
                 <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="stat-label">Resolved</div>
-                            <div class="stat-number"><?= $resolved_count ?></div>
-                        </div>
-                        <div class="stat-icon">
+                    <div class="d-flex justify-content-start">
+                        <div class="stat-icon mx-1">
                             <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="mx-4">
+                            <div class="stat-label">Resolved</div>
+                            <div class="stat-number fw-bold fs-4"><?= $resolved_count ?></div>
                         </div>
                     </div>
                 </div>
@@ -193,7 +193,7 @@ $pages = max(1, ceil($total / $limit));
             <div class="card-body">
                 <form method="get" class="mb-0">
                     <div class="row g-2 mb-3">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="bi bi-search"></i>
@@ -202,7 +202,7 @@ $pages = max(1, ceil($total / $limit));
                                     class="form-control" placeholder="Search inquiries...">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 d-flex gap-2 align-items-center">
+                        <div class="col-12 col-md-6 d-flex gap-2 justify-content-start align-items-center">
                             <button class="btn btn-outline-secondary" type="submit">Search</button>
                             <?php if ($search): ?>
                             <a href="inquiries_dashboard.php" class="btn btn-outline-secondary">Reset</a>
@@ -213,17 +213,18 @@ $pages = max(1, ceil($total / $limit));
                     <!-- Category Filter Buttons -->
                     <div class="d-flex flex-wrap gap-2">
                         <a href="inquiries_dashboard.php"
-                            class="filter-btn <?= empty($category) || $category === 'all' ? 'active' : '' ?>">All</a>
+                            class="filter-btn text-decoration-none <?= empty($category) || $category === 'all' ? 'active' : '' ?>">All</a>
                         <a href="?category=HR&q=<?= urlencode($search) ?>"
-                            class="filter-btn <?= $category === 'HR' ? 'active' : '' ?>">HR</a>
+                            class="filter-btn text-decoration-none <?= $category === 'HR' ? 'active' : '' ?>">HR</a>
                         <a href="?category=IT%20Support&q=<?= urlencode($search) ?>"
-                            class="filter-btn <?= $category === 'IT Support' ? 'active' : '' ?>">IT Support</a>
+                            class="filter-btn text-decoration-none <?= $category === 'IT Support' ? 'active' : '' ?>">IT
+                            Support</a>
                         <a href="?category=Payroll&q=<?= urlencode($search) ?>"
-                            class="filter-btn <?= $category === 'Payroll' ? 'active' : '' ?>">Payroll</a>
+                            class="filter-btn text-decoration-none <?= $category === 'Payroll' ? 'active' : '' ?>">Payroll</a>
                         <a href="?category=General&q=<?= urlencode($search) ?>"
-                            class="filter-btn <?= $category === 'General' ? 'active' : '' ?>">General</a>
+                            class="filter-btn text-decoration-none <?= $category === 'General' ? 'active' : '' ?>">General</a>
                         <a href="?category=Complaint&q=<?= urlencode($search) ?>"
-                            class="filter-btn <?= $category === 'Complaint' ? 'active' : '' ?>">Complaint</a>
+                            class="filter-btn text-decoration-none <?= $category === 'Complaint' ? 'active' : '' ?>">Complaint</a>
                     </div>
                 </form>
             </div>
@@ -251,7 +252,8 @@ $pages = max(1, ceil($total / $limit));
                         <td><?= htmlspecialchars($row['name']) ?></td>
                         <td><?= htmlspecialchars($row['email']) ?></td>
                         <td class="d-none d-md-table-cell">
-                            <span class="badge bg-light text-dark"><?= htmlspecialchars($row['category']) ?></span>
+                            <span
+                                class="badge bg-info opacity-75 text-dark"><?= htmlspecialchars($row['category']) ?></span>
                         </td>
                         <td class="d-none d-md-table-cell">
                             <span class="status-badge status-<?= htmlspecialchars($row['status']) ?>">
@@ -259,7 +261,7 @@ $pages = max(1, ceil($total / $limit));
                             </span>
                         </td>
                         <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
-                        <td class="d-flex gap-2 mb-0 mt-2" style="height: 9vh">
+                        <td class="d-flex justify-content-center align-items-center gap-2">
                             <a href="inquiries_edit.php?id=<?= urlencode($row['id']) ?>"
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-pen"></i>
@@ -274,11 +276,13 @@ $pages = max(1, ceil($total / $limit));
                     <?php else: ?>
                     <tr>
                         <td colspan="7">
-                            <div class="empty-state">
-                                <div class="empty-icon">
-                                    <i class="bi bi-chat-dots"></i>
-                                </div>
-                                <p class="mb-0">No inquiries found.</p>
+                            <div class="empty-state p-3 text-align-center">
+                                <center>
+                                    <div class=" empty-icon">
+                                        <i class="bi bi-chat-dots"></i>
+                                    </div>
+                                    <p class="mb-2">No inquiries found.</p>
+                                </center>
                             </div>
                         </td>
                     </tr>

@@ -100,50 +100,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="auth-wrap">
         <div class="auth-card tilt-surface" data-tilt="6">
-        <div class="auth-header">
-            <h4>Reset Password</h4>
-            <p class="text-muted mb-0">Set a new password</p>
-        </div>
-        <div class="auth-body">
-            <?php if ($error): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="auth-header">
+                <h4>Reset Password</h4>
+                <p class="text-muted mb-0">Set a new password</p>
             </div>
-            <?php endif; ?>
+            <div class="auth-body">
+                <?php if ($error): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
 
-            <?php if ($success): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <?php if ($success): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($valid && !$success): ?>
+                <form method="post" action="reset_password.php">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                    <label class="form-label">New Password</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="new_password" name="new_password"
+                            data-validation="required min-length" data-min-length="8" required>
+                    </div>
+                    <div id="new_password_error" class="text-danger validation-error"></div>
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" name="confirm_password"
+                            data-validation="required confirm-password" data-confirm-password="new_password" required>
+                    </div>
+                    <div id="confirm_password_error" class="text-danger validation-error"></div>
+                    <button type="submit" class="btn-action pressable" data-tilt="8">Update Password</button>
+                </form>
+                <?php endif; ?>
+
+                <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
             </div>
-            <?php endif; ?>
-
-            <?php if ($valid && !$success): ?>
-            <form method="post" action="reset_password.php">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-                <label class="form-label">New Password</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="new_password" name="new_password"
-                        data-validation="required min-length" data-min-length="8" required>
-                </div>
-                <div id="new_password_error" class="text-danger validation-error"></div>
-                <label class="form-label">Confirm Password</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                    <input type="password" class="form-control" name="confirm_password"
-                        data-validation="required confirm-password" data-confirm-password="new_password" required>
-                </div>
-                <div id="confirm_password_error" class="text-danger validation-error"></div>
-                <button type="submit" class="btn-action pressable" data-tilt="8">Update Password</button>
-            </form>
-            <?php endif; ?>
-
-            <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
         </div>
-    </div>
     </div>
     <script src="../js/bootstrap.bundle.min.js"></script>
     <script src="../js/validate.js"></script>

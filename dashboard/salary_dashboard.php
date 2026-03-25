@@ -130,7 +130,7 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
                                 <input id="salarySearch" type="text" class="form-control"
                                     placeholder="Search by period or amount">
                             </div>
-                            <select id="yearFilter" class="form-select" style="min-width: 160px;">
+                            <select id="yearFilter" class="form-select year-filter">
                                 <option value="">All Years</option>
                                 <?php foreach ($yearList as $y): ?>
                                 <option value="<?= htmlspecialchars($y) ?>"><?= htmlspecialchars($y) ?></option>
@@ -156,7 +156,7 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
                         if ($res === false) {
                             echo "<tr><td colspan=\"8\">Query error: " . htmlspecialchars($stmt->error) . "</td></tr>";
                         } elseif ($slipCount === 0) {
-                            echo "<tr><td colspan=\"8\" style=\"text-align: center; padding: 2rem; color: #999;\">No salary records found.</td></tr>";
+                            echo "<tr><td colspan=\"8\" class=\"text-center empty-table-message\">No salary records found.</td></tr>";
                         } else {
                             foreach ($rows as $row) {
                                 $month = htmlspecialchars($row['month'] ?? '');
@@ -240,7 +240,7 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
                 if (show) visibleCount += 1;
             });
             if (noResultsRow) {
-                noResultsRow.classList.toggle('d-none', visibleCount !== 0 || query !== '' || year !== '');
+                noResultsRow.classList.toggle('d-none', visibleCount !== 0);
             }
         }
 

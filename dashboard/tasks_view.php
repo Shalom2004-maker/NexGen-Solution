@@ -118,7 +118,8 @@ $res = $stmt->get_result();
                 <div class="page-header d-flex justify-content-between align-items-center end-0">
                     <div>
                         <h3><?= in_array($role, ['ProjectLeader', 'Admin'], true) ? 'All Tasks' : 'My Tasks' ?></h3>
-                        <p><?= in_array($role, ['ProjectLeader', 'Admin'], true) ? 'Monitor all assigned tasks' : 'Manage and track your assigned tasks' ?></p>
+                        <p><?= in_array($role, ['ProjectLeader', 'Admin'], true) ? 'Monitor all assigned tasks' : 'Manage and track your assigned tasks' ?>
+                        </p>
                     </div>
 
                     <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
@@ -143,7 +144,8 @@ $res = $stmt->get_result();
                     <a class="btn btn-sm <?= $filter === 'todo' ? 'btn-primary' : 'btn-outline-secondary' ?>"
                         href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'todo', 'page' => 1]))) ?>">Pending</a>
                     <a class="btn btn-sm <?= $filter === 'in_progress' ? 'btn-primary' : 'btn-outline-secondary' ?>"
-                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'in_progress', 'page' => 1]))) ?>">In Progress</a>
+                        href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'in_progress', 'page' => 1]))) ?>">In
+                        Progress</a>
                     <a class="btn btn-sm <?= $filter === 'done' ? 'btn-primary' : 'btn-outline-secondary' ?>"
                         href="?<?= htmlspecialchars(http_build_query(array_merge($filterBase, ['filter' => 'done', 'page' => 1]))) ?>">Completed</a>
                 </div>
@@ -198,14 +200,15 @@ $res = $stmt->get_result();
                                             <input type="hidden" name="action" value="toggle_status">
                                             <input type="hidden" name="task_id"
                                                 value="<?= htmlspecialchars($t['id']) ?>">
-                                            <button type="submit" class="btn btn-outline-success"
+                                            <button type="submit" class="btn btn-outline-success btn-sm"
                                                 title="Advance status">
                                                 <i class="bi bi-check2-circle"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
                                         <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
-                                        <a href="tasks_edit.php?id=<?= $t['id'] ?>" class="btn btn-outline-primary">
+                                        <a href="tasks_edit.php?id=<?= $t['id'] ?>"
+                                            class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-pen"></i>
                                         </a>
                                         <form method="post" action="task_delete.php" style="display: inline"
@@ -215,7 +218,7 @@ $res = $stmt->get_result();
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="task_id"
                                                 value="<?= htmlspecialchars($t['id']) ?>">
-                                            <button type="submit" class="btn btn-outline-danger"
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"
                                                 style="cursor:pointer;">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -236,7 +239,8 @@ $res = $stmt->get_result();
                         for ($p = 1; $p <= $pages; $p++):
                             $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
                         ?>
-                        <a href="?q=<?= urlencode($q) ?>&filter=<?= urlencode($filter) ?>&page=<?= $p ?>" <?= $active ?>>
+                        <a href="?q=<?= urlencode($q) ?>&filter=<?= urlencode($filter) ?>&page=<?= $p ?>"
+                            <?= $active ?>>
                             <?= $p ?>
                         </a>
                         <?php endfor; ?>
@@ -288,5 +292,3 @@ $res = $stmt->get_result();
 </body>
 
 </html>
-
-

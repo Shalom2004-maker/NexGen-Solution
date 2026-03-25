@@ -4,12 +4,11 @@
     <div class="nexgen-sidebar-header">
         <h3>NexGen Solution</h3>
         <p>Project Leader</p>
-        <div class="theme-switcher sidebar-theme neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="dark"
-                aria-pressed="true">Dark</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="light"
-                aria-pressed="false">Light</button>
+        <div class="theme-switcher sidebar-theme" role="group" aria-label="Theme toggle">
+            <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+                data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+                <i class="bi bi-moon-fill" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 
@@ -36,6 +35,9 @@
 
         <a href="projects.php" class="bi bi-kanban <?= $current_page === 'projects.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Projects</a>
+
+        <a href="profile.php" class="bi bi-person <?= $current_page === 'profile.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
+            Profile</a>
 
         <a href="settings.php" class="bi bi-gear <?= $current_page === 'settings.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Settings</a>

@@ -650,7 +650,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
             </div>
         </form>
 
-        <div class="help-card mb-4">
+        <div class="help-card mb-4 p-3">
             <h5 class="mb-2">CSV Templates</h5>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-outline-primary btn-sm" href="?download=template&type=users">Users</a>
@@ -689,4 +689,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
         <?php endif; ?>
     </div>
 </div>
-

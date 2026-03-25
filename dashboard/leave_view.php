@@ -110,16 +110,21 @@ $res = $stmt->get_result();
     <div class="main-wrapper">
         <div id="sidebarContainer"><?php include "../includes/sidebar_helper.php"; render_sidebar(); ?></div>
         <div class="main-content">
+
             <div class="dashboard-shell">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3><?= $role === 'Employee' ? 'Leave Requests' : 'Leave Requests' ?></h3>
-                    <?php if ($role === 'Employee'): ?><a href="leave.php" class="btn btn-primary">Apply for Leave</a><?php endif;
-                                                                                    ?>
+                    <?php if ($role === 'Employee'): ?><a href="leave.php" class="btn btn-primary">Apply for
+                        Leave</a><?php endif; ?>
                 </div>
+                <div class="btn btn-outline-primary">
+                    <a href="leave_dashboard.php" class="text-decoration-none text-white">Back</a>
+                </div>
+
                 <!-- Filter -->
                 <form method="GET" class="mb-3 w-100">
-                    <div class="d-flex gap-4">
-                        <div class="col-md-4"><select name="status" class="form-control">
+                    <div class="d-flex justify-content-end gap-4">
+                        <div class="mt-1"><select name="status" class="form-control">
                                 <option value="">All Status</option>
                                 <option value="pending" <?= $statusFilter === 'pending' ? 'selected' : '' ?>>Pending
                                 </option>
@@ -131,9 +136,9 @@ $res = $stmt->get_result();
                                 <option value="rejected" <?= $statusFilter === 'rejected' ? 'selected' : '' ?>>Rejected
                                 </option>
                             </select></div>
-                        <div class="col-md-4"><button class="btn btn-outline-secondary">Filter</button></div>
-                        <div class="col-md-4"><?php if ($statusFilter): ?><a href="leave_view.php"
-                                class="btn btn-link">Reset</a><?php endif;
+                        <div class="mx-1"><button class="btn btn-outline-secondary">Filter</button></div>
+                        <div class="mx-1"><?php if ($statusFilter): ?><a href="leave_view.php"
+                                class="btn btn-outline-secondary">Reset</a><?php endif;
                                                                     ?></div>
                     </div>
                 </form>
@@ -173,8 +178,7 @@ $res = $stmt->get_result();
                                 </td>
                                 <td>
                                     <a href="leave_edit.php?id=<?= $leave['id'] ?>"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> | <i class="bi bi-pen"></i>
+                                        class="btn btn-sm btn-outline-primary"><i class="bi bi-pen"></i>
                                     </a>
                                     <?php if ($role === 'Employee' && $leave['status'] === 'pending'): ?>
                                     <form method="post" action="leave_delete.php" style="display: inline"
@@ -262,5 +266,3 @@ $res = $stmt->get_result();
 </body>
 
 </html>
-
-

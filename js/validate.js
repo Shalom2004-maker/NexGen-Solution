@@ -167,7 +167,7 @@
         var inputGroup = field.closest(".input-group");
 
         errorField.textContent = message;
-        errorField.style.display = "";
+        errorField.style.display = "block";
 
         field.classList.add("input-error");
         field.setAttribute("aria-invalid", "true");

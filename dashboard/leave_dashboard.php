@@ -187,11 +187,9 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                     <!-- Action Buttons -->
                     <div class="action-buttons">
                         <?php if ($can_view_all) : ?>
-                        <button type="button" class="btn-primary-custom">
-                            <a href="leave_view.php" class="text-white text-decoration-none">
-                                <i class=" bi bi-eye"></i> &nbsp; View All Leaves
-                            </a>
-                        </button>
+                        <a href="leave_view.php" class="btn-primary-custom text-decoration-none">
+                            <i class="bi bi-eye"></i> &nbsp; View All Leaves
+                        </a>
                         <?php endif; ?>
                         <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
                             data-bs-target="#leaveRequestModal">
@@ -294,7 +292,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             </div>
 
             <!-- Metrics Cards -->
-            <div class="row mt-4">
+            <div class="row mt-4 mb-4">
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="metric-card">
                         <i class="bi bi-clock-history metric-icon"></i>
@@ -329,30 +327,33 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             </div>
 
             <!-- Filter Buttons -->
-            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3">
+            <div class="table-container filter-panel mb-3">
                 <div class="filter-buttons">
                     <a href="?filter=all"
-                        class="filter-btn border rounded <?= $filterStatus === 'all' ? 'active' : '' ?>">
+                        class="filter-btn text-decoration-none <?= $filterStatus === 'all' ? 'active' : '' ?>">
                         All Requests
                     </a>
                     <a href="?filter=pending"
-                        class="filter-btn border rounded <?= $filterStatus === 'pending' ? 'active' : '' ?>">
+                        class="filter-btn text-decoration-none <?= $filterStatus === 'pending' ? 'active' : '' ?>">
                         Pending
                     </a>
                     <a href="?filter=approved"
-                        class="filter-btn border rounded <?= $filterStatus === 'approved' ? 'active' : '' ?>">
+                        class="filter-btn text-decoration-none <?= $filterStatus === 'approved' ? 'active' : '' ?>">
                         Approved
                     </a>
                     <a href="?filter=rejected"
-                        class="filter-btn border rounded <?= $filterStatus === 'rejected' ? 'active' : '' ?>">
+                        class="filter-btn text-decoration-none <?= $filterStatus === 'rejected' ? 'active' : '' ?>">
                         Rejected
                     </a>
                 </div>
             </div>
 
             <!-- Leave Requests List -->
-            <div class="section-title">
-                <span><?= $can_view_all ? 'Leave Requests' : 'My Leave Requests' ?></span>
+            <div class="section-title mt-4 mb-2">
+                <span class="fw-bold"><?= $can_view_all ? 'Leave Requests' : 'My Leave Requests' ?></span>
+                <a href="leave_view.php" class="section-link text-decoration-none">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
 
             <?php
@@ -541,3 +542,4 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 </body>
 
 </html>
+

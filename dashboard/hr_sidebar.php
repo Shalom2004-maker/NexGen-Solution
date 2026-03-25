@@ -35,6 +35,9 @@
         <a href="bulk_upload.php" class="bi bi-upload <?= $current_page === 'bulk_upload.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Bulk Upload</a>
 
+        <a href="profile.php" class="bi bi-person <?= $current_page === 'profile.php' ? 'active' : '' ?>"> &nbsp;&nbsp;
+            Profile</a>
+
         <a href="settings.php" class="bi bi-gear <?= $current_page === 'settings.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Settings</a>
     </div>

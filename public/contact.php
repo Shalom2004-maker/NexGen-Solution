@@ -79,48 +79,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../js/future-ui.js" defer></script>
 </head>
 
-<body class="future-page future-contact d-flex justify-content-center" data-theme="dark">
+<body class="future-page future-contact" data-theme="dark">
     <div class="future-grid" aria-hidden="true"></div>
     <div class="future-orb future-orb-a" aria-hidden="true"></div>
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
+    <div class="theme-switcher" role="group" aria-label="Theme toggle">
+        <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+            data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+            <i class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
+    </div>
 
-    <div class="page-wrapper">
-        <div class="d-flex justify-content-center mt-3 align-items-center end-0 offset-lg-1">
-            <div class="page-nav">
-                <a href="index.php" class="back-button pressable" data-tilt="7">
-                    <i class="bi bi-arrow-left"></i> Back to Home
-                </a>
-            </div>
-            <div class="theme-switcher" role="group" aria-label="Theme toggle">
-                <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
-                    data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
-                    <i class="bi bi-moon-fill" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
+    <main class="page-wrapper">
+        <div class="contact-shell tilt-surface" data-tilt="4">
+            <div class="form-container contact-info-panel">
+                <div class="contact-info-top">
+                    <img src="../assets/logos/nexgen-brand-logo.png" alt="NexGen Solution Logo" class="contact-logo">
+                    <a href="index.php" class="back-button pressable" data-tilt="7">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+                <div class="contact-info-content">
+                    <h1 class="form-title">Get In Touch</h1>
+                    <p class="form-subtitle">Have questions about NexGen? <br> We are here to help.Fill up the form and our
+                        team will get back with Response in 24 hours.</p>
 
-        <div class="d-flex gap-3 justify-content-center align-items-center offset-lg-1">
-            <div class="form-container col-lg-5 col-md-7 col-12 tilt-surface" data-tilt="6">
-                <h1 class="form-title">Get In Touch</h1>
-                <p class="form-subtitle">Have questions about NexGen? <br> We are here to help.Fill up the form and our
-                    team will get back with Response in 24 hours.</p>
-
-                <ul class="info-details">
-                    <li>
-                        <i class="bi bi-telephone-fill me-3"></i>
-                        <span>Phone: </span> <a href="tel:+123456789">123456789</a>
-                    </li>
-                    <li>
-                        <i class="bi bi-envelope-at-fill me-3"></i>
-                        <span>Email: </span> <a
-                            href="mailto:info@nexgensolutions.com">mailto:nexgensolutions@info.com</a>
-                    </li>
-                    <li>
-                        <i class="bi bi-globe2 me-3"></i>
-                        <span>Website: </span> <a href="https://nexgensolutions.com">nexgensolutions.com</a>
-                    </li>
+                    <ul class="info-details">
+                        <li>
+                            <i class="bi bi-telephone-fill me-3"></i>
+                            <span>Phone: </span> <a href="tel:+123456789">123456789</a>
+                        </li>
+                        <li>
+                            <i class="bi bi-envelope-at-fill me-3"></i>
+                            <span>Email: </span> <a
+                                href="mailto:info@nexgensolutions.com">mailto:nexgensolutions@info.com</a>
+                        </li>
+                        <li>
+                            <i class="bi bi-globe2 me-3"></i>
+                            <span>Website: </span> <a href="https://nexgensolutions.com">nexgensolutions.com</a>
+                        </li>
+                    </ul>
                     <ul class="social-icons">
                         <li class="social-icon">
                             <a class="social-link" href="#">
@@ -143,9 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                         </li>
                     </ul>
-                </ul>
+                </div>
             </div>
-            <div class="form-container col-lg-9 col-md-9 col-12 tilt-surface" data-tilt="6">
+
+            <div class="form-container contact-form-panel">
                 <h1 class="form-title mb-3">Send Us a Message</h1>
 
                 <?php if ($success): ?>
@@ -285,9 +286,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </form>
             </div>
-
         </div>
-    </div>
+    </main>
 
     <script src="../js/bootstrap.bundle.min.js"></script>
     <script>
