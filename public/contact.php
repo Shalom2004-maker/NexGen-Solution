@@ -4,6 +4,7 @@ session_start();
 
 $success = false;
 $error = '';
+//comment
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim($_POST['first_name'] ?? '');
