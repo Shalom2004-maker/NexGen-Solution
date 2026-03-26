@@ -5,6 +5,19 @@ include "../includes/db.php";
 include "../includes/logger.php";
 // current user
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
+$projects = [];
+$project_scope = 'owned';
+
+if ($uid > 0) {
+    $scope_stmt = $conn->prepare("SELECT id FROM projects WHERE leader_id = ? LIMIT 1");
+    if ($scope_stmt) {
+        $scope_stmt->bind_param('i', $uid);
+        $scope_stmt->execute();
+        $scope_stmt->store_result();
+        $project_scope = $scope_stmt->num_rows > 0 ? 'owned' : 'all';
+        $scope_stmt->close();
+    }
+}
 
 // form feedback
 $error = '';
@@ -32,8 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please select a project, an employee, and enter a task title.';
     } else {
         // ensure project belongs to this leader
-        $pstmt = $conn->prepare("SELECT id FROM projects WHERE id = ? AND leader_id = ? LIMIT 1");
-        $pstmt->bind_param('ii', $project_id, $uid);
+        if ($project_scope === 'all') {
+            $pstmt = $conn->prepare("SELECT id FROM projects WHERE id = ? LIMIT 1");
+            $pstmt->bind_param('i', $project_id);
+        } else {
+            $pstmt = $conn->prepare("SELECT id FROM projects WHERE id = ? AND leader_id = ? LIMIT 1");
+            $pstmt->bind_param('ii', $project_id, $uid);
+        }
         $pstmt->execute();
         $pstmt->store_result();
         $valid_project = $pstmt->num_rows > 0;
@@ -69,14 +87,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Projects for leader select (only projects owned by this leader)
-$projects = null;
+// Projects for leader select (prefer leader-owned projects, then fall back to available projects from schema data)
 if ($uid > 0) {
-    $pstmt = $conn->prepare("SELECT id, project_name FROM projects WHERE leader_id = ? ORDER BY project_name");
-    $pstmt->bind_param('i', $uid);
-    $pstmt->execute();
-    $projects = $pstmt->get_result();
-    $pstmt->close();
+    if ($project_scope === 'owned') {
+        $pstmt = $conn->prepare("SELECT id, project_name FROM projects WHERE leader_id = ? ORDER BY project_name");
+        $pstmt->bind_param('i', $uid);
+        $pstmt->execute();
+        $project_result = $pstmt->get_result();
+        while ($project_result && ($project_row = $project_result->fetch_assoc())) {
+            $projects[] = $project_row;
+        }
+        $pstmt->close();
+    } else {
+        $fallback_result = $conn->query("SELECT id, project_name FROM projects ORDER BY project_name");
+        if ($fallback_result) {
+            while ($project_row = $fallback_result->fetch_assoc()) {
+                $projects[] = $project_row;
+            }
+        }
+    }
 }
 
 // Employees for assignee select
@@ -124,8 +153,8 @@ $users = $conn->query("SELECT u.id, u.full_name FROM users u JOIN roles r ON u.r
                     <a href="leader.php" class="btn btn-sm btn-outline-primary">Back</a>
                 </div>
 
-                <div class="form-container mx-auto">
-                    <form method="post">
+                <div class="form-container mx-auto p-3">
+                    <form method="post" class="p-4">
                         <input type="hidden" name="csrf_token"
                             value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
@@ -145,17 +174,25 @@ $users = $conn->query("SELECT u.id, u.full_name FROM users u JOIN roles r ON u.r
 
                         <div class="mb-3">
                             <label for="project" class="form-label">Project ID *</label>
-                            <select id="project" name="project" class="form-control" required>
+                            <select id="project" name="project" class="form-select" required>
                                 <option value="">Select project</option>
-                                <?php if ($projects): ?>
-                                <?php while ($p = $projects->fetch_assoc()): ?>
+                                <?php if (!empty($projects)): ?>
+                                <?php foreach ($projects as $p): ?>
                                 <option value="<?= $p['id'] ?>"
                                     <?= (isset($_POST['project']) && (int)$_POST['project'] === (int)$p['id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($p['project_name']) ?> (ID: <?= (int)$p['id'] ?>)
                                 </option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
+                                <?php else: ?>
+                                <option value="" disabled>No projects available</option>
                                 <?php endif; ?>
                             </select>
+                            <?php if ($project_scope === 'all' && !empty($projects)): ?>
+                            <small class="text-muted d-block mt-2">
+                                No projects are currently assigned to this leader account, so available projects are
+                                shown from the database.
+                            </small>
+                            <?php endif; ?>
                         </div>
 
                         <div class="mb-3">
@@ -192,7 +229,9 @@ $users = $conn->query("SELECT u.id, u.full_name FROM users u JOIN roles r ON u.r
                                 value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">Create Task</button>
+                        <center>
+                            <button type="submit" class="btn btn-success w-50 mt-3">Create Task</button>
+                        </center>
                     </form>
                 </div>
             </div>
@@ -240,4 +279,3 @@ $users = $conn->query("SELECT u.id, u.full_name FROM users u JOIN roles r ON u.r
 </body>
 
 </html>
-

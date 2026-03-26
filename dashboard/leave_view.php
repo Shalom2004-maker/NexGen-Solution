@@ -114,7 +114,7 @@ $res = $stmt->get_result();
             <div class="dashboard-shell">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3><?= $role === 'Employee' ? 'Leave Requests' : 'Leave Requests' ?></h3>
-                    <?php if ($role === 'Employee'): ?><a href="leave.php" class="btn btn-primary">Apply for
+                    <?php if ($role === 'Employee'): ?><a href="leave_dashboard.php" class="btn btn-primary">Apply for
                         Leave</a><?php endif; ?>
                 </div>
                 <div class="btn btn-outline-primary">

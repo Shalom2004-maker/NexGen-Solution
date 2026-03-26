@@ -25,7 +25,7 @@ if ($task_result) {
 }
 
 // Pending Leaves
-$leave_result = $conn->query("SELECT COUNT(*) as count FROM leave_requests WHERE status = 'Pending'");
+$leave_result = $conn->query("SELECT COUNT(*) as count FROM leave_requests WHERE status = 'pending'");
 if ($leave_result) {
     $leave_row = $leave_result->fetch_assoc();
     $pending_leaves = $leave_row['count'];
@@ -38,8 +38,14 @@ $performance_rating = 94;
 $recent_tasks = $conn->query("SELECT * FROM tasks ORDER BY created_at DESC LIMIT 4");
 
 // Leave Requests (limit to 3)
-// join on employee_id to get the requestor's name
-$leave_requests = $conn->query("SELECT l.*, u.full_name FROM leave_requests l JOIN users u ON l.employee_id = u.id ORDER BY l.applied_at DESC LIMIT 3");
+$leave_requests = $conn->query("
+    SELECT l.*, u.full_name
+    FROM leave_requests l
+    JOIN employees e ON l.employee_id = e.id
+    JOIN users u ON e.user_id = u.id
+    ORDER BY l.applied_at DESC
+    LIMIT 3
+");
 
 // Project Progress (sample projects)
 $projects = [
@@ -219,7 +225,7 @@ $projects = [
                             </div>
                             <span class="leave-type"><?= htmlspecialchars($leave['leave_type'] ?? 'Annual') ?></span>
                             <span class="leave-status <?= strtolower($leave['status'] ?? 'pending') ?>">
-                                <?= htmlspecialchars($leave['status'] ?? 'Pending') ?>
+                                <?= htmlspecialchars(ucwords(str_replace('_', ' ', $leave['status'] ?? 'pending'))) ?>
                             </span>
                         </div>
                         <?php
@@ -228,42 +234,8 @@ $projects = [
                         ?>
                         <div class="leave-card mb-3">
                             <div class="leave-requestor">Leave Requests</div>
-                            <h4><i class="bi bi-calendar-check"></i> My Leave Requests</h4>
-                            <?php
-                            $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at ASC LIMIT 7");
-                            if ($stmt) {
-                                $stmt->bind_param('i', $id);
-                                $stmt->execute();
-                                $stmt->bind_result($reason, $start_date, $end_date, $status);
-                                $has_leaves = false;
-                                echo '<div class="list-group">';
-                                while ($stmt->fetch()) {
-                                    $has_leaves = true;
-                                    $status_badge = '';
-                                    if ($status === 'pending') {
-                                        $status_badge = '<span class="badge bg-warning text-dark ml-2">Pending</span>';
-                                    } elseif ($status === 'hr_approved' || $status === 'leader_approved') {
-                                        $status_badge = '<span class="badge bg-success ml-2">Approved</span>';
-                                    } else {
-                                        $status_badge = '<span class="badge bg-danger ml-2">Rejected</span>';
-                                    }
-                                    echo '<div class="p-2 mb-3 list-group-item d-flex justify-content-between align-items-center" style="width: max-content;">
-                                    <div>
-                                        <small>' . htmlspecialchars($reason) . '</small><br>
-                                        <small>' . htmlspecialchars(is_object($start_date) ? $start_date->format('Y-m-d') : ($start_date ?? 'Not set')) . ' to ' . htmlspecialchars(is_object($end_date) ? $end_date->format('Y-m-d') : ($end_date ?? 'Not set')) . '</small>
-                                    </div>
-                                    <div>' . $status_badge . '</div>
-                                  </div>';
-                                }
-                                if (!$has_leaves) {
-                                    echo '<p class="text-muted">No leave requests submitted yet.</p>';
-                                }
-                                echo '</div>';
-                                $stmt->close();
-                            } else {
-                                echo '<p>DB error</p>';
-                            }
-                            ?>
+                            <h4><i class="bi bi-calendar-check"></i> No Recent Leave Requests</h4>
+                            <p class="text-muted mb-0">There are no leave requests to show right now.</p>
                         </div>
                         <?php endif; ?>
                     </div>

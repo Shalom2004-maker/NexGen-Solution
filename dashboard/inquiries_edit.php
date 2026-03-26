@@ -5,7 +5,7 @@ include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 
 if (!isset($_GET['id'])) {
-    header('Location: inquiries_view.php');
+    header('Location: inquiries_dashboard.php');
     exit();
 }
 

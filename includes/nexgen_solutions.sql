@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 12, 2026 at 04:14 PM
+-- Generation Time: Mar 25, 2026 at 05:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -51,7 +51,8 @@ INSERT INTO `employees` (`id`, `user_id`, `job_title`, `department`, `hire_date`
 (7, 9, 'HR Specialist', 'HR', '2024-01-05', 56000.00, 'active'),
 (8, 10, 'IT Specialist', 'IT', '2024-01-06', 57500.00, 'active'),
 (9, 11, 'QA Analyst', 'Testing', '2024-01-07', 59000.00, 'active'),
-(10, 12, 'Accountant', 'Finance', '2024-01-08', 60500.00, 'active');
+(10, 12, 'Accountant', 'Finance', '2024-01-08', 60500.00, 'active'),
+(0, 126, 'QA Analyst', 'Testing', '2026-03-25', 50000.00, 'active');
 
 -- --------------------------------------------------------
 
@@ -75,12 +76,12 @@ CREATE TABLE `inquiries` (
 --
 
 INSERT INTO `inquiries` (`id`, `name`, `email`, `company`, `message`, `status`, `created_at`, `category`) VALUES
-  (1, 'Mark', 'mark@mail.com', 'Alpha Ltd', 'Need a project quote', 'new', '2026-01-03 16:08:12', 'Service Request'),
-  (2, 'Lisa', 'lisa@mail.com', 'Beta Corp', 'Interested in your software', 'replied', '2026-01-03 16:08:12', 'Others'),
-  (3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'new', '2026-01-03 16:08:12', 'General Inquiry'),
-  (4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\r\n\r\nPreferred Contact Time: 2026-01-14 06:00 PM\r\nInquiry Type: Service Request', 'closed', '2026-01-05 13:18:56', 'Support'),
-  (6, 'Benevolent', 'benevolenteager@gmail.com', 'NexGen Solutions', 'The integration of APIs and my project.', 'closed', '2026-02-03 17:57:15', 'HR'),
-  (7, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'replied', '2026-02-03 22:12:16', 'Complaint'),
+(1, 'Mark', 'mark@mail.com', 'Alpha Ltd', 'Need a project quote', 'new', '2026-01-03 16:08:12', 'Service Request'),
+(2, 'Lisa', 'lisa@mail.com', 'Beta Corp', 'Interested in your software', 'replied', '2026-01-03 16:08:12', 'Others'),
+(3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'new', '2026-01-03 16:08:12', 'General Inquiry'),
+(4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\r\n\r\nPreferred Contact Time: 2026-01-14 06:00 PM\r\nInquiry Type: Service Request', 'closed', '2026-01-05 13:18:56', 'Support'),
+(6, 'Benevolent', 'benevolenteager@gmail.com', 'NexGen Solutions', 'The integration of APIs and my project.', 'closed', '2026-02-03 17:57:15', 'HR'),
+(7, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'replied', '2026-02-03 22:12:16', 'Complaint');
 
 -- --------------------------------------------------------
 
@@ -160,15 +161,15 @@ CREATE TABLE `payroll_inputs` (
 --
 
 INSERT INTO `payroll_inputs` (`id`, `employee_id`, `month`, `year`, `overtime_hours`, `bonus`, `deductions`, `submitted_by`, `status`, `submitted_at`) VALUES
-  (4, 1, 5, 2024, 10.00, 12000.00, 0.00, 3, 'pending', '2026-01-03 16:49:16'),
-  (5, 2, 5, 2024, 5.00, 10000.00, 1000.00, 3, 'approved', '2026-01-03 16:49:16'),
-  (6, 1, 4, 2024, 8.00, 20000.00, 0.00, 3, 'approved', '2026-01-03 16:49:16'),
-  (7, 59, 4, 2025, 5.00, 67.00, 27.00, 3, 'approved', '2026-02-08 13:36:05'),
-  (8, 86, 12, 2025, 7.00, 6.00, 71.00, 3, 'pending', '2026-02-08 13:36:05'),
-  (9, 41, 12, 2025, 10.00, 54.00, 80.00, 3, 'pending', '2026-02-08 13:36:05'),
-  (10, 104, 11, 2025, 3.00, 178.00, 29.00, 3, 'pending', '2026-02-08 13:36:05'),
-  (11, 113, 3, 2025, 10.00, 23.00, 20.00, 3, 'approved', '2026-02-08 13:36:05'),
-  (12, 27, 3, 2025, 4.00, 109.00, 34.00, 3, 'pending', '2026-02-08 13:36:05');
+(4, 1, 5, 2024, 10.00, 12000.00, 0.00, 3, 'pending', '2026-01-03 16:49:16'),
+(5, 2, 5, 2024, 5.00, 10000.00, 1000.00, 3, 'approved', '2026-01-03 16:49:16'),
+(6, 1, 4, 2024, 8.00, 20000.00, 0.00, 3, 'approved', '2026-01-03 16:49:16'),
+(7, 59, 4, 2025, 5.00, 67.00, 27.00, 3, 'approved', '2026-02-08 13:36:05'),
+(8, 86, 12, 2025, 7.00, 6.00, 71.00, 3, 'pending', '2026-02-08 13:36:05'),
+(9, 41, 12, 2025, 10.00, 54.00, 80.00, 3, 'pending', '2026-02-08 13:36:05'),
+(10, 104, 11, 2025, 3.00, 178.00, 29.00, 3, 'pending', '2026-02-08 13:36:05'),
+(11, 113, 3, 2025, 10.00, 23.00, 20.00, 3, 'approved', '2026-02-08 13:36:05'),
+(12, 27, 3, 2025, 4.00, 109.00, 34.00, 3, 'pending', '2026-02-08 13:36:05');
 
 -- --------------------------------------------------------
 
@@ -198,7 +199,7 @@ INSERT INTO `projects` (`id`, `project_name`, `description`, `leader_id`, `start
 (6, 'Vibe Coding with AI', 'Auto project', 1, '2025-01-03', '2025-04-03'),
 (7, 'Web Programming', 'Upgrading the website', 1, '2025-01-04', '2025-04-04'),
 (8, 'Project 4', 'Auto project', NULL, '2025-01-05', '2025-04-05'),
-(9, 'Project 5', 'Auto project', NULL, '2025-01-06', '2025-04-06'),
+(9, 'Software Engineering', 'Auto project', 126, '2025-01-06', '2025-04-06'),
 (10, 'Project 6', 'Auto project', NULL, '2025-01-07', '2025-04-07');
 
 -- --------------------------------------------------------
@@ -278,20 +279,20 @@ INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `created_by`, `title`, `
 (7, 1, 1, 3, 'Design Home Page', 'Create UI for homepage', 'todo', '2024-06-01', '2026-01-03 16:34:10'),
 (8, 2, 2, 3, 'Design HR Forms', 'Create a leave form UI', 'done', '2026-01-30', '2026-01-03 16:34:10'),
 (10, 3, 1, 1, 'Lets Chat', 'Let\'s focus on this thrilling journey until the end.', 'done', '2026-03-08', '2026-02-03 17:27:09'),
-(13, 8, 8, 3, 'Task 4: Project 4', 'Auto-generated task 4 for Project 4.', 'done', '2026-03-11', '2026-02-08 13:50:04'),
-(14, 9, 9, 3, 'Task 5: Project 5', 'Auto-generated task 5 for Project 5.', 'in_progress', '2026-03-12', '2026-02-08 13:50:04'),
-(15, 10, 10, 3, 'Task 6: Project 6', 'Auto-generated task 6 for Project 6.', 'done', '2026-03-13', '2026-02-08 13:50:04'),
-(16, 11, 11, 3, 'Task 7: Project 7', 'Auto-generated task 7 for Project 7.', 'todo', '2026-03-14', '2026-02-08 13:50:04'),
-(17, 12, 12, 3, 'Task 8: Project 8', 'Auto-generated task 8 for Project 8.', 'done', '2026-03-15', '2026-02-08 13:50:04'),
-(18, 13, 13, 3, 'Task 9: Project 9', 'Auto-generated task 9 for Project 9.', 'done', '2026-03-16', '2026-02-08 13:50:04'),
-(19, 14, 14, 3, 'Task 10: Project 10', 'Auto-generated task 10 for Project 10.', 'in_progress', '2026-03-17', '2026-02-08 13:50:04'),
-(20, 15, 15, 3, 'Task 11: Project 11', 'Auto-generated task 11 for Project 11.', 'done', '2026-03-18', '2026-02-08 13:50:04'),
-(21, 16, 16, 3, 'Task 12: Project 12', 'Auto-generated task 12 for Project 12.', 'done', '2026-03-19', '2026-02-08 13:50:04'),
-(23, 18, 18, 3, 'Task 14: Project 14', 'Auto-generated task 14 for Project 14.', 'todo', '2026-03-21', '2026-02-08 13:50:04'),
-(24, 19, 19, 3, 'Task 15: Project 15', 'Auto-generated task 15 for Project 15.', 'done', '2026-03-22', '2026-02-08 13:50:04'),
-(25, 20, 20, 3, 'Task 16: Project 16', 'Auto-generated task 16 for Project 16.', 'todo', '2026-03-23', '2026-02-08 13:50:04'),
-(26, 21, 21, 3, 'Task 17: Project 17', 'Auto-generated task 17 for Project 17.', 'in_progress', '2026-03-24', '2026-02-08 13:50:04'),
-(27, 22, 22, 3, 'Task 18: Project 18', 'Auto-generated task 18 for Project 18.', 'done', '2026-03-25', '2026-02-08 13:50:04');
+(13, 8, 2, 3, 'Task 4: Project 4', 'Auto-generated task 4 for Project 4.', 'done', '2026-03-11', '2026-02-08 13:50:04'),
+(14, 9, NULL, 3, 'Task 5: Project 5', 'Auto-generated task 5 for Project 5.', 'in_progress', '2026-03-12', '2026-02-08 13:50:04'),
+(15, 10, NULL, 3, 'Task 6: Project 6', 'Auto-generated task 6 for Project 6.', 'done', '2026-03-13', '2026-02-08 13:50:04'),
+(16, 11, NULL, 3, 'Task 7: Project 7', 'Auto-generated task 7 for Project 7.', 'todo', '2026-03-14', '2026-02-08 13:50:04'),
+(17, 12, NULL, 3, 'Task 8: Project 8', 'Auto-generated task 8 for Project 8.', 'done', '2026-03-15', '2026-02-08 13:50:04'),
+(18, 13, 7, 3, 'Task 9: Project 9', 'Auto-generated task 9 for Project 9.', 'done', '2026-03-16', '2026-02-08 13:50:04'),
+(19, 14, 4, 3, 'Task 10: Project 10', 'Auto-generated task 10 for Project 10.', 'in_progress', '2026-03-17', '2026-02-08 13:50:04'),
+(20, 15, 6, 3, 'Task 11: Project 11', 'Auto-generated task 11 for Project 11.', 'done', '2026-03-18', '2026-02-08 13:50:04'),
+(21, 16, NULL, 3, 'Task 12: Project 12', 'Auto-generated task 12 for Project 12.', 'done', '2026-03-19', '2026-02-08 13:50:04'),
+(23, 18, NULL, 3, 'Task 14: Project 14', 'Auto-generated task 14 for Project 14.', 'todo', '2026-03-21', '2026-02-08 13:50:04'),
+(24, 19, NULL, 3, 'Task 15: Project 15', 'Auto-generated task 15 for Project 15.', 'done', '2026-03-22', '2026-02-08 13:50:04'),
+(25, 20, 8, 3, 'Task 16: Project 16', 'Auto-generated task 16 for Project 16.', 'todo', '2026-03-23', '2026-02-08 13:50:04'),
+(26, 21, NULL, 3, 'Task 17: Project 17', 'Auto-generated task 17 for Project 17.', 'in_progress', '2026-03-24', '2026-02-08 13:50:04'),
+(27, 22, 8, 3, 'Task 18: Project 18', 'Auto-generated task 18 for Project 18.', 'done', '2026-03-25', '2026-02-08 13:50:04');
 
 -- --------------------------------------------------------
 
@@ -318,29 +319,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `password`, `role_id`, `status`, `profile_photo`, `password_reset_token`, `password_reset_expires_at`, `created_at`) VALUES
-  (1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni\n', 'AdminUser', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, '2026-01-03 15:51:13'),
-  (2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', 'BenevolentEager', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', '9390de8b102f6e38a2c2a220b9a433bdd7e7e9fd4b534a2ad3d8d8b4c6603d7a', '2026-02-05 15:46:52', '2026-02-04 09:00:00'),
-  (3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS\r\n', 'ProjectLeader', 2, 'active', 'assets/avatars/user_3_9559e2d983f826f8.png', NULL, NULL, '2026-01-03 15:51:13'),
-  (4, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe\r\n', 'HRManager', 3, 'active', 'assets/avatars/user_2_3bd7f4bb74f90212.png', NULL, NULL, '2026-01-03 15:51:13'),
-  (5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', 'Employee', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, '2026-01-05 12:33:32'),
-  (6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 13:32:31'),
-  (7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 13:32:31'),
-  (8, 'Employee 1003', 'user1003@company.com', '$2y$10$txzdEWDJtscLsp05u4wgROXYDmF2PshLFlAq2suzsqjeAmbOil73e' 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 13:32:31'),
-  (9, 'Employee 1004', 'user1004@company.com', '$2y$10$20C7FhKfsBXD9WtFn/kYBujDL0MLlHJPvtMjE9saLtQC2XzyuOmTO' 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 13:32:32'),
-  (10, 'Employee 1005', 'user1005@company.com', '$2y$10$W609CYv569A9mwjxJE6b7e/orUvox61eQu3ijgAjv7KWfKAkFtS3u' 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 13:32:32'),
-  (11, 'Employee 1006', 'user1006@company.com', '$2y$10$DreAE7w8mratcgDuHR0ELOTWeGTJ0jukCmuESNtAkgne6pOTy8vhK' 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 13:32:32'),
-  (12, 'Employee 1007', 'user1007@company.com', '$2y$10$c4msTm03cbbg6ZsQ5iwS8uAkIkIkp4rQyJQFWBlhoN0x1rG8f4XG.' 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 13:32:32');
+(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni', 'AdminUser', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, '2026-01-03 10:21:13'),
+(2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', 'BenevolentEager', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', '9390de8b102f6e38a2c2a220b9a433bdd7e7e9fd4b534a2ad3d8d8b4c6603d7a', '2026-02-05 15:46:52', '2026-02-04 03:30:00'),
+(3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS', '', 2, 'active', 'assets/avatars/user_3_9559e2d983f826f8.png', NULL, NULL, '2026-01-03 10:21:13'),
+(4, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe', 'HRManager', 3, 'active', 'assets/avatars/user_2_3bd7f4bb74f90212.png', NULL, NULL, '2026-01-03 10:21:13'),
+(5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', 'Employee', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, '2026-01-05 07:03:32'),
+(6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 08:02:31'),
+(7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 08:02:31'),
+(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, '2026-03-25 13:56:54');
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `employees`
---
-ALTER TABLE `employees`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `inquiries`
@@ -415,12 +405,6 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT for table `employees`
---
-ALTER TABLE `employees`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
-
---
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
@@ -472,59 +456,7 @@ ALTER TABLE `tasks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `employees`
---
-ALTER TABLE `employees`
-  ADD CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  ADD CONSTRAINT `leave_requests_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `leave_requests_ibfk_2` FOREIGN KEY (`leader_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `leave_requests_ibfk_3` FOREIGN KEY (`hr_id`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `payroll_inputs`
---
-ALTER TABLE `payroll_inputs`
-  ADD CONSTRAINT `payroll_inputs_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `payroll_inputs_ibfk_2` FOREIGN KEY (`submitted_by`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `projects`
---
-ALTER TABLE `projects`
-  ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`leader_id`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `salary_slips`
---
-ALTER TABLE `salary_slips`
-  ADD CONSTRAINT `salary_slips_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `salary_slips_ibfk_2` FOREIGN KEY (`generated_by`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `tasks`
---
-ALTER TABLE `tasks`
-  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `tasks_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `users`
---
-ALTER TABLE `users`
-  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`);
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

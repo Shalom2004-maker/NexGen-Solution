@@ -36,11 +36,58 @@ if ($role === 'Employee') {
         http_response_code(403);
         die('You can only edit your own pending leave requests.');
     }
+} elseif ($role === 'ProjectLeader' && $leave['status'] === 'hr_approved') {
+    http_response_code(403);
+    die('HR-approved leave requests can only be changed by Admin.');
 }
 
 // Ensure CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+}
+
+$statusOptions = [];
+if ($role === 'ProjectLeader') {
+    $statusOptions = match ($leave['status']) {
+        'pending' => [
+            'pending' => 'Pending',
+            'leader_approved' => 'Leader Approved',
+            'rejected' => 'Rejected',
+        ],
+        'leader_approved' => [
+            'leader_approved' => 'Leader Approved',
+            'rejected' => 'Rejected',
+        ],
+        'rejected' => [
+            'rejected' => 'Rejected',
+        ],
+        default => [],
+    };
+} elseif ($role === 'HR') {
+    $statusOptions = match ($leave['status']) {
+        'pending' => [
+            'pending' => 'Pending',
+        ],
+        'leader_approved' => [
+            'leader_approved' => 'Leader Approved',
+            'hr_approved' => 'HR Approved',
+            'rejected' => 'Rejected',
+        ],
+        'hr_approved' => [
+            'hr_approved' => 'HR Approved',
+        ],
+        'rejected' => [
+            'rejected' => 'Rejected',
+        ],
+        default => [],
+    };
+} elseif ($role === 'Admin') {
+    $statusOptions = [
+        'pending' => 'Pending',
+        'leader_approved' => 'Leader Approved',
+        'hr_approved' => 'HR Approved',
+        'rejected' => 'Rejected',
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -121,20 +168,24 @@ if (empty($_SESSION['csrf_token'])) {
                                     required><?= htmlspecialchars($leave['reason']) ?></textarea>
                             </div>
 
-                            <?php if (in_array($role, ['ProjectLeader', 'HR', 'Admin'])): ?>
+                            <?php if (in_array($role, ['ProjectLeader', 'HR', 'Admin'], true)): ?>
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
+                                <?php if (count($statusOptions) > 1): ?>
                                 <select name="status" class="form-control" required>
-                                    <option value="pending" <?= ($leave['status'] === 'pending') ? 'selected' : '' ?>>Pending
+                                    <?php foreach ($statusOptions as $optionValue => $optionLabel): ?>
+                                    <option value="<?= htmlspecialchars($optionValue) ?>"
+                                        <?= ($leave['status'] === $optionValue) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($optionLabel) ?>
                                     </option>
-                                    <option value="leader_approved"
-                                        <?= ($leave['status'] === 'leader_approved') ? 'selected' : '' ?>>Leader Approved
-                                    </option>
-                                    <option value="hr_approved" <?= ($leave['status'] === 'hr_approved') ? 'selected' : '' ?>>HR
-                                        Approved</option>
-                                    <option value="rejected" <?= ($leave['status'] === 'rejected') ? 'selected' : '' ?>>Rejected
-                                    </option>
+                                    <?php endforeach; ?>
                                 </select>
+                                <?php else: ?>
+                                <input type="hidden" name="status" value="<?= htmlspecialchars($leave['status']) ?>">
+                                <input type="text" class="form-control"
+                                    value="<?= htmlspecialchars($statusOptions[$leave['status']] ?? ucfirst(str_replace('_', ' ', $leave['status']))) ?>"
+                                    readonly>
+                                <?php endif; ?>
                             </div>
                             <?php else: ?>
                             <div class="mb-3">

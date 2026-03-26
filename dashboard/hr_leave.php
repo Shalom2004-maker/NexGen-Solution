@@ -3,14 +3,55 @@ include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
 
-if (isset($_GET["approve"])) {
-    $id = intval($_GET["approve"]);
-    $uid = intval($_SESSION["uid"]);
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+}
 
-    $stmt = $conn->prepare("UPDATE leave_requests SET status='hr_approved', hr_id=? WHERE id=?");
-    $stmt->bind_param("ii", $uid, $id);
-    $stmt->execute();
-    $stmt->close();
+$uid = (int)($_SESSION["uid"] ?? 0);
+$error = '';
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(400);
+        $error = 'Invalid request token.';
+    } else {
+        $action = $_POST['action'] ?? '';
+        $id = (int)($_POST['leave_id'] ?? 0);
+
+        if ($action === 'approve') {
+            $stmt = $conn->prepare("UPDATE leave_requests SET status='hr_approved', hr_id=? WHERE id=? AND status='leader_approved'");
+            $stmt->bind_param("ii", $uid, $id);
+            $stmt->execute();
+            if ($stmt->affected_rows > 0) {
+                $success = 'Leave request approved.';
+            } else {
+                $error = 'Leave request must be leader-approved before HR approval.';
+            }
+            $stmt->close();
+        } elseif ($action === 'reject') {
+            $stmt = $conn->prepare("UPDATE leave_requests SET status='rejected', hr_id=? WHERE id=? AND status='leader_approved'");
+            $stmt->bind_param("ii", $uid, $id);
+            $stmt->execute();
+            if ($stmt->affected_rows > 0) {
+                $success = 'Leave request rejected.';
+            } else {
+                $error = 'Leave request must be leader-approved before HR rejection.';
+            }
+            $stmt->close();
+        }
+    }
+
+    header('Location: hr_leave.php' . ($success !== '' ? '?ok=1' : ($error !== '' ? '?err=1' : '')));
+    exit();
+}
+
+if (isset($_GET['ok'])) {
+    $success = 'Action completed.';
+}
+if (isset($_GET['err'])) {
+    $error = 'Unable to process this leave request.';
 }
 
 $res = $conn->query("SELECT leave_requests.id, leave_requests.employee_id, users.full_name, leave_requests.start_date, leave_requests.end_date, leave_requests.status
@@ -53,6 +94,12 @@ $res = $conn->query("SELECT leave_requests.id, leave_requests.employee_id, users
                         <p class="text-muted mb-0">Review and approve leader-approved leave requests</p>
                     </div>
                 </div>
+                <?php if ($error !== ''): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <?php if ($success !== ''): ?>
+                <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
                 <div class="table-responsive">
                     <table class="table m-0">
                         <thead>
@@ -73,7 +120,20 @@ $res = $conn->query("SELECT leave_requests.id, leave_requests.employee_id, users
                                 <td><?= htmlspecialchars($row["status"]) ?></td>
                                 <td>
                                     <?php if ($row["status"] === "leader_approved"): ?>
-                                    <a href="?approve=<?= $row["id"] ?>" class="btn btn-primary btn-sm">Approve</a>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="leave_id" value="<?= (int)$row['id'] ?>">
+                                        <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                                    </form>
+                                    <form method="post" class="d-inline ms-1">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="reject">
+                                        <input type="hidden" name="leave_id" value="<?= (int)$row['id'] ?>">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Reject</button>
+                                    </form>
                                     <?php else: ?>
                                     <button class="btn btn-secondary btn-sm" disabled>Waiting on Leader</button>
                                     <?php endif; ?>

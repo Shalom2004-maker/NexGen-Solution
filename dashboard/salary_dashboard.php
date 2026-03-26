@@ -36,6 +36,7 @@ foreach ($rows as $r) {
 ksort($years);
 $yearList = array_keys($years);
 $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
+$latestCreatedDisplay = $latestCreated ? date('M d, Y', strtotime($latestCreated)) : 'No slips yet';
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +57,69 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
     <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <!-- CSS -->
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
+
+    <style>
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.25rem;
+        border: 1px solid hsl(var(--border) / 0.72);
+        border-radius: 1rem;
+        background: hsl(var(--card));
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-copy {
+        min-width: 0;
+    }
+
+    .stat-label {
+        margin: 0 0 0.35rem;
+        color: var(--muted-text);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        margin: 0;
+        font-size: clamp(1.4rem, 2vw, 1.8rem);
+        font-weight: 700;
+        color: var(--text);
+        word-break: break-word;
+    }
+
+    .stat-note {
+        display: block;
+        margin-top: 0.45rem;
+        color: var(--muted-text);
+        font-size: 0.82rem;
+    }
+
+    .stat-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: hsl(var(--primary) / 0.14);
+        color: var(--accent-color);
+        flex-shrink: 0;
+    }
+    </style>
 </head>
 
 <body class="future-page future-dashboard" data-theme="dark">
@@ -81,36 +144,40 @@ $avgNet = $slipCount > 0 ? $totalNet / $slipCount : 0;
 
                 <div class="stat-grid">
                     <div class="stat-card">
-                        <div>
-                            <h6>Total Slips</h6>
-                            <h3><?= $slipCount ?></h3>
+                        <div class="stat-copy">
+                            <p class="stat-label">Total Slips</p>
+                            <p class="stat-value"><?= $slipCount ?></p>
+                            <small class="stat-note">Salary records available in your account</small>
                         </div>
                         <div class="stat-icon">
                             <i class="bi bi-receipt"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div>
-                            <h6>Total Net Pay</h6>
-                            <h3>$<?= number_format($totalNet, 2) ?></h3>
+                        <div class="stat-copy">
+                            <p class="stat-label">Total Net Pay</p>
+                            <p class="stat-value">$<?= number_format($totalNet, 2) ?></p>
+                            <small class="stat-note">Combined net salary across all slips</small>
                         </div>
                         <div class="stat-icon">
                             <i class="bi bi-cash-stack"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div>
-                            <h6>Average Net</h6>
-                            <h3>$<?= number_format($avgNet, 2) ?></h3>
+                        <div class="stat-copy">
+                            <p class="stat-label">Average Net</p>
+                            <p class="stat-value">$<?= number_format($avgNet, 2) ?></p>
+                            <small class="stat-note">Average take-home pay per salary slip</small>
                         </div>
                         <div class="stat-icon">
                             <i class="bi bi-bar-chart-line"></i>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div>
-                            <h6>Latest Slip</h6>
-                            <h3><?= $latestCreated ? htmlspecialchars($latestCreated) : '-' ?></h3>
+                        <div class="stat-copy">
+                            <p class="stat-label">Latest Slip</p>
+                            <p class="stat-value"><?= htmlspecialchars($latestCreatedDisplay) ?></p>
+                            <small class="stat-note">Most recent generated salary slip date</small>
                         </div>
                         <div class="stat-icon">
                             <i class="bi bi-calendar-check"></i>

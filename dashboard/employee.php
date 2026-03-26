@@ -5,6 +5,20 @@ allow(["Employee", "HR", "Admin"]);
 include "../includes/db.php";
 
 $role = $_SESSION['role'] ?? '';
+$currentUserId = (int)($_SESSION['uid'] ?? 0);
+$currentEmployeeId = 0;
+
+if ($role === 'Employee' && $currentUserId > 0) {
+    $employee_lookup = $conn->prepare("SELECT id FROM employees WHERE user_id = ? LIMIT 1");
+    if ($employee_lookup) {
+        $employee_lookup->bind_param('i', $currentUserId);
+        $employee_lookup->execute();
+        $employee_lookup->bind_result($currentEmployeeId);
+        $employee_lookup->fetch();
+        $currentEmployeeId = (int)$currentEmployeeId;
+        $employee_lookup->close();
+    }
+}
 
 $create_error = '';
 $create_success = '';
@@ -135,9 +149,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
     </script>
 
     <!-- Local Bootstrap CSS Link -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
+    <script src="../js/bootstrap.bundle.min.js"></script>
 
     <style>
     .avatar-initial {
@@ -247,10 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
                         <h6>Pending Tasks</h6>
                         <?php
-                            $id = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 1;
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('todo', 'in_progress') AND assigned_to = ?");
                             if ($stmt) {
-                                $stmt->bind_param('i', $id);
+                                $stmt->bind_param('i', $currentUserId);
                                 $stmt->execute();
                                 $stmt->bind_result($count);
                                 $stmt->fetch();
@@ -270,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         <?php
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
                             if ($stmt) {
-                                $stmt->bind_param('i', $id);
+                                $stmt->bind_param('i', $currentUserId);
                                 $stmt->execute();
                                 $stmt->bind_result($count);
                                 $stmt->fetch();
@@ -288,18 +305,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         <div class="stat-badge"><i class="bi bi-suitcase-lg-fill"></i></div>
                         <h6>Leave Requests</h6>
                         <?php
-                            $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
-                            if ($stmt) {
-                                $stmt->bind_param('i', $id);
-                                $stmt->execute();
-                                $stmt->bind_result($count);
-                                $stmt->fetch();
-                                $count = (int)($count ?? 0);
-                                echo "<h4>{$count}</h4>";
-                                echo "<p>" . ($count >= 1 ? "Submitted leave requests" : "No leave requests yet") . "</p>";
-                                $stmt->close();
+                            if ($currentEmployeeId > 0) {
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
+                                if ($stmt) {
+                                    $stmt->bind_param('i', $currentEmployeeId);
+                                    $stmt->execute();
+                                    $stmt->bind_result($count);
+                                    $stmt->fetch();
+                                    $count = (int)($count ?? 0);
+                                    echo "<h4>{$count}</h4>";
+                                    echo "<p>" . ($count >= 1 ? "Submitted leave requests" : "No leave requests yet") . "</p>";
+                                    $stmt->close();
+                                } else {
+                                    echo "<p>DB error</p>";
+                                }
                             } else {
-                                echo "<p>DB error</p>";
+                                echo "<h4>0</h4>";
+                                echo "<p>Employee profile not linked yet</p>";
                             }
                             ?>
                     </div>
@@ -308,17 +330,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         <div class="stat-badge"><i class="bi bi-coin"></i></div>
                         <h6>Salary Slips</h6>
                         <?php
-                            $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips");
-                            if ($stmt) {
-                                $stmt->execute();
-                                $stmt->bind_result($count);
-                                $stmt->fetch();
-                                $count = (int)($count ?? 0);
-                                echo "<h4>" . number_format($count) . "</h4>";
-                                echo "<p>" . ($count >= 1 ? "Records available" : "No salary data") . "</p>";
-                                $stmt->close();
+                            if ($currentEmployeeId > 0) {
+                                $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips WHERE employee_id = ?");
+                                if ($stmt) {
+                                    $stmt->bind_param('i', $currentEmployeeId);
+                                    $stmt->execute();
+                                    $stmt->bind_result($count);
+                                    $stmt->fetch();
+                                    $count = (int)($count ?? 0);
+                                    echo "<h4>" . number_format($count) . "</h4>";
+                                    echo "<p>" . ($count >= 1 ? "Records available" : "No salary data") . "</p>";
+                                    $stmt->close();
+                                } else {
+                                    echo "<p>DB error</p>";
+                                }
                             } else {
-                                echo "<p>DB error</p>";
+                                echo "<h4>0</h4>";
+                                echo "<p>Employee profile not linked yet</p>";
                             }
                             ?>
                     </div>
@@ -331,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                         <?php
                             $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
                             if ($stmt) {
-                                $stmt->bind_param('i', $id);
+                                $stmt->bind_param('i', $currentUserId);
                                 $stmt->execute();
                                 $stmt->bind_result($title, $status, $created_at);
                                 $has_tasks = false;
@@ -368,40 +396,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                     <div class="card-container">
                         <h4 class="d-flex"><i class="bi bi-calendar-check"></i> &nbsp; My Leave Requests</h4>
                         <?php
-                            $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
-                            if ($stmt) {
-                                $stmt->bind_param('i', $id);
-                                $stmt->execute();
-                                $stmt->bind_result($reason, $start_date, $end_date, $status);
-                                $has_leaves = false;
-                                echo '<div class="list-group">';
-                                while ($stmt->fetch()) {
-                                    $has_leaves = true;
-                                    $status_badge = '';
-                                    if ($status === 'pending') {
-                                        $status_badge = '<span class="badge bg-warning text-dark">Pending</span>';
-                                    } elseif ($status === 'approved') {
-                                        $status_badge = '<span class="badge bg-success">Approved</span>';
-                                    } else {
-                                        $status_badge = '<span class="badge bg-danger">Rejected</span>';
+                            if ($currentEmployeeId > 0) {
+                                $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
+                                if ($stmt) {
+                                    $stmt->bind_param('i', $currentEmployeeId);
+                                    $stmt->execute();
+                                    $stmt->bind_result($reason, $start_date, $end_date, $status);
+                                    $has_leaves = false;
+                                    echo '<div class="list-group">';
+                                    while ($stmt->fetch()) {
+                                        $has_leaves = true;
+                                        $status_badge = '';
+                                        if ($status === 'pending') {
+                                            $status_badge = '<span class="badge bg-warning text-dark">Pending</span>';
+                                        } elseif (in_array($status, ['leader_approved', 'hr_approved'], true)) {
+                                            $status_badge = '<span class="badge bg-success">' . htmlspecialchars(ucwords(str_replace('_', ' ', $status))) . '</span>';
+                                        } else {
+                                            $status_badge = '<span class="badge bg-danger">Rejected</span>';
+                                        }
+                                        $start_date_str = ($start_date instanceof \DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
+                                        $end_date_str = ($end_date instanceof \DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
+                                        echo '<div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>' . htmlspecialchars($reason) . '</strong><br>
+                                                <small>' . htmlspecialchars($start_date_str) . ' to ' . htmlspecialchars($end_date_str) . '</small>
+                                            </div>
+                                            <div>' . $status_badge . '</div>
+                                          </div>';
                                     }
-                                    $start_date_str = ($start_date instanceof \DateTime) ? $start_date->format('Y-m-d') : (string)($start_date ?? 'Not set');
-                                    $end_date_str = ($end_date instanceof \DateTime) ? $end_date->format('Y-m-d') : (string)($end_date ?? 'Not set');
-                                    echo '<div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>' . htmlspecialchars($reason) . '</strong><br>
-                                            <small>' . htmlspecialchars($start_date_str) . ' to ' . htmlspecialchars($end_date_str) . '</small>
-                                        </div>
-                                        <div>' . $status_badge . '</div>
-                                      </div>';
+                                    if (!$has_leaves) {
+                                        echo '<p class="text-muted">No leave requests submitted yet.</p>';
+                                    }
+                                    echo '</div>';
+                                    $stmt->close();
+                                } else {
+                                    echo '<p>DB error</p>';
                                 }
-                                if (!$has_leaves) {
-                                    echo '<p class="text-muted">No leave requests submitted yet.</p>';
-                                }
-                                echo '</div>';
-                                $stmt->close();
                             } else {
-                                echo '<p>DB error</p>';
+                                echo '<p class="text-muted">Your employee profile is not linked to a leave record yet.</p>';
                             }
                             ?>
                     </div>
@@ -424,8 +456,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                     $has_employees = true;
                                     $emp_hire_str = htmlspecialchars($emp_hire ?? 'Not set');
                                     $avatar_html = '';
-                                    if (!empty($emp_photo)) {
-                                        $avatar_html = '<img src="' . htmlspecialchars($emp_photo) . '" class="rounded-circle" width="40" height="40">';
+                                    $resolved_photo = function_exists('resolve_avatar_url') ? resolve_avatar_url($emp_photo) : '';
+                                    if ($resolved_photo !== '') {
+                                        $avatar_html = '<img src="' . htmlspecialchars($resolved_photo) . '" class="rounded-circle" width="40" height="40">';
                                     } else {
                                         $initial = strtoupper(substr(trim($emp_name ?? ''), 0, 1));
                                         if ($initial === '') {

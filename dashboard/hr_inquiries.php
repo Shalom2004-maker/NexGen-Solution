@@ -3,24 +3,50 @@ include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
 
-if (isset($_GET["reply"])) {
-    $id = intval($_GET["reply"]);
-    $stmt = $conn->prepare("UPDATE inquiries SET status='replied' WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $stmt->close();
-    header('Location: hr_inquiries.php');
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+}
+
+$error = '';
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(400);
+        $error = 'Invalid request token.';
+    } else {
+        $action = $_POST['action'] ?? '';
+        $id = (int)($_POST['inquiry_id'] ?? 0);
+
+        if ($action === 'reply') {
+            $stmt = $conn->prepare("UPDATE inquiries SET status='replied' WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            if ($stmt->affected_rows > 0) {
+                $success = 'Inquiry marked as replied.';
+            }
+            $stmt->close();
+        } elseif ($action === 'close') {
+            $stmt = $conn->prepare("UPDATE inquiries SET status='closed' WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            if ($stmt->affected_rows > 0) {
+                $success = 'Inquiry closed.';
+            }
+            $stmt->close();
+        }
+    }
+
+    header('Location: hr_inquiries.php' . ($success !== '' ? '?ok=1' : ($error !== '' ? '?err=1' : '')));
     exit();
 }
 
-if (isset($_GET["close"])) {
-    $id = intval($_GET["close"]);
-    $stmt = $conn->prepare("UPDATE inquiries SET status='closed' WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $stmt->close();
-    header('Location: hr_inquiries.php');
-    exit();
+if (isset($_GET['ok'])) {
+    $success = 'Inquiry status updated.';
+}
+if (isset($_GET['err'])) {
+    $error = 'Unable to update inquiry status.';
 }
 ?>
 
@@ -59,6 +85,12 @@ if (isset($_GET["close"])) {
                     <a href="inquiries_dashboard.php" class="btn btn-primary">
                         <i class="bi bi-eye"></i>&nbsp; View Inquiries</a>
                 </div>
+                <?php if ($error !== ''): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <?php if ($success !== ''): ?>
+                <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped m-0">
@@ -87,10 +119,20 @@ if (isset($_GET["close"])) {
                                 <td><?= $i["message"] ?></td>
                                 <td><?= $i["status"] ?></td>
                                 <td>
-                                    <a href="hr_inquiries.php?reply=<?= $i["id"] ?>" class="btn btn-sm btn-primary">Mark
-                                        Replied</a>
-                                    <a href="hr_inquiries.php?close=<?= $i["id"] ?>"
-                                        class="btn btn-sm btn-danger">Close</a>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="reply">
+                                        <input type="hidden" name="inquiry_id" value="<?= (int)$i['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-primary">Mark Replied</button>
+                                    </form>
+                                    <form method="post" class="d-inline ms-1">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="close">
+                                        <input type="hidden" name="inquiry_id" value="<?= (int)$i['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger">Close</button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php }

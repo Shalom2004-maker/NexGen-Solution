@@ -180,3 +180,11 @@
 [2026-03-23 16:17:05] ip=::1 user=5 action=csrf_fail msg=CSRF token mismatch on settings
 [2026-03-23 16:29:15] ip=::1 user=1 action=profile_photo msg=Profile photo updated for user 1
 [2026-03-24 18:16:33] ip=::1 user=4 action=inquiry_update msg=Updated inquiry ID: 10
+[2026-03-25 10:26:00] ip=::1 user=2 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-03-25 10:33:48] ip=::1 user=5 action=password_change msg=Password changed for user 5
+[2026-03-25 10:40:29] ip=::1 user=5 action=password_change msg=Password changed for user 5
+[2026-03-25 10:56:08] ip=::1 user=2 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-03-25 14:26:09] ip=::1 user=5 action=task_status msg=Task 25 set to in_progress
+[2026-03-25 15:09:45] ip=::1 user=3 action=project_update msg=Project 9 updated
+[2026-03-25 17:28:14] ip=::1 user=3 action=task_create msg=Task created for project 9
+[2026-03-25 17:29:34] ip=::1 user=8 action=leave_request msg=Leave request submitted by user 8

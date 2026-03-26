@@ -193,11 +193,141 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!-- Local Bootstrap CSS Link -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
+    <script src="../js/bootstrap.bundle.min.js"></script>
 
-    <!-- CSS -->
+    <style>
+    .search-panel .input-group-text,
+    .search-panel .form-control,
+    .search-panel .btn {
+        min-height: 3.25rem;
+    }
+
+    .task-card {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid hsl(var(--border) / 0.7);
+        border-radius: 1rem;
+        background: hsl(var(--card));
+        box-shadow: var(--shadow-sm);
+    }
+
+    .task-icon-box {
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: hsl(var(--primary) / 0.14);
+        color: var(--accent-color);
+        flex-shrink: 0;
+    }
+
+    .task-icon-box i {
+        font-size: 1.2rem;
+    }
+
+    .task-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .task-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .task-main {
+        flex: 1 1 24rem;
+        min-width: 0;
+    }
+
+    .task-title-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0.65rem;
+    }
+
+    .task-name {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .task-description {
+        margin: 0 0 0.9rem;
+        color: var(--muted-text);
+        line-height: 1.6;
+        word-break: break-word;
+    }
+
+    .task-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+        color: var(--muted-text);
+        font-size: 0.92rem;
+    }
+
+    .task-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .task-actions {
+        flex: 0 1 20rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .task-project {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        background: hsl(var(--secondary) / 0.16);
+        color: var(--text);
+        font-weight: 600;
+        max-width: 100%;
+        word-break: break-word;
+    }
+
+    .readonly-note {
+        color: var(--muted-text);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    @media (max-width: 767.98px) {
+        .task-card {
+            flex-direction: column;
+        }
+
+        .task-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+    </style>
 </head>
 
 <body class="future-page future-dashboard" data-theme="dark">
@@ -420,22 +550,26 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
             <?php endif; ?>
 
             <!-- Search & Filter Buttons -->
-            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3 mt-4">
+            <div class="col-lg-12 col-md-6 col-12 bg-light-subtle p-3 border shadow rounded mb-3 mt-4 search-panel">
                 <form method="get" class="mb-0">
-                    <div class="row g-2 d-flex">
-                        <div class="col-lg-6 col-md-6 col-12" style="height: 8vh;">
+                    <?php if ($filterStatus !== 'all'): ?>
+                    <input type="hidden" name="filter" value="<?= htmlspecialchars($filterStatus) ?>">
+                    <?php endif; ?>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-lg-8 col-md-7 col-12">
                             <div class="input-group">
-                                <span class="input-group-text" style="height: 8vh;">
+                                <span class="input-group-text">
                                     <i class="bi bi-search"></i>
                                 </span>
                                 <input type="text" name="q" value="<?= htmlspecialchars($search) ?>"
-                                    class="form-control" placeholder="Search tasks..." style="height: 8vh;">
+                                    class="form-control" placeholder="Search tasks...">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 d-flex gap-2">
+                        <div class="col-lg-4 col-md-5 col-12 d-flex flex-wrap gap-2 justify-content-md-end">
                             <button class="btn btn-outline-secondary" type="submit">Search</button>
                             <?php if ($search): ?>
-                            <a href="tasks_dashboard.php" class="btn btn-outline-secondary">Reset</a>
+                            <a href="<?= htmlspecialchars($filterStatus === 'all' ? 'tasks_dashboard.php' : 'tasks_dashboard.php?filter=' . urlencode($filterStatus)) ?>"
+                                class="btn btn-outline-secondary">Reset</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -544,68 +678,64 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                             ];
                         }
             ?>
-            <div class="task-card p-3 mb-3">
+            <div class="task-card">
                 <div class="task-icon-box">
                     <i class="bi bi-list-check"></i>
                 </div>
                 <div class="task-content">
                     <div class="task-header">
-                        <div class="task-title">
-                            <div class="col-lg-7 col-md-6 col-12">
-                                <div class="d-flex justify-content-start mb-2">
-                                    <b><?= htmlspecialchars($task['title']) ?></b>
-                                    <span class="task-status mx-5 <?= $status_badge_class ?>">
-                                        <?= $status_display ?>
-                                    </span>
-                                </div>
-                                <div class="task-description">
-                                    <?= htmlspecialchars($task['description']) ?>
-                                </div>
-                                <div class="task-meta mt-2 mb-2">
-                                    <span class="task-meta-item">
-                                        <i class="bi bi-calendar2"></i> &nbsp;
-                                        Deadline: <?= htmlspecialchars($deadline_display) ?>
-                                    </span>
-                                    <span class="task-meta-item mx-5">
-                                        <i class="bi bi-clock"></i> &nbsp;
-                                        Created: <?= date('M d, Y', strtotime($task['created_at'])) ?>
-                                    </span>
-                                    <?php if ($can_view_all) : ?>
-                                    <span class="task-meta-item">
-                                        <i class="bi bi-person"></i> &nbsp;
-                                        Assigned: <?= htmlspecialchars($assigned_display) ?>
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="task-badges mt-2 d-flex gap-2 justify-content-end">
-                                    <span class="task-project">
-                                        <?= htmlspecialchars($project_display) ?>
-                                    </span>
-                                    <?php if ($can_update_status) : ?>
-                                    <form method="post" action="tasks_update.php"
-                                        class="d-flex align-items-center gap-2 ms-auto">
-                                        <input type="hidden" name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                        <input type="hidden" name="action" value="set_status">
-                                        <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
-                                        <input type="hidden" name="redirect"
-                                            value="<?= htmlspecialchars($redirect_url) ?>">
-                                        <select name="status" class="form-select form-select-sm" style="width:auto;">
-                                            <?php foreach ($status_options as $option_value => $option_label) : ?>
-                                            <option value="<?= htmlspecialchars($option_value) ?>"
-                                                <?= $status === $option_value ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($option_label) ?>
-                                            </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-outline-primary"
-                                            <?= count($status_options) === 1 ? 'disabled' : '' ?>>Update</button>
-                                    </form>
-                                    <?php else : ?>
-                                    <span class="readonly-note ms-auto">Read only</span>
-                                    <?php endif; ?>
-                                </div>
+                        <div class="task-main">
+                            <div class="task-title-row">
+                                <h5 class="task-name"><?= htmlspecialchars($task['title']) ?></h5>
+                                <span class="task-status <?= $status_badge_class ?>">
+                                    <?= $status_display ?>
+                                </span>
                             </div>
+                            <div class="task-description">
+                                <?= htmlspecialchars($task['description']) ?>
+                            </div>
+                            <div class="task-meta">
+                                <span class="task-meta-item">
+                                    <i class="bi bi-calendar2"></i>
+                                    <span>Deadline: <?= htmlspecialchars($deadline_display) ?></span>
+                                </span>
+                                <span class="task-meta-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Created: <?= date('M d, Y', strtotime($task['created_at'])) ?></span>
+                                </span>
+                                <?php if ($can_view_all) : ?>
+                                <span class="task-meta-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Assigned: <?= htmlspecialchars($assigned_display) ?></span>
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <span class="task-project">
+                                <?= htmlspecialchars($project_display) ?>
+                            </span>
+                            <?php if ($can_update_status) : ?>
+                            <form method="post" action="tasks_update.php" class="d-flex flex-wrap align-items-center gap-2">
+                                <input type="hidden" name="csrf_token"
+                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="set_status">
+                                <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
+                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect_url) ?>">
+                                <select name="status" class="form-select form-select-sm" style="width:auto;">
+                                    <?php foreach ($status_options as $option_value => $option_label) : ?>
+                                    <option value="<?= htmlspecialchars($option_value) ?>"
+                                        <?= $status === $option_value ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($option_label) ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary"
+                                    <?= count($status_options) === 1 ? 'disabled' : '' ?>>Update</button>
+                            </form>
+                            <?php else : ?>
+                            <span class="readonly-note">Read only</span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

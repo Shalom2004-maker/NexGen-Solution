@@ -73,9 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <div class="form-container mx-auto">
+                <div class="form-container mx-auto p-4">
                     <h5 class="mb-4">Add Payroll Information</h5>
-                    <form method="POST">
+                    <form method="POST" class="p-4">
                         <input type="hidden" name="csrf_token"
                             value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
@@ -115,7 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 placeholder="Amount">
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Submit Payroll</button>
+                        <center>
+                            <button type="submit" class="btn btn-primary w-50 mt-3">Submit Payroll</button>
+                        </center>
                     </form>
                 </div>
             </div>
@@ -163,4 +165,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-

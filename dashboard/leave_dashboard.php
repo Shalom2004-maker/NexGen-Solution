@@ -7,6 +7,13 @@ include "../includes/logger.php";
 // Get employee ID
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
 $role = $_SESSION['role'] ?? '';
+$employee_id = 0;
+$leave_form_attempted = false;
+$allowed_leave_types = ['sick', 'annual', 'unpaid', 'personal', 'vacation'];
+$is_valid_date = static function (string $value): bool {
+    $dt = DateTime::createFromFormat('Y-m-d', $value);
+    return $dt && $dt->format('Y-m-d') === $value;
+};
 
 // Initialize form variables
 $error = '';
@@ -17,27 +24,47 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 
+// Get employee_id from user_id
+$emp_stmt = $conn->prepare("SELECT id FROM employees WHERE user_id = ? LIMIT 1");
+if ($emp_stmt) {
+    $emp_stmt->bind_param('i', $uid);
+    $emp_stmt->execute();
+    $emp_result = $emp_stmt->get_result();
+    $emp_row = $emp_result->fetch_assoc();
+    $employee_id = (int)($emp_row['id'] ?? 0);
+    $emp_stmt->close();
+}
+
+$can_view_all = in_array($role, ['ProjectLeader', 'Admin'], true);
+$can_submit_leave = $employee_id > 0;
+
 // Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_leave_request'])) {
+    $leave_form_attempted = true;
     // CSRF check
     $posted_token = $_POST['csrf_token'] ?? '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
         audit_log('csrf', 'Invalid CSRF token on leave', $_SESSION['uid'] ?? null);
         $error = 'Invalid request';
+    } elseif (!$can_submit_leave) {
+        $error = 'Your account needs an employee profile before you can request leave.';
     } else {
-        // Ensure the user has an employee record
-        $empQ = $conn->prepare("SELECT id FROM employees WHERE user_id = ?");
-        $empQ->bind_param('i', $uid);
-        $empQ->execute();
-        $empR = $empQ->get_result()->fetch_assoc();
-        $empQ->close();
+        $start = trim((string)($_POST['start'] ?? ''));
+        $end = trim((string)($_POST['end'] ?? ''));
+        $leave_type = trim((string)($_POST['type'] ?? ''));
+        $reason = trim((string)($_POST['reason'] ?? ''));
 
-        if (empty($empR)) {
-            $error = "No employee record found for current user.";
+        if (!$is_valid_date($start) || !$is_valid_date($end)) {
+            $error = 'Please provide valid start and end dates.';
+        } elseif ($end < $start) {
+            $error = 'End date must be on or after the start date.';
+        } elseif (!in_array($leave_type, $allowed_leave_types, true)) {
+            $error = 'Please choose a valid leave type.';
+        } elseif ($reason === '') {
+            $error = 'Please enter the reason for your leave request.';
         } else {
-            $employee_id = (int)$empR['id'];
             $stmt = $conn->prepare("INSERT INTO leave_requests(employee_id,start_date,end_date,leave_type,reason) VALUES(?,?,?,?,?)");
-            $stmt->bind_param("issss", $employee_id, $_POST["start"], $_POST["end"], $_POST["type"], $_POST["reason"]);
+            $stmt->bind_param("issss", $employee_id, $start, $end, $leave_type, $reason);
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 audit_log('leave_request', "Leave request submitted by user {$uid}", $_SESSION['uid'] ?? null);
                 $success = 'Leave request submitted successfully!';
@@ -45,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
                 // Clear form data
                 $_POST = [];
+                $leave_form_attempted = false;
             } else {
                 audit_log('leave_request_failed', "Failed leave request by user {$uid}", $_SESSION['uid'] ?? null);
                 $error = "Failed to submit leave request.";
@@ -59,21 +87,6 @@ $pending_count = 0;
 $approved_count = 0;
 $rejected_count = 0;
 $days_approved = 0;
-
-$can_view_all = in_array($role, ['ProjectLeader', 'Admin'], true);
-
-// Get employee_id from user_id
-$emp_stmt = $conn->prepare("SELECT id FROM employees WHERE user_id = ?");
-if ($emp_stmt) {
-    $emp_stmt->bind_param('i', $uid);
-    $emp_stmt->execute();
-    $emp_result = $emp_stmt->get_result();
-    $emp_row = $emp_result->fetch_assoc();
-    $employee_id = $emp_row['id'] ?? 0;
-    $emp_stmt->close();
-} else {
-    $employee_id = 0;
-}
 
 $scope_where = $can_view_all ? '' : 'WHERE employee_id = ?';
 $scope_types = $can_view_all ? '' : 'i';
@@ -120,7 +133,7 @@ if ($can_view_all || $employee_id > 0) {
     }
 
     // Days Approved
-    $stmt = $conn->prepare("SELECT SUM(DATEDIFF(end_date, start_date)) as total_days FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " (status = 'hr_approved' OR status = 'leader_approved')");
+    $stmt = $conn->prepare("SELECT SUM(DATEDIFF(end_date, start_date) + 1) as total_days FROM leave_requests $scope_where" . ($scope_where ? " AND" : " WHERE") . " (status = 'hr_approved' OR status = 'leader_approved')");
     if ($stmt) {
         if (!$can_view_all) {
             $stmt->bind_param($scope_types, ...$scope_params);
@@ -158,11 +171,139 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <!-- Local Bootstrap CSS Link -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../css/colors.css" rel="stylesheet">
+    <link href="../css/theme.css" rel="stylesheet">
+    <link href="../css/components.css" rel="stylesheet">
+    <link href="../css/ui-universal.css" rel="stylesheet">
+    <script src="../js/bootstrap.bundle.min.js"></script>
 
-    <!-- CSS -->
+    <style>
+    .leave-section-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .leave-request-card {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid hsl(var(--border) / 0.72);
+        border-radius: 1rem;
+        background: hsl(var(--card));
+        box-shadow: var(--shadow-sm);
+    }
+
+    .leave-icon-box {
+        width: 3.15rem;
+        height: 3.15rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: hsl(var(--primary) / 0.14);
+        color: var(--accent-color);
+        flex-shrink: 0;
+    }
+
+    .leave-icon-box i {
+        font-size: 1.15rem;
+    }
+
+    .leave-request-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .leave-request-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0.65rem;
+    }
+
+    .leave-requestor {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .leave-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+    .leave-status.pending {
+        background: rgba(245, 158, 11, 0.16);
+        color: #f59e0b;
+    }
+
+    .leave-status.leader_approved,
+    .leave-status.hr_approved {
+        background: rgba(16, 185, 129, 0.16);
+        color: #10b981;
+    }
+
+    .leave-status.rejected {
+        background: rgba(239, 68, 68, 0.16);
+        color: #ef4444;
+    }
+
+    .leave-reason {
+        margin-bottom: 0.85rem;
+        color: var(--muted-text);
+        line-height: 1.6;
+        word-break: break-word;
+    }
+
+    .leave-dates,
+    .leave-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .leave-dates {
+        margin-bottom: 0.75rem;
+    }
+
+    .leave-date-range,
+    .leave-days-count,
+    .leave-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: hsl(var(--secondary) / 0.14);
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    @media (max-width: 767.98px) {
+        .leave-request-card {
+            flex-direction: column;
+        }
+
+        .leave-section-header {
+            align-items: flex-start;
+        }
+    }
+    </style>
 </head>
 
 <body class="future-page future-dashboard" data-theme="dark">
@@ -191,12 +332,20 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                             <i class="bi bi-eye"></i> &nbsp; View All Leaves
                         </a>
                         <?php endif; ?>
+                        <?php if ($can_submit_leave) : ?>
                         <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
                             data-bs-target="#leaveRequestModal">
                             <i class="bi bi-plus-circle"></i> &nbsp; Request Leave
                         </button>
+                        <?php else : ?>
+                        <button type="button" class="btn btn-outline-secondary" disabled
+                            title="An employee profile is required before submitting leave.">
+                            <i class="bi bi-person-x"></i> &nbsp; Request Leave
+                        </button>
+                        <?php endif; ?>
 
                         <!-- Leave Request Modal -->
+                        <?php if ($can_submit_leave) : ?>
                         <div class="modal fade" id="leaveRequestModal" tabindex="-1"
                             aria-labelledby="leaveRequestModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -228,6 +377,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                                         <form method="POST" action="">
                                             <input type="hidden" name="csrf_token"
                                                 value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                            <input type="hidden" name="submit_leave_request" value="1">
 
                                             <div class="mb-3">
                                                 <label for="startDate" class="form-label">Start Date <span
@@ -270,9 +420,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                                                 <label for="reason" class="form-label">Reason <span
                                                         style="color: #ef4444;">*</span></label>
                                                 <textarea class="form-control" id="reason" name="reason" rows="4"
-                                                    required placeholder="Enter the reason for your leave request">
-                                                <?= htmlspecialchars($_POST['reason'] ?? '') ?>
-                                            </textarea>
+                                                    required placeholder="Enter the reason for your leave request"><?= htmlspecialchars($_POST['reason'] ?? '') ?></textarea>
                                             </div>
 
                                             <div class="modal-footer border-top">
@@ -287,9 +435,24 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
                                 </div>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
+
+            <?php if (!empty($error)): ?>
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($success)): ?>
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php endif; ?>
 
             <!-- Metrics Cards -->
             <div class="row mt-4 mb-4">
@@ -349,7 +512,7 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
             </div>
 
             <!-- Leave Requests List -->
-            <div class="section-title mt-4 mb-2">
+            <div class="section-title mt-4 mb-2 leave-section-header">
                 <span class="fw-bold"><?= $can_view_all ? 'Leave Requests' : 'My Leave Requests' ?></span>
                 <a href="leave_view.php" class="section-link text-decoration-none">
                     View All <i class="bi bi-arrow-right"></i>
@@ -477,11 +640,12 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
         console.log('Filter: ' + filter);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
-        const leaveRequestModal = document.getElementById('leaveRequestModal');
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
+            const leaveRequestModal = document.getElementById('leaveRequestModal');
+            const reopenLeaveModal = <?= $leave_form_attempted && $error !== '' && $can_submit_leave ? 'true' : 'false' ?>;
 
         if (leaveRequestModal && leaveRequestModal.parentElement !== document.body) {
             document.body.appendChild(leaveRequestModal);
@@ -537,6 +701,11 @@ $filterStatus = in_array($filterStatus, $filters) ? $filterStatus : 'all';
 
         document.addEventListener('show.bs.modal', closeSidebar);
         document.addEventListener('hidden.bs.modal', cleanupModalArtifacts);
+
+        if (reopenLeaveModal && leaveRequestModal && window.bootstrap) {
+            const leaveModalInstance = new bootstrap.Modal(leaveRequestModal);
+            leaveModalInstance.show();
+        }
     });
     </script>
 </body>

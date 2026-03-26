@@ -9,7 +9,21 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 $uid = (int)($_SESSION['uid'] ?? 0);
-$allowedTypes = ['users', 'employees', 'leave_requests', 'payroll_inputs', 'projects', 'tasks'];
+$currentRole = $_SESSION['role'] ?? '';
+$typeLabels = [
+    'users' => 'Users',
+    'employees' => 'Employees',
+    'leave_requests' => 'Leave Requests',
+    'payroll_inputs' => 'Payroll Inputs',
+    'projects' => 'Projects',
+    'tasks' => 'Tasks',
+];
+$uploadPermissions = [
+    'Admin' => ['users', 'employees', 'leave_requests', 'payroll_inputs', 'projects', 'tasks'],
+    'HR' => ['employees', 'leave_requests'],
+    'ProjectLeader' => ['payroll_inputs', 'projects', 'tasks'],
+];
+$allowedTypes = $uploadPermissions[$currentRole] ?? [];
 
 function normalize_header(string $header): string
 {
@@ -92,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
     } else {
         $type = $_POST['data_type'] ?? '';
         if (!in_array($type, $allowedTypes, true)) {
-            $error = 'Invalid data type selected.';
+            $error = 'You are not allowed to upload that data type.';
         } elseif (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
             $error = 'Please upload a valid CSV file.';
         } else {
@@ -253,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                     $insertEmp->close();
                 } elseif ($type === 'leave_requests') {
                     $findEmployee = $conn->prepare("SELECT e.id FROM employees e JOIN users u ON e.user_id = u.id WHERE u.email = ?");
-                    $findUser = $conn->prepare("SELECT id FROM users WHERE email = ?");
+                    $findUser = $conn->prepare("SELECT u.id, r.role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email = ? LIMIT 1");
                     $insertLeave = $conn->prepare("INSERT INTO leave_requests(employee_id,start_date,end_date,leave_type,reason,status,leader_id,hr_id) VALUES(?,?,?,?,?,?,NULLIF(?,0),NULLIF(?,0))");
 
                     while (($row = fgetcsv($handle)) !== false) {
@@ -273,6 +287,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
 
                         if (!$email || !is_valid_date($start) || !is_valid_date($end) || $leaveType === '' || $reason === '') {
                             $errors[] = ['row' => $rowIndex, 'error' => 'Missing/invalid required fields.', 'data' => $row];
+                            continue;
+                        }
+                        if ($end < $start) {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'end_date must be on or after start_date.', 'data' => $row];
                             continue;
                         }
                         if (!in_array($leaveType, ['sick', 'annual', 'unpaid', 'personal', 'vacation'], true)) {
@@ -305,8 +323,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $findUser->execute();
                             $leaderRow = $findUser->get_result()->fetch_assoc();
                             $leaderId = $leaderRow ? (int)$leaderRow['id'] : 0;
+                            $leaderRole = $leaderRow['role_name'] ?? '';
                             if ($leaderId <= 0) {
                                 $errors[] = ['row' => $rowIndex, 'error' => 'Leader user not found.', 'data' => $row];
+                                continue;
+                            }
+                            if (!in_array($leaderRole, ['ProjectLeader', 'Admin'], true)) {
+                                $errors[] = ['row' => $rowIndex, 'error' => 'leader_email must belong to a Project Leader or Admin.', 'data' => $row];
                                 continue;
                             }
                         }
@@ -323,8 +346,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $findUser->execute();
                             $hrRow = $findUser->get_result()->fetch_assoc();
                             $hrId = $hrRow ? (int)$hrRow['id'] : 0;
+                            $hrRole = $hrRow['role_name'] ?? '';
                             if ($hrId <= 0) {
                                 $errors[] = ['row' => $rowIndex, 'error' => 'HR user not found.', 'data' => $row];
+                                continue;
+                            }
+                            if (!in_array($hrRole, ['HR', 'Admin'], true)) {
+                                $errors[] = ['row' => $rowIndex, 'error' => 'hr_email must belong to an HR user or Admin.', 'data' => $row];
                                 continue;
                             }
                         }
@@ -333,8 +361,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $errors[] = ['row' => $rowIndex, 'error' => 'leader_approved requires leader_email.', 'data' => $row];
                             continue;
                         }
-                        if ($status === 'hr_approved' && $hrId <= 0) {
-                            $errors[] = ['row' => $rowIndex, 'error' => 'hr_approved requires hr_email.', 'data' => $row];
+                        if ($status === 'hr_approved' && ($leaderId <= 0 || $hrId <= 0)) {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'hr_approved requires both leader_email and hr_email.', 'data' => $row];
+                            continue;
+                        }
+                        if ($hrId > 0 && $leaderId <= 0) {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'hr_email requires a valid leader_email to preserve the leave workflow.', 'data' => $row];
                             continue;
                         }
 
@@ -351,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                     $insertLeave->close();
                 } elseif ($type === 'payroll_inputs') {
                     $findEmployee = $conn->prepare("SELECT e.id FROM employees e JOIN users u ON e.user_id = u.id WHERE u.email = ?");
-                    $findUser = $conn->prepare("SELECT id FROM users WHERE email = ?");
+                    $findUser = $conn->prepare("SELECT u.id, r.role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email = ? LIMIT 1");
                     $insertPayroll = $conn->prepare("INSERT INTO payroll_inputs(employee_id,month,year,overtime_hours,bonus,deductions,submitted_by,status) VALUES(?,?,?,?,?,?,NULLIF(?,0),?)");
 
                     while (($row = fgetcsv($handle)) !== false) {
@@ -401,6 +433,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $errors[] = ['row' => $rowIndex, 'error' => 'Invalid status.', 'data' => $row];
                             continue;
                         }
+                        if ($currentRole !== 'Admin' && $status !== 'pending') {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'Only Admin can bulk import approved payroll inputs.', 'data' => $row];
+                            continue;
+                        }
 
                         $findEmployee->bind_param('s', $email);
                         $findEmployee->execute();
@@ -422,8 +458,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $findUser->execute();
                             $subRow = $findUser->get_result()->fetch_assoc();
                             $submittedBy = $subRow ? (int)$subRow['id'] : 0;
+                            $submittedByRole = $subRow['role_name'] ?? '';
                             if ($submittedBy <= 0) {
                                 $errors[] = ['row' => $rowIndex, 'error' => 'Submitted_by user not found.', 'data' => $row];
+                                continue;
+                            }
+                            if (!in_array($submittedByRole, ['ProjectLeader', 'Admin'], true)) {
+                                $errors[] = ['row' => $rowIndex, 'error' => 'submitted_by_email must belong to a Project Leader or Admin.', 'data' => $row];
                                 continue;
                             }
                         }
@@ -454,7 +495,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                     $findUser->close();
                     $insertPayroll->close();
                 } elseif ($type === 'projects') {
-                    $findUser = $conn->prepare("SELECT id FROM users WHERE email = ?");
+                    $findUser = $conn->prepare("SELECT u.id, r.role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email = ? LIMIT 1");
                     $insertProject = $conn->prepare("INSERT INTO projects(project_name,description,leader_id,start_date,end_date) VALUES(?,?,NULLIF(?,0),?,?)");
 
                     while (($row = fgetcsv($handle)) !== false) {
@@ -475,6 +516,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $errors[] = ['row' => $rowIndex, 'error' => 'Missing/invalid required fields (project_name,start_date,end_date).', 'data' => $row];
                             continue;
                         }
+                        if ($end < $start) {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'end_date must be on or after start_date.', 'data' => $row];
+                            continue;
+                        }
 
                         $leaderId = 0;
                         if ($leaderEmail !== '') {
@@ -487,8 +532,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             $findUser->execute();
                             $leaderRow = $findUser->get_result()->fetch_assoc();
                             $leaderId = $leaderRow ? (int)$leaderRow['id'] : 0;
+                            $leaderRole = $leaderRow['role_name'] ?? '';
                             if ($leaderId <= 0) {
                                 $errors[] = ['row' => $rowIndex, 'error' => 'Leader user not found.', 'data' => $row];
+                                continue;
+                            }
+                            if (!in_array($leaderRole, ['ProjectLeader', 'Admin'], true)) {
+                                $errors[] = ['row' => $rowIndex, 'error' => 'leader_email must belong to a Project Leader or Admin.', 'data' => $row];
                                 continue;
                             }
                         }
@@ -505,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                     $insertProject->close();
                 } elseif ($type === 'tasks') {
                     $findProject = $conn->prepare("SELECT id FROM projects WHERE project_name = ?");
-                    $findUser = $conn->prepare("SELECT id FROM users WHERE email = ?");
+                    $findUser = $conn->prepare("SELECT u.id, r.role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email = ? LIMIT 1");
                     $insertTask = $conn->prepare("INSERT INTO tasks(project_id,assigned_to,created_by,title,description,status,deadline) VALUES(?,?,?,?,?,?,?)");
 
                     while (($row = fgetcsv($handle)) !== false) {
@@ -559,6 +609,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                             continue;
                         }
                         $createdId = (int)$createdRow['id'];
+                        $createdRole = $createdRow['role_name'] ?? '';
+                        if (!in_array($createdRole, ['ProjectLeader', 'Admin'], true)) {
+                            $errors[] = ['row' => $rowIndex, 'error' => 'created_by_email must belong to a Project Leader or Admin.', 'data' => $row];
+                            continue;
+                        }
 
                         $insertTask->bind_param('iiissss', $projectId, $assignedId, $createdId, $title, $desc, $status, $deadline);
                         if ($insertTask->execute() && $insertTask->affected_rows > 0) {
@@ -633,12 +688,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
                 <label class="form-label">Data Type</label>
                 <select name="data_type" class="form-select" required>
                     <option value="">Select type</option>
-                    <option value="users">Users</option>
-                    <option value="employees">Employees</option>
-                    <option value="leave_requests">Leave Requests</option>
-                    <option value="payroll_inputs">Payroll Inputs</option>
-                    <option value="projects">Projects</option>
-                    <option value="tasks">Tasks</option>
+                    <?php foreach ($allowedTypes as $allowedType): ?>
+                    <option value="<?= htmlspecialchars($allowedType) ?>"><?= htmlspecialchars($typeLabels[$allowedType] ?? $allowedType) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-md-5">
@@ -653,14 +705,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_upload'])) {
         <div class="help-card mb-4 p-3">
             <h5 class="mb-2">CSV Templates</h5>
             <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=users">Users</a>
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=employees">Employees</a>
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=leave_requests">Leave
-                    Requests</a>
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=payroll_inputs">Payroll
-                    Inputs</a>
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=projects">Projects</a>
-                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=tasks">Tasks</a>
+                <?php foreach ($allowedTypes as $allowedType): ?>
+                <a class="btn btn-outline-primary btn-sm" href="?download=template&type=<?= urlencode($allowedType) ?>">
+                    <?= htmlspecialchars($typeLabels[$allowedType] ?? $allowedType) ?>
+                </a>
+                <?php endforeach; ?>
                 <?php if (!empty($_SESSION['bulk_upload_errors_csv'])): ?>
                 <a class="btn btn-outline-danger btn-sm" href="?download=errors">Download Error Report</a>
                 <?php endif; ?>

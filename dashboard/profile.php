@@ -8,9 +8,10 @@ $uid = (int)($_SESSION["uid"] ?? 0);
 
 $data = [];
 $profileMissing = true;
-$stmt = $conn->prepare("SELECT u.full_name, u.email, u.profile_photo, u.created_at,
-                        e.job_title, e.department, e.hire_date, e.salary_base
+$stmt = $conn->prepare("SELECT u.full_name, u.email, u.profile_photo, u.created_at, u.status AS account_status,
+                        r.role_name, e.job_title, e.department, e.hire_date, e.salary_base
                         FROM users u
+                        JOIN roles r ON u.role_id = r.id
                         LEFT JOIN employees e ON u.id = e.user_id
                         WHERE u.id = ?
                         LIMIT 1");
@@ -27,6 +28,22 @@ if ($stmt) {
 $fullName = trim((string)($data["full_name"] ?? ""));
 $nameInitial = strtoupper(substr($fullName !== "" ? $fullName : "U", 0, 1));
 $photoUrl = resolve_avatar_url($data['profile_photo'] ?? '');
+$roleDisplay = trim((string)($data["role_name"] ?? ($_SESSION["role"] ?? "")));
+$accountStatusDisplay = !empty($data["account_status"]) ? ucfirst((string)$data["account_status"]) : "Not available";
+$jobTitleValue = trim((string)($data["job_title"] ?? ""));
+if ($jobTitleValue === "" && $roleDisplay !== "") {
+    $jobTitleValue = $roleDisplay === "ProjectLeader" ? "Project Leader" : $roleDisplay;
+}
+$departmentValue = trim((string)($data["department"] ?? ""));
+if ($departmentValue === "" && $roleDisplay !== "") {
+    $departmentFallbacks = [
+        "Admin" => "Administration",
+        "HR" => "HR",
+        "ProjectLeader" => "Project Leadership",
+        "Employee" => "General Staff",
+    ];
+    $departmentValue = $departmentFallbacks[$roleDisplay] ?? "";
+}
 
 $memberSince = "Not available";
 if (!empty($data["created_at"])) {
@@ -45,6 +62,11 @@ $hireDateDisplay = "Not available";
 if (!empty($data["hire_date"])) {
     $hireTs = strtotime((string)$data["hire_date"]);
     $hireDateDisplay = $hireTs !== false ? date("M d, Y", $hireTs) : (string)$data["hire_date"];
+} elseif (!empty($data["created_at"])) {
+    $createdTs = strtotime((string)$data["created_at"]);
+    if ($createdTs !== false) {
+        $hireDateDisplay = date("M d, Y", $createdTs);
+    }
 }
 
 $salaryBaseDisplay = "Not available";
@@ -71,9 +93,13 @@ $display = static function ($value): string {
     <title>Profile - NexGen Solution</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/bootstrap.css">
-    <link rel="stylesheet" href="/bootstrap-icons/font/bootstrap-icons.min.css">
-    <script src="/js/bootstrap.bundle.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/colors.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/ui-universal.css">
+    <script src="../js/bootstrap.bundle.min.js"></script>
     <style>
     .profile-header-card {
         border: 1px solid hsl(var(--border) / 0.72);
@@ -316,6 +342,9 @@ $display = static function ($value): string {
                                 <i class="bi bi-calendar-event me-1"></i> Member since
                                 <?= htmlspecialchars($memberSince) ?>
                             </span>
+                            <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
+                                <i class="bi bi-person-badge me-1"></i> <?= $display($roleDisplay) ?>
+                            </span>
                             <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
                                 <i class="bi bi-patch-check me-1"></i> Verified Account
                             </span>
@@ -365,12 +394,36 @@ $display = static function ($value): string {
                                 <div class="col-md-6">
                                     <div class="profile-info-card">
                                         <div class="profile-info-icon">
+                                            <i class="bi bi-person-badge-fill"></i>
+                                        </div>
+                                        <div>
+                                            <p class="profile-detail-label">Role</p>
+                                            <p class="profile-detail-value"><?= $display($roleDisplay) ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="profile-info-card">
+                                        <div class="profile-info-icon">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="profile-detail-label">Account Status</p>
+                                            <p class="profile-detail-value"><?= htmlspecialchars($accountStatusDisplay) ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="profile-info-card">
+                                        <div class="profile-info-icon">
                                             <i class="bi bi-person-workspace"></i>
                                         </div>
                                         <div>
                                             <p class="profile-detail-label">Job Title</p>
-                                            <p class="profile-detail-value"><?= $display($data["job_title"] ?? "") ?>
-                                            </p>
+                                            <p class="profile-detail-value"><?= $display($jobTitleValue) ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -382,8 +435,7 @@ $display = static function ($value): string {
                                         </div>
                                         <div>
                                             <p class="profile-detail-label">Department</p>
-                                            <p class="profile-detail-value"><?= $display($data["department"] ?? "") ?>
-                                            </p>
+                                            <p class="profile-detail-value"><?= $display($departmentValue) ?></p>
                                         </div>
                                     </div>
                                 </div>

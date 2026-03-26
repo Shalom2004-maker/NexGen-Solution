@@ -3,43 +3,90 @@ include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
 
-if (isset($_GET["approve"])) {
-    $id = intval($_GET["approve"]);
-    $uid = intval($_SESSION["uid"]);
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+}
 
-    $updateStmt = $conn->prepare("UPDATE payroll_inputs SET status='approved' WHERE id=?");
-    $updateStmt->bind_param("i", $id);
-    $updateStmt->execute();
-    $updateStmt->close();
+$uid = (int)($_SESSION["uid"] ?? 0);
+$error = '';
+$success = '';
 
-    $selectStmt = $conn->prepare("SELECT p.*, e.salary_base FROM payroll_inputs p 
-                        JOIN employees e ON p.employee_id=e.id WHERE p.id=?");
-    $selectStmt->bind_param("i", $id);
-    $selectStmt->execute();
-    $data = $selectStmt->get_result()->fetch_assoc();
-    $selectStmt->close();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(400);
+        $error = 'Invalid request token.';
+    } else {
+        $action = $_POST['action'] ?? '';
+        $id = (int)($_POST['payroll_id'] ?? 0);
 
-    if ($data) {
-        $net = $data["salary_base"] + ($data["overtime_hours"] * 5) + $data["bonus"] - $data["deductions"];
+        if ($action === 'approve' && $id > 0) {
+            try {
+                $conn->begin_transaction();
 
-        $stmt = $conn->prepare("INSERT INTO salary_slips(employee_id,month,year,base_salary,overtime_pay,bonus,deductions,net_salary,generated_by) VALUES(?,?,?,?,?,?,?,?,?)");
-        // Types: i=employee_id, i=month, i=year, d=base_salary, d=overtime_pay, d=bonus, d=deductions, d=net_salary, i=generated_by
-        $employee_id = (int)$data["employee_id"];
-        $month = (int)$data["month"];
-        $year = (int)$data["year"];
-        $base_salary = (float)$data["salary_base"];
-        $overtime_pay = (float)($data["overtime_hours"] * 5);
-        $bonus = (float)$data["bonus"];
-        $deductions = (float)$data["deductions"];
-        $net_salary = (float)$net;
+                $selectStmt = $conn->prepare("SELECT p.*, e.salary_base
+                                              FROM payroll_inputs p
+                                              JOIN employees e ON p.employee_id = e.id
+                                              WHERE p.id = ? AND p.status = 'pending'
+                                              LIMIT 1");
+                $selectStmt->bind_param("i", $id);
+                $selectStmt->execute();
+                $data = $selectStmt->get_result()->fetch_assoc();
+                $selectStmt->close();
 
-        $stmt->bind_param("iiidddddi", $employee_id, $month, $year, $base_salary, $overtime_pay, $bonus, $deductions, $net_salary, $uid);
-        $stmt->execute();
-        if ($stmt->affected_rows < 1) {
-            echo "Failed";
+                if (!$data) {
+                    throw new Exception('Payroll input not found or already processed.');
+                }
+
+                $employee_id = (int)$data["employee_id"];
+                $month = (int)$data["month"];
+                $year = (int)$data["year"];
+                $base_salary = (float)$data["salary_base"];
+                $overtime_hours = (float)($data["overtime_hours"] ?? 0);
+                $bonus = (float)($data["bonus"] ?? 0);
+                $deductions = (float)($data["deductions"] ?? 0);
+                $overtime_pay = $overtime_hours * 5;
+                $net_salary = $base_salary + $overtime_pay + $bonus - $deductions;
+
+                $existsStmt = $conn->prepare("SELECT id FROM salary_slips WHERE employee_id = ? AND month = ? AND year = ? LIMIT 1");
+                $existsStmt->bind_param("iii", $employee_id, $month, $year);
+                $existsStmt->execute();
+                $existingSlip = $existsStmt->get_result()->fetch_assoc();
+                $existsStmt->close();
+
+                if (!$existingSlip) {
+                    $insertStmt = $conn->prepare("INSERT INTO salary_slips(employee_id,month,year,base_salary,overtime_pay,bonus,deductions,net_salary,generated_by) VALUES(?,?,?,?,?,?,?,?,?)");
+                    $insertStmt->bind_param("iiidddddi", $employee_id, $month, $year, $base_salary, $overtime_pay, $bonus, $deductions, $net_salary, $uid);
+                    if (!$insertStmt->execute() || $insertStmt->affected_rows < 1) {
+                        $insertStmt->close();
+                        throw new Exception('Failed to generate salary slip.');
+                    }
+                    $insertStmt->close();
+                }
+
+                $updateStmt = $conn->prepare("UPDATE payroll_inputs SET status='approved' WHERE id=? AND status='pending'");
+                $updateStmt->bind_param("i", $id);
+                $updateStmt->execute();
+                $updateStmt->close();
+
+                $conn->commit();
+                $success = $existingSlip ? 'Payroll approved. Existing salary slip was reused.' : 'Payroll approved and salary slip generated.';
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error = $e->getMessage();
+            }
         }
-        $stmt->close();
     }
+
+    header('Location: hr_payroll.php' . ($success !== '' ? '?ok=1' : ($error !== '' ? '?err=1' : '')));
+    exit();
+}
+
+if (isset($_GET['ok'])) {
+    $success = 'Payroll request processed successfully.';
+}
+if (isset($_GET['err'])) {
+    $error = 'Unable to process this payroll request.';
 }
 
 $res = $conn->query("SELECT * FROM payroll_inputs WHERE status='pending'");
@@ -78,6 +125,12 @@ $res = $conn->query("SELECT * FROM payroll_inputs WHERE status='pending'");
                         <p class="text-muted mb-0">Approve payroll inputs for employee salary slips</p>
                     </div>
                 </div>
+                <?php if ($error !== ''): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <?php if ($success !== ''): ?>
+                <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+                <?php endif; ?>
                 <div class="table-responsive">
                     <table class="table table-striped m-0">
                         <thead>
@@ -92,7 +145,14 @@ $res = $conn->query("SELECT * FROM payroll_inputs WHERE status='pending'");
                             <tr>
                                 <td><?= $r["employee_id"] ?></td>
                                 <td><?= $r["month"] ?> / <?= $r["year"] ?></td>
-                                <td><a href="?approve=<?= $r["id"] ?>" class="btn btn-success btn-sm">Approve</a>
+                                <td>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="payroll_id" value="<?= (int)$r['id'] ?>">
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php } ?>

@@ -235,7 +235,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
                 <?php endif; ?>
 
                 <?php if ($edit && in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
-                <div class="form-container">
+                <div class="form-container p-4 mb-4">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                         <h5 class="mb-0">Edit Project</h5>
                         <a href="projects.php" class="btn btn-outline-secondary btn-sm">Cancel Edit</a>
@@ -287,7 +287,7 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
                                 placeholder="Enter project description"><?= htmlspecialchars($edit['description'] ?? '') ?></textarea>
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 mt-3">
                             <button type="submit" class="btn-primary-custom">Update Project</button>
                             <a href="projects.php" class="btn btn-outline-secondary">Cancel</a>
                         </div>
@@ -433,5 +433,3 @@ unset($_SESSION['flash_error'], $_SESSION['flash_modal']);
 </body>
 
 </html>
-
-

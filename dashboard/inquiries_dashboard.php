@@ -266,10 +266,16 @@ $pages = max(1, ceil($total / $limit));
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-pen"></i>
                             </a>
-                            <a href="inquiries_delete.php?id=<?= urlencode($row['id']) ?>"
-                                class="btn btn-outline-danger">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                            <form method="post" action="inquiries_delete.php" class="d-inline"
+                                onsubmit="return confirm('Delete this inquiry?')">
+                                <input type="hidden" name="csrf_token"
+                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="inquiry_id" value="<?= (int)$row['id'] ?>">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     <?php endwhile; ?>

@@ -377,7 +377,8 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                         </div>
 
                         <div class="mt-3">
-                            <button type="submit" class="btn btn-primary-custom">Update Password</button>
+                            <button type="submit" class="btn btn-primary-custom" name="update_password">Update
+                                Password</button>
                         </div>
                     </form>
                 </div>

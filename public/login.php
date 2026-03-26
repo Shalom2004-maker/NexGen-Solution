@@ -7,7 +7,7 @@ $error = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $email    = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
+    $password = (string)($_POST["password"] ?? "");
 
     if ($email === "" || $password === "") {
         $error = "Email and password required";
@@ -33,19 +33,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $stored_hash = trim((string) ($user["password_hash"] ?? ""));
                     $stored_password = (string) ($user["password"] ?? "");
                     $is_valid_password = false;
+                    $hash_is_valid = false;
+                    $needs_rehash = false;
+                    $legacy_upgrade_required = false;
+                    $clear_plaintext_password = $stored_password !== "";
 
                     if ($stored_hash !== "") {
                         $password_info = password_get_info($stored_hash);
                         if (!empty($password_info["algo"])) {
+                            $hash_is_valid = true;
                             $is_valid_password = password_verify($password, $stored_hash);
+                            if ($is_valid_password) {
+                                $needs_rehash = password_needs_rehash($stored_hash, PASSWORD_DEFAULT);
+                            }
                         }
                     }
 
-                    if (!$is_valid_password && $stored_password !== "") {
-                        $is_valid_password = hash_equals($stored_password, $password);
+                    if (!$hash_is_valid && $stored_password !== "") {
+                        $legacy_upgrade_required = hash_equals($stored_password, $password);
+                        $is_valid_password = $legacy_upgrade_required;
                     }
 
                     if ($is_valid_password) {
+                        if ($legacy_upgrade_required || $needs_rehash || $clear_plaintext_password) {
+                            $new_hash = $hash_is_valid && !$needs_rehash && !$legacy_upgrade_required
+                                ? $stored_hash
+                                : password_hash($password, PASSWORD_DEFAULT);
+                            $upgrade_stmt = $conn->prepare("UPDATE users SET password_hash = ?, password = '' WHERE id = ?");
+                            if (!$upgrade_stmt) {
+                                $error = "Unable to upgrade account security. Please contact administrator.";
+                            } else {
+                                $user_id = (int)$user["id"];
+                                $upgrade_stmt->bind_param("si", $new_hash, $user_id);
+                                if (!$upgrade_stmt->execute()) {
+                                    $error = "Unable to upgrade account security. Please contact administrator.";
+                                }
+                                $upgrade_stmt->close();
+                            }
+                        }
+                    }
+
+                    if ($is_valid_password && $error === "") {
+                        session_regenerate_id(true);
 
                         $_SESSION["uid"] = $user["id"];
                         $_SESSION["name"]    = $user["full_name"];
@@ -58,6 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             header("Location: ../dashboard/admin_dashboard.php");
                         } elseif ($user["role_name"] === "ProjectLeader") {
                             header("Location: ../dashboard/leader.php");
+                        } elseif ($user["role_name"] === "Guest") {
+                            header("Location: index.php");
                         } else {
                             header("Location: ../dashboard/employee.php");
                         }
