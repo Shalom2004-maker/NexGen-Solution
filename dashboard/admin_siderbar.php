@@ -15,6 +15,7 @@
     <div class="nexgen-sidebar-menu">
         <?php
         $current_page = basename($_SERVER['PHP_SELF']);
+        $current_entity = strtolower(trim((string) ($_GET['entity'] ?? '')));
         ?>
         <h5>Admin</h5>
         <a href="admin_dashboard.php"
@@ -39,6 +40,22 @@
         <a href="inquiries_dashboard.php" class="bi bi-chat-left
             <?= $current_page === 'inquiries_dashboard.php' ? 'active' : '' ?>">
             &nbsp;&nbsp; Inquiries</a>
+
+        <h5 style="margin-top: 1rem;">Site Content</h5>
+        <a href="categories_view.php" class="bi bi-tags <?= $current_page === 'categories_view.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Categories</a>
+
+        <a href="services_view.php"
+            class="bi bi-briefcase <?= $current_page === 'services_view.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Services</a>
+
+        <a href="solutions_view.php"
+            class="bi bi-lightbulb <?= $current_page === 'solutions_view.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Solutions</a>
+
+        <a href="support_view.php"
+            class="bi bi-life-preserver <?= $current_page === 'support_view.php' ? 'active' : '' ?>">
+            &nbsp;&nbsp; Support</a>
 
         <h5 style="margin-top: 1rem;">Quick Access</h5>
         <a href="admin_user_view.php"

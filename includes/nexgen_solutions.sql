@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2026 at 08:10 AM
+-- Generation Time: Mar 30, 2026 at 03:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -45,26 +45,21 @@ INSERT INTO `categories` (`CategoryID`, `CategoryName`, `Description`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `site_settings`
+-- Table structure for table `contact_info`
 --
 
-CREATE TABLE `site_settings` (
-  `setting_key` varchar(64) NOT NULL,
-  `setting_value` text DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+CREATE TABLE `contact_info` (
+  `phone` varchar(10) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `website` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `site_settings`
+-- Dumping data for table `contact_info`
 --
 
-INSERT INTO `site_settings` (`setting_key`, `setting_value`) VALUES
-('home_hero_eyebrow', 'Intelligent Workforce Platform'),
-('home_hero_title', 'Manage your team with precision'),
-('home_hero_summary', 'Browse a live catalog of services, solutions, and support coverage powered by your latest published data.'),
-('home_services_intro', 'Browse the current service catalog, grouped by tier and category so visitors can quickly understand what you offer.'),
-('home_solutions_intro', 'Highlighted active solutions are now pulled directly from your latest published entries.'),
-('home_support_intro', 'A live operational summary generated from support activity without exposing private ticket details.');
+INSERT INTO `contact_info` (`phone`, `email`, `website`) VALUES
+('7433813806', 'nexgensolutions@info.com', 'nexgensolutions.com');
 
 -- --------------------------------------------------------
 
@@ -325,6 +320,30 @@ INSERT INTO `services` (`ServiceID`, `ServiceName`, `ServiceTier`, `HourlyRate`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `site_settings`
+--
+
+CREATE TABLE `site_settings` (
+  `setting_key` varchar(64) NOT NULL,
+  `setting_value` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `site_settings`
+--
+
+INSERT INTO `site_settings` (`setting_key`, `setting_value`, `updated_at`) VALUES
+('home_hero_eyebrow', 'Intelligent Workforce Platform', '2026-03-30 13:03:32'),
+('home_hero_summary', 'Browse a live catalog of services, solutions, and support coverage powered by your latest published data.', '2026-03-30 13:03:32'),
+('home_hero_title', 'Manage your team with precision', '2026-03-30 13:03:32'),
+('home_services_intro', 'Browse the current service catalog, grouped by tier and category so visitors can quickly understand what you offer.', '2026-03-30 13:03:32'),
+('home_solutions_intro', 'Highlighted active solutions are now pulled directly from your latest published entries.', '2026-03-30 13:03:32'),
+('home_support_intro', 'A live operational summary generated from support activity without exposing private ticket details.', '2026-03-30 13:03:32');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `solutions`
 --
 
@@ -430,6 +449,9 @@ CREATE TABLE `users` (
   `profile_photo` varchar(255) DEFAULT NULL,
   `password_reset_token` varchar(255) DEFAULT NULL,
   `password_reset_expires_at` datetime DEFAULT NULL,
+  `password_reset_request_count` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `password_reset_locked_until` datetime DEFAULT NULL,
+  `password_reset_last_requested_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -437,16 +459,16 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `password`, `role_id`, `status`, `profile_photo`, `password_reset_token`, `password_reset_expires_at`, `created_at`) VALUES
-(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni', '', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, '2026-01-03 10:21:13'),
-(2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', '', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', 'c743ca31562730bed2bce5f2146228cd823c1888c20205bb5af7bd66ca49a3ed', '2026-03-27 14:17:26', '2026-02-04 03:30:00'),
-(3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS', '', 2, 'active', 'assets/avatars/user_3_9559e2d983f826f8.png', NULL, NULL, '2026-01-03 10:21:13'),
-(4, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe', 'HRManager', 3, 'active', 'assets/avatars/user_2_3bd7f4bb74f90212.png', NULL, NULL, '2026-01-03 10:21:13'),
-(5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', '', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, '2026-01-05 07:03:32'),
-(6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 08:02:31'),
-(7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 08:02:31'),
-(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, '2026-03-25 13:56:54'),
-(127, 'Phoneapp Infos', 'phoneappinfos@gmail.com', '$2y$10$7qkGjA5qj6hxlU0cUOY2xOjf3Xt8F7in44hDVGsple9.YqAC3VPHC', '', 3, 'active', NULL, 'bcbae2176e1166216be43a7cb2d3ffb4f931a6345c1e83eb601b38a4a0eff129', '2026-03-28 19:11:48', '2026-03-28 15:55:20');
+INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `password`, `role_id`, `status`, `profile_photo`, `password_reset_token`, `password_reset_expires_at`, `password_reset_request_count`, `password_reset_locked_until`, `password_reset_last_requested_at`, `created_at`) VALUES
+(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni', '', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, 0, NULL, NULL, '2026-01-03 10:21:13'),
+(2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', '', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', NULL, NULL, 0, NULL, NULL, '2026-02-04 03:30:00'),
+(3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS', '', 2, 'active', 'assets/avatars/user_3_9559e2d983f826f8.png', NULL, NULL, 0, NULL, NULL, '2026-01-03 10:21:13'),
+(4, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe', 'HRManager', 3, 'active', 'assets/avatars/user_2_3bd7f4bb74f90212.png', NULL, NULL, 0, NULL, NULL, '2026-01-03 10:21:13'),
+(5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', '', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, 0, NULL, NULL, '2026-01-05 07:03:32'),
+(6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-02-08 08:02:31'),
+(7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, 0, NULL, NULL, '2026-02-08 08:02:31'),
+(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-25 13:56:54'),
+(127, 'Phoneapp Infos', 'phoneappinfos@gmail.com', '$2y$10$7qkGjA5qj6hxlU0cUOY2xOjf3Xt8F7in44hDVGsple9.YqAC3VPHC', '', 3, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-28 15:55:20');
 
 --
 -- Indexes for dumped tables
@@ -460,10 +482,10 @@ ALTER TABLE `categories`
   ADD UNIQUE KEY `CategoryName` (`CategoryName`);
 
 --
--- Indexes for table `site_settings`
+-- Indexes for table `contact_info`
 --
-ALTER TABLE `site_settings`
-  ADD PRIMARY KEY (`setting_key`);
+ALTER TABLE `contact_info`
+  ADD PRIMARY KEY (`phone`);
 
 --
 -- Indexes for table `inquiries`
@@ -522,6 +544,12 @@ ALTER TABLE `salary_slips`
 ALTER TABLE `services`
   ADD PRIMARY KEY (`ServiceID`),
   ADD KEY `CategoryID` (`CategoryID`);
+
+--
+-- Indexes for table `site_settings`
+--
+ALTER TABLE `site_settings`
+  ADD PRIMARY KEY (`setting_key`);
 
 --
 -- Indexes for table `solutions`
@@ -612,6 +640,12 @@ ALTER TABLE `salary_slips`
 --
 ALTER TABLE `services`
   MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=204;
+
+--
+-- AUTO_INCREMENT for table `solutions`
+--
+ALTER TABLE `solutions`
+  MODIFY `SolutionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
 -- AUTO_INCREMENT for table `support`

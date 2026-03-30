@@ -86,7 +86,7 @@ if (!function_exists('app_mail_config')) {
             'mail_from_name' => app_env_value('MAIL_FROM_NAME', ''),
             'mail_reply_to_address' => app_env_value('MAIL_REPLY_TO_ADDRESS', ''),
             'mail_reply_to_name' => app_env_value('MAIL_REPLY_TO_NAME', ''),
-            'mail_timeout' => app_env_value('MAIL_TIMEOUT', 30),
+            'mail_timeout' => app_env_value('MAIL_TIMEOUT', 60000),
             'mail_debug' => app_env_value('MAIL_DEBUG', 0),
             'mail_allow_self_signed' => app_env_value('MAIL_ALLOW_SELF_SIGNED', ''),
             'show_dev_reset_link' => app_env_value('SHOW_DEV_RESET_LINK', ''),
@@ -114,7 +114,7 @@ if (!function_exists('app_mail_config')) {
         $config['mail_from_name'] = trim((string) ($config['mail_from_name'] ?: $config['app_name']));
         $config['mail_reply_to_address'] = trim((string) ($config['mail_reply_to_address'] ?? ''));
         $config['mail_reply_to_name'] = trim((string) ($config['mail_reply_to_name'] ?: $config['mail_from_name']));
-        $config['mail_timeout'] = max(5, (int) ($config['mail_timeout'] ?? 30));
+        $config['mail_timeout'] = max(5, (int) ($config['mail_timeout'] ?? 60000));
         $config['mail_debug'] = max(0, min(4, (int) ($config['mail_debug'] ?? 0)));
         $config['mail_auth'] = app_config_bool($config['mail_auth'], $config['mail_username'] !== '');
         $config['mail_allow_self_signed'] = app_config_bool($config['mail_allow_self_signed'], false);
@@ -219,7 +219,7 @@ if (!function_exists('app_password_reset_otp_email_html')) {
         <p style="margin:0 0 16px;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;color:#2563eb;">' . $appName . '</p>
         <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">Your password reset code</h1>
         <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">Hi ' . $safeName . ',</p>
-        <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">We received a request to reset your password. Enter this 6-digit code on the reset page. It expires in 1 hour.</p>
+        <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">We received a request to reset your password. Enter this 6-digit code on the reset page. It expires in 3 minutes.</p>
         <div style="margin:24px 0;padding:18px 20px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;text-align:center;">
             <div style="font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#2563eb;margin-bottom:8px;">Reset Code</div>
             <div style="font-size:34px;font-weight:700;letter-spacing:0.22em;color:#0f172a;">' . $safeOtp . '</div>
@@ -241,7 +241,7 @@ if (!function_exists('app_password_reset_otp_email_text')) {
 
         return "Hello {$displayName},\n\n"
             . "We received a request to reset your {$appName} password.\n"
-            . "Enter this 6-digit code on the reset page. This code expires in 1 hour.\n\n"
+            . "Enter this 6-digit code on the reset page. This code expires in 3 minutes.\n\n"
             . "Reset code: {$otpCode}\n\n"
             . ($resetPageUrl !== '' ? "Reset page: {$resetPageUrl}\n\n" : '')
             . "If you did not request a password reset, you can safely ignore this email.\n";

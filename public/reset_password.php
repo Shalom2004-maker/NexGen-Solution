@@ -2,6 +2,7 @@
 session_start();
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
+require_once __DIR__ . "/../includes/password_reset.php";
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
@@ -11,6 +12,10 @@ $error = '';
 $success = '';
 $email = trim($_GET['email'] ?? ($_POST['email'] ?? ($_SESSION['password_reset_email'] ?? '')));
 $otp = trim($_POST['otp'] ?? '');
+$otpCountdownSeconds = 0;
+$lockoutSeconds = 0;
+$statusInfo = '';
+$passwordResetSchemaReady = app_password_reset_ensure_schema($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = $_POST['csrf_token'] ?? '';
@@ -32,29 +37,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Passwords do not match.';
         } elseif (strlen($new) < 8) {
             $error = 'Password must be at least 8 characters.';
+        } elseif (!$passwordResetSchemaReady) {
+            $error = 'Password reset setup is incomplete. Please update the users table and try again.';
         } else {
             $userId = 0;
-            $otpHash = hash('sha256', $otp);
-            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND password_reset_token = ? AND password_reset_expires_at IS NOT NULL AND password_reset_expires_at > NOW() LIMIT 1");
+            $resetUser = app_password_reset_fetch_user_state($conn, $email);
 
-            if ($stmt) {
-                $stmt->bind_param('ss', $email, $otpHash);
-                $stmt->execute();
-                $row = $stmt->get_result()->fetch_assoc();
-                $stmt->close();
+            if ($resetUser) {
+                $storedOtp = trim((string) ($resetUser['password_reset_token'] ?? ''));
+                $otpCountdownSeconds = (int) ($resetUser['otp_expires_in'] ?? 0);
+                $lockoutSeconds = (int) ($resetUser['lockout_expires_in'] ?? 0);
 
-                if ($row) {
-                    $userId = (int) $row['id'];
-                } else {
+                if ($storedOtp === '' || $otpCountdownSeconds <= 0 || !hash_equals($storedOtp, $otp)) {
                     $error = 'This reset code is invalid or has expired.';
+                } else {
+                    $userId = (int) ($resetUser['id'] ?? 0);
                 }
             } else {
-                $error = 'Unable to validate your reset code right now.';
+                $error = 'This reset code is invalid or has expired.';
             }
 
             if ($error === '') {
                 $newHash = password_hash($new, PASSWORD_DEFAULT);
-                $u = $conn->prepare("UPDATE users SET password_hash = ?, password = '', password_reset_token = NULL, password_reset_expires_at = NULL WHERE id = ?");
+                $u = $conn->prepare(
+                    "UPDATE users
+                     SET password_hash = ?,
+                         password = '',
+                         password_reset_token = NULL,
+                         password_reset_expires_at = NULL,
+                         password_reset_request_count = 0,
+                         password_reset_locked_until = NULL,
+                         password_reset_last_requested_at = NULL
+                     WHERE id = ?"
+                );
                 if ($u) {
                     $u->bind_param('si', $newHash, $userId);
                     if ($u->execute()) {
@@ -65,6 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
                         unset($_SESSION['password_reset_email']);
                         $otp = '';
+                        $otpCountdownSeconds = 0;
+                        $lockoutSeconds = 0;
                     } else {
                         $error = 'Failed to reset password.';
                     }
@@ -73,6 +90,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Failed to reset password.';
                 }
             }
+        }
+    }
+}
+
+$activeResetState = null;
+if ($passwordResetSchemaReady && $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $activeResetState = app_password_reset_fetch_user_state($conn, $email);
+
+    if ($activeResetState && !$success) {
+        if ($otpCountdownSeconds === 0 && !empty($activeResetState['has_active_otp'])) {
+            $otpCountdownSeconds = (int) ($activeResetState['otp_expires_in'] ?? 0);
+        }
+
+        if ($lockoutSeconds === 0 && !empty($activeResetState['is_locked'])) {
+            $lockoutSeconds = (int) ($activeResetState['lockout_expires_in'] ?? 0);
+        }
+
+        if (!empty($activeResetState['has_active_otp'])) {
+            $statusInfo = 'Your current OTP is valid for 3 minutes from the most recent request.';
+        } elseif (trim((string) ($activeResetState['password_reset_token'] ?? '')) !== '') {
+            $statusInfo = 'Your most recent OTP has expired. Return to the forgot-password page to generate a new one.';
         }
     }
 }
@@ -98,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="../css/components.css" rel="stylesheet">
     <link href="../css/ui-universal.css" rel="stylesheet">
     <script src="../js/future-ui.js" defer></script>
+    <script src="../js/password-reset-timer.js" defer></script>
 </head>
 
 <body class="future-page future-forgot" data-theme="dark">
@@ -106,7 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-    <div class="theme-switcher mx-2 ms-2 me-2" role="group" aria-label="Theme toggle">
+    <div class="theme-switcher mx-2 ms-2 mt-2 me-2 position-absolute end-0 top-0" role="group"
+        aria-label="Theme toggle">
         <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
             data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
             <i class="bi bi-moon-fill" aria-hidden="true"></i>
@@ -134,6 +174,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
 
+                <?php if ($statusInfo && !$success): ?>
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i> <?= htmlspecialchars($statusInfo) ?>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($otpCountdownSeconds > 0 && !$success): ?>
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-clock-history"></i>
+                    <span data-reset-countdown="<?= (int) $otpCountdownSeconds ?>"
+                        data-prefix="Current OTP expires in "
+                        data-expired-text="The current OTP has expired. Request a new one to continue."></span>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($lockoutSeconds > 0 && !$success): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-shield-lock"></i>
+                    <span data-reset-countdown="<?= (int) $lockoutSeconds ?>"
+                        data-prefix="OTP regeneration becomes available in "
+                        data-expired-text="You can request a new OTP again now."></span>
+                </div>
+                <?php endif; ?>
+
                 <?php if (!$success): ?>
                 <form method="post" action="reset_password.php">
                     <input type="hidden" name="csrf_token"
@@ -141,9 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="form-label">Email Address</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="text" class="form-control" id="email" name="email"
-                            data-validation="required email" value="<?= htmlspecialchars($email) ?>"
-                            placeholder="Enter your email" required>
+                        <input type="text" class="form-control" id="email" name="email" data-validation="required email"
+                            value="<?= htmlspecialchars($email) ?>" placeholder="Enter your email" required>
                     </div>
                     <div id="email_error" class="text-danger validation-error"></div>
                     <label class="form-label">Reset Code</label>
@@ -170,11 +233,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-validation="required confirm-password" data-confirm-password="new_password" required>
                     </div>
                     <div id="confirm_password_error" class="text-danger validation-error"></div>
-                    <button type="submit" class="btn-action pressable" data-tilt="8">Verify Code And Update Password</button>
+                    <button type="submit" class="btn-action pressable" data-tilt="8">Verify Code And Update
+                        Password</button>
                 </form>
                 <?php endif; ?>
 
-                <a href="forgot_password.php" class="home-link"><i class="bi bi-arrow-repeat"></i> Request a new code</a>
+                <a href="forgot_password.php" class="home-link"><i class="bi bi-arrow-repeat"></i> Request a new
+                    code</a>
                 <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
             </div>
         </div>

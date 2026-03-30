@@ -3,6 +3,7 @@ session_start();
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 require_once __DIR__ . "/../includes/mailer.php";
+require_once __DIR__ . "/../includes/password_reset.php";
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
@@ -12,7 +13,11 @@ $error = '';
 $success = '';
 $otpPreview = '';
 $mailInfo = '';
+$countdownSeconds = 0;
+$policyInfo = '';
+$lockoutSeconds = 0;
 $resetPageUrl = app_public_url('reset_password.php');
+$passwordResetSchemaReady = app_password_reset_ensure_schema($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_POST['csrf_token'] ?? '';
@@ -31,52 +36,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
 
                 if ($user) {
-                    $otpCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                    $tokenHash = hash('sha256', $otpCode);
-                    $expiresAt = date('Y-m-d H:i:s', time() + 3600);
-                    $tokenSaved = false;
+                    if (!$passwordResetSchemaReady) {
+                        $error = 'Password reset setup is incomplete. Please update the users table and try again.';
+                        if (function_exists('audit_log')) {
+                            audit_log('password_reset_schema_missing', "Password reset schema is missing for {$email}", $user['id']);
+                        }
+                    } else {
+                        $resetUser = app_password_reset_fetch_user_state($conn, $email);
+                        $issueResult = $resetUser ? app_password_reset_issue_otp($conn, $resetUser) : ['status' => 'store_failed'];
 
-                    $u = $conn->prepare("UPDATE users SET password_reset_token = ?, password_reset_expires_at = ? WHERE id = ?");
-                    if ($u) {
-                        $u->bind_param('ssi', $tokenHash, $expiresAt, $user['id']);
-                        $tokenSaved = $u->execute();
-                        $u->close();
-                    }
+                        if (($issueResult['status'] ?? '') === 'locked') {
+                            $lockoutSeconds = (int) ($issueResult['lockout_seconds'] ?? 0);
+                            $error = 'You have used all available OTP regeneration attempts. Please try again in '
+                                . app_password_reset_format_seconds($lockoutSeconds) . '.';
+                        } elseif (($issueResult['status'] ?? '') === 'issued') {
+                            $otpCode = (string) ($issueResult['otp'] ?? '');
+                            $countdownSeconds = (int) ($issueResult['expires_in'] ?? 0);
+                            $lockoutSeconds = (int) ($issueResult['lockout_seconds'] ?? 0);
+                            $remainingRegenerations = (int) ($issueResult['remaining_regenerations'] ?? 0);
 
-                    if ($tokenSaved) {
-                        $_SESSION['password_reset_email'] = $email;
-                        $resetPageUrl = app_public_url('reset_password.php?email=' . urlencode($email));
+                            $_SESSION['password_reset_email'] = $email;
+                            $resetPageUrl = app_public_url('reset_password.php?email=' . urlencode($email));
 
-                        $mailResult = send_password_reset_otp_email(
-                            $email,
-                            (string) ($user['full_name'] ?? ''),
-                            $otpCode,
-                            $resetPageUrl
-                        );
+                            $mailResult = send_password_reset_otp_email(
+                                $email,
+                                (string) ($user['full_name'] ?? ''),
+                                $otpCode,
+                                $resetPageUrl
+                            );
 
-                        if (!empty($mailResult['sent'])) {
-                            if (function_exists('audit_log')) {
-                                audit_log('password_reset_mail_sent', "Password reset OTP email sent to {$email}", $user['id']);
+                            if (!empty($mailResult['sent'])) {
+                                if (function_exists('audit_log')) {
+                                    audit_log('password_reset_mail_sent', "Password reset OTP email sent to {$email}", $user['id']);
+                                }
+                            } else {
+                                $mailError = trim((string) ($mailResult['error'] ?? ''));
+                                if (function_exists('audit_log')) {
+                                    audit_log(
+                                        'password_reset_mail_failed',
+                                        "Password reset OTP email failed for {$email}: " . ($mailError !== '' ? $mailError : 'Unknown mail error'),
+                                        $user['id']
+                                    );
+                                }
+
+                                if (app_should_show_dev_reset_link()) {
+                                    $mailInfo = 'Email delivery failed on this environment'
+                                        . ($mailError !== '' ? ' (' . $mailError . ')' : '')
+                                        . ', so the development OTP is shown below.';
+                                    $otpPreview = $otpCode;
+                                }
+                            }
+
+                            if ($remainingRegenerations > 0) {
+                                $policyInfo = 'This OTP expires in 3 minutes. You can regenerate it '
+                                    . $remainingRegenerations
+                                    . ' more time' . ($remainingRegenerations === 1 ? '' : 's')
+                                    . ' before the 24-hour cooldown starts.';
+                            } else {
+                                $policyInfo = 'This OTP expires in 3 minutes. You have used the last available OTP request, so the next one can be requested after the 24-hour cooldown.';
                             }
                         } else {
-                            $mailError = trim((string) ($mailResult['error'] ?? ''));
+                            $error = 'Unable to prepare a password reset OTP right now.';
                             if (function_exists('audit_log')) {
-                                audit_log(
-                                    'password_reset_mail_failed',
-                                    "Password reset OTP email failed for {$email}: " . ($mailError !== '' ? $mailError : 'Unknown mail error'),
-                                    $user['id']
-                                );
-                            }
-
-                            if (app_should_show_dev_reset_link()) {
-                                $mailInfo = 'Email delivery failed on this environment'
-                                    . ($mailError !== '' ? ' (' . $mailError . ')' : '')
-                                    . ', so the development OTP is shown below.';
-                                $otpPreview = $otpCode;
+                                audit_log('password_reset_token_store_failed', "Failed to store password reset OTP for {$email}", $user['id']);
                             }
                         }
-                    } elseif (function_exists('audit_log')) {
-                        audit_log('password_reset_token_store_failed', "Failed to store password reset OTP for {$email}", $user['id']);
                     }
 
                     if (function_exists('audit_log')) {
@@ -87,8 +111,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 audit_log('password_reset_lookup_failed', "Failed to prepare password reset lookup for {$email}");
             }
 
-            $success = 'If the email exists, a 6-digit reset code has been prepared.';
             $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+
+            if ($error === '') {
+                $success = 'If the email exists, a 6-digit reset code has been prepared.';
+            }
+        }
+    }
+}
+
+$activeEmail = trim($_POST['email'] ?? ($_SESSION['password_reset_email'] ?? ''));
+$activeResetState = null;
+
+if ($passwordResetSchemaReady && $activeEmail !== '' && filter_var($activeEmail, FILTER_VALIDATE_EMAIL)) {
+    $activeResetState = app_password_reset_fetch_user_state($conn, $activeEmail);
+
+    if ($activeResetState) {
+        if ($countdownSeconds === 0 && !empty($activeResetState['has_active_otp'])) {
+            $countdownSeconds = (int) ($activeResetState['otp_expires_in'] ?? 0);
+        }
+
+        if ($lockoutSeconds === 0 && !empty($activeResetState['is_locked'])) {
+            $lockoutSeconds = (int) ($activeResetState['lockout_expires_in'] ?? 0);
+        }
+
+        if ($policyInfo === '' && !empty($activeResetState['has_active_otp'])) {
+            $remainingRegenerations = (int) ($activeResetState['remaining_regenerations'] ?? 0);
+
+            if ($remainingRegenerations > 0) {
+                $policyInfo = 'This OTP expires in 3 minutes. You can regenerate it '
+                    . $remainingRegenerations
+                    . ' more time' . ($remainingRegenerations === 1 ? '' : 's')
+                    . ' before the 24-hour cooldown starts.';
+            } else {
+                $policyInfo = 'This OTP expires in 3 minutes. You have used the last available OTP request, so the next one can be requested after the 24-hour cooldown.';
+            }
         }
     }
 }
@@ -116,6 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../js/jquery.js"></script>
     <script src="../js/validate.js"></script>
     <script src="../js/future-ui.js" defer></script>
+    <script src="../js/password-reset-timer.js" defer></script>
 </head>
 
 <body class="future-page future-forgot" data-theme="dark">
@@ -160,10 +218,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
 
+                <?php if ($countdownSeconds > 0): ?>
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-clock-history"></i>
+                    <span data-reset-countdown="<?= (int) $countdownSeconds ?>"
+                        data-prefix="Current OTP expires in "
+                        data-expired-text="The current OTP has expired. Request a new one if you still need access."></span>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($policyInfo): ?>
+                <div class="alert alert-secondary" role="alert">
+                    <i class="bi bi-arrow-repeat"></i> <?= htmlspecialchars($policyInfo) ?>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($lockoutSeconds > 0): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-shield-lock"></i>
+                    <span data-reset-countdown="<?= (int) $lockoutSeconds ?>"
+                        data-prefix="OTP regeneration becomes available in "
+                        data-expired-text="You can request a new OTP again now."></span>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($otpPreview): ?>
-                <div class="alert alert-info dev-link-box">
-                    <strong>Reset OTP (dev):</strong>
-                    <span class="dev-link"><?= htmlspecialchars($otpPreview) ?></span>
+                <div class="alert alert-info dev-link-box d-flex flex-column" role="alert">
+                    <div>
+                        <strong>Reset OTP (dev):</strong>
+                        <span class="dev-link"><?= htmlspecialchars($otpPreview) ?></span>
+                    </div>
                     <div class="mt-2">
                         <a class="dev-link" href="<?= htmlspecialchars($resetPageUrl) ?>">Open reset page</a>
                     </div>
@@ -185,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                             <input type="text" class="form-control" data-validation="required email" id="emailInput"
                                 name="email" placeholder="Enter your email"
-                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                                value="<?= htmlspecialchars($activeEmail) ?>">
                         </div>
                         <span id="email_error" class="text-danger"></span>
                     </div>

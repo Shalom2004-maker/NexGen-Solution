@@ -4,7 +4,36 @@ session_start();
 
 $success = false;
 $error = '';
-//comment
+
+$contactInfoDefaults = [
+    'phone' => '7433813806',
+    'email' => 'nexgensolutions@info.com',
+    'website' => 'nexgensolutions.com',
+];
+
+$contactInfo = $contactInfoDefaults;
+$contactInfoQuery = $conn->query("SELECT phone, email, website FROM contact_info ORDER BY phone LIMIT 1");
+if ($contactInfoQuery instanceof mysqli_result) {
+    $contactRow = $contactInfoQuery->fetch_assoc();
+    if ($contactRow) {
+        foreach ($contactInfoDefaults as $key => $defaultValue) {
+            $value = trim((string) ($contactRow[$key] ?? ''));
+            if ($value !== '') {
+                $contactInfo[$key] = $value;
+            }
+        }
+    }
+    $contactInfoQuery->close();
+}
+
+$contactPhone = trim((string) ($contactInfo['phone'] ?? ''));
+$contactPhoneHref = preg_replace('/\D+/', '', $contactPhone);
+$contactEmail = trim((string) ($contactInfo['email'] ?? ''));
+$contactWebsite = trim((string) ($contactInfo['website'] ?? ''));
+$contactWebsiteHref = $contactWebsite;
+if ($contactWebsiteHref !== '' && !preg_match('~^https?://~i', $contactWebsiteHref)) {
+    $contactWebsiteHref = 'https://' . $contactWebsiteHref;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim($_POST['first_name'] ?? '');
@@ -113,18 +142,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <ul class="info-details ms-4 mt-3">
                             <li>
                                 <i class="bi bi-telephone-fill me-3"></i>
-                                <span class=" text-dark">Phone: </span> <a href="tel:+123456789"
-                                    class=" text-dark">123456789</a>
+                                <span class=" text-dark">Phone: </span> <a href="tel:<?= htmlspecialchars($contactPhoneHref) ?>"
+                                    class=" text-dark"><?= htmlspecialchars($contactPhone) ?></a>
                             </li>
                             <li>
                                 <i class="bi bi-envelope-at-fill me-3"></i>
-                                <span class=" text-dark">Email: </span> <a href="mailto:info@nexgensolutions.com"
-                                    class=" text-primary">mailto:nexgensolutions@info.com</a>
+                                <span class=" text-dark">Email: </span> <a href="mailto:<?= htmlspecialchars($contactEmail) ?>"
+                                    class=" text-primary"><?= htmlspecialchars($contactEmail) ?></a>
                             </li>
                             <li>
                                 <i class="bi bi-globe2 me-3"></i>
-                                <span class=" text-dark">Website: </span> <a href="https://nexgensolutions.com"
-                                    class=" text-primary">nexgensolutions.com</a>
+                                <span class=" text-dark">Website: </span> <a href="<?= htmlspecialchars($contactWebsiteHref) ?>"
+                                    class=" text-primary" target="_blank" rel="noopener noreferrer"><?= htmlspecialchars($contactWebsite) ?></a>
                             </li>
                         </ul>
                         <ul class="social-icons d-flex justify-content-center mt-4">

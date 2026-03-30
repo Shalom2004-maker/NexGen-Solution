@@ -18,6 +18,12 @@ $homepageDefaults = [
     'home_support_intro' => 'A live operational summary generated from support activity without exposing private ticket details.',
 ];
 
+$contactInfoDefaults = [
+    'phone' => '7433813806',
+    'email' => 'nexgensolutions@info.com',
+    'website' => 'nexgensolutions.com',
+];
+
 $homepageKeys = array_keys($homepageDefaults);
 
 // Ensure CSRF token
@@ -34,6 +40,13 @@ if ($isAdmin) {
             setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
             setting_value TEXT NULL,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+    );
+    $conn->query(
+        "CREATE TABLE IF NOT EXISTS contact_info (
+            phone VARCHAR(10) NOT NULL PRIMARY KEY,
+            email VARCHAR(100) NOT NULL,
+            website VARCHAR(100) NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
     );
 }
@@ -203,6 +216,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $u->close();
                 }
             }
+        } elseif ($action === 'update_contact_info' && $isAdmin) {
+            $phone = preg_replace('/\D+/', '', (string) ($_POST['contact_phone'] ?? ''));
+            $emailInput = trim((string) ($_POST['contact_email'] ?? ''));
+            $website = trim((string) ($_POST['contact_website'] ?? ''));
+            $originalPhone = preg_replace('/\D+/', '', (string) ($_POST['original_contact_phone'] ?? ''));
+            $email = filter_var($emailInput, FILTER_VALIDATE_EMAIL);
+
+            if ($phone === '' || strlen($phone) > 10) {
+                $error = 'Contact phone must contain up to 10 digits.';
+            } elseif (!$email) {
+                $error = 'Please enter a valid public contact email address.';
+            } elseif ($website === '' || strlen($website) > 100) {
+                $error = 'Please enter a website value up to 100 characters.';
+            } else {
+                if ($originalPhone === '') {
+                    $currentContactQuery = $conn->query("SELECT phone FROM contact_info ORDER BY phone LIMIT 1");
+                    if ($currentContactQuery instanceof mysqli_result) {
+                        $currentContactRow = $currentContactQuery->fetch_assoc();
+                        $originalPhone = trim((string) ($currentContactRow['phone'] ?? ''));
+                        $currentContactQuery->close();
+                    }
+                }
+
+                if ($originalPhone !== '') {
+                    $stmt = $conn->prepare("UPDATE contact_info SET phone = ?, email = ?, website = ? WHERE phone = ?");
+                    $stmt->bind_param('ssss', $phone, $emailInput, $website, $originalPhone);
+                } else {
+                    $stmt = $conn->prepare("INSERT INTO contact_info (phone, email, website) VALUES (?, ?, ?)");
+                    $stmt->bind_param('sss', $phone, $emailInput, $website);
+                }
+
+                if ($stmt && $stmt->execute()) {
+                    $success = 'Public contact information updated successfully.';
+                    if (function_exists('audit_log')) {
+                        audit_log('contact_info_update', 'Public contact information updated', $uid);
+                    }
+                } else {
+                    $error = 'Failed to update public contact information.';
+                }
+
+                if ($stmt instanceof mysqli_stmt) {
+                    $stmt->close();
+                }
+            }
         } elseif ($action === 'update_homepage' && $isAdmin) {
             $fieldValues = [];
             foreach ($homepageKeys as $key) {
@@ -281,6 +338,21 @@ if ($isAdmin) {
         }
         $settingsQuery->close();
     }
+}
+
+$contactInfoSettings = $contactInfoDefaults;
+$contactInfoQuery = $conn->query("SELECT phone, email, website FROM contact_info ORDER BY phone LIMIT 1");
+if ($contactInfoQuery instanceof mysqli_result) {
+    $contactInfoRow = $contactInfoQuery->fetch_assoc();
+    if ($contactInfoRow) {
+        foreach ($contactInfoDefaults as $key => $defaultValue) {
+            $value = trim((string) ($contactInfoRow[$key] ?? ''));
+            if ($value !== '') {
+                $contactInfoSettings[$key] = $value;
+            }
+        }
+    }
+    $contactInfoQuery->close();
 }
 ?>
 
@@ -498,6 +570,41 @@ if ($isAdmin) {
                 </div>
 
                 <?php if ($isAdmin): ?>
+                <div class="settings-card mt-4">
+                    <h5 class="mb-2">Public Contact Information</h5>
+                    <p class="text-muted mb-3">These details are displayed on the public contact page.</p>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="update_contact_info">
+                        <input type="hidden" name="original_contact_phone"
+                            value="<?= htmlspecialchars($contactInfoSettings['phone'] ?? '') ?>">
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="contact_phone" class="form-control" maxlength="10"
+                                    inputmode="numeric" pattern="[0-9]{1,10}"
+                                    value="<?= htmlspecialchars($contactInfoSettings['phone'] ?? '') ?>">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="contact_email" class="form-control" maxlength="100"
+                                    value="<?= htmlspecialchars($contactInfoSettings['email'] ?? '') ?>">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Website</label>
+                                <input type="text" name="contact_website" class="form-control" maxlength="100"
+                                    placeholder="nexgensolutions.com"
+                                    value="<?= htmlspecialchars($contactInfoSettings['website'] ?? '') ?>">
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary-custom">Save Contact Information</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="settings-card mt-4">
                     <h5 class="mb-2">Homepage Content</h5>
                     <p class="text-muted mb-3">Update the public homepage copy without touching code.</p>
