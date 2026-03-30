@@ -9,52 +9,70 @@ if (empty($_SESSION['csrf_token'])) {
 
 $error = '';
 $success = '';
-$token = trim($_GET['token'] ?? ($_POST['token'] ?? ''));
-$tokenHash = $token !== '' ? hash('sha256', $token) : '';
-$valid = false;
-$userId = 0;
-
-if ($tokenHash !== '') {
-    $stmt = $conn->prepare("SELECT id FROM users WHERE password_reset_token = ? AND password_reset_expires_at IS NOT NULL AND password_reset_expires_at > NOW() LIMIT 1");
-    $stmt->bind_param('s', $tokenHash);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    if ($row) {
-        $valid = true;
-        $userId = (int)$row['id'];
-    }
-}
+$email = trim($_GET['email'] ?? ($_POST['email'] ?? ($_SESSION['password_reset_email'] ?? '')));
+$otp = trim($_POST['otp'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = $_POST['csrf_token'] ?? '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $csrf)) {
         $error = 'Invalid request.';
-    } elseif (!$valid) {
-        $error = 'This reset link is invalid or has expired.';
     } else {
+        $email = trim($_POST['email'] ?? '');
+        $otp = trim($_POST['otp'] ?? '');
         $new = $_POST['new_password'] ?? '';
         $confirm = $_POST['confirm_password'] ?? '';
 
-        if ($new === '' || $confirm === '') {
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Please enter a valid email address.';
+        } elseif (!preg_match('/^\d{6}$/', $otp)) {
+            $error = 'Please enter the 6-digit reset code.';
+        } elseif ($new === '' || $confirm === '') {
             $error = 'Please complete all fields.';
         } elseif ($new !== $confirm) {
             $error = 'Passwords do not match.';
         } elseif (strlen($new) < 8) {
             $error = 'Password must be at least 8 characters.';
         } else {
-            $newHash = password_hash($new, PASSWORD_DEFAULT);
-            $u = $conn->prepare("UPDATE users SET password_hash = ?, password_reset_token = NULL, password_reset_expires_at = NULL WHERE id = ?");
-            $u->bind_param('si', $newHash, $userId);
-            if ($u->execute()) {
-                $success = 'Your password has been reset. You can now log in.';
-                if (function_exists('audit_log')) audit_log('password_reset', "Password reset for user {$userId}", $userId);
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
-                $valid = false;
+            $userId = 0;
+            $otpHash = hash('sha256', $otp);
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND password_reset_token = ? AND password_reset_expires_at IS NOT NULL AND password_reset_expires_at > NOW() LIMIT 1");
+
+            if ($stmt) {
+                $stmt->bind_param('ss', $email, $otpHash);
+                $stmt->execute();
+                $row = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+
+                if ($row) {
+                    $userId = (int) $row['id'];
+                } else {
+                    $error = 'This reset code is invalid or has expired.';
+                }
             } else {
-                $error = 'Failed to reset password.';
+                $error = 'Unable to validate your reset code right now.';
             }
-            $u->close();
+
+            if ($error === '') {
+                $newHash = password_hash($new, PASSWORD_DEFAULT);
+                $u = $conn->prepare("UPDATE users SET password_hash = ?, password = '', password_reset_token = NULL, password_reset_expires_at = NULL WHERE id = ?");
+                if ($u) {
+                    $u->bind_param('si', $newHash, $userId);
+                    if ($u->execute()) {
+                        $success = 'Your password has been reset. You can now log in.';
+                        if (function_exists('audit_log')) {
+                            audit_log('password_reset', "Password reset for user {$userId}", $userId);
+                        }
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                        unset($_SESSION['password_reset_email']);
+                        $otp = '';
+                    } else {
+                        $error = 'Failed to reset password.';
+                    }
+                    $u->close();
+                } else {
+                    $error = 'Failed to reset password.';
+                }
+            }
         }
     }
 }
@@ -88,21 +106,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="future-orb future-orb-b" aria-hidden="true"></div>
     <div class="future-orb future-orb-c" aria-hidden="true"></div>
 
-    <div class="theme-float">
-        <div class="theme-switcher neo-panel" role="group" aria-label="Theme switcher">
-            <span class="theme-switcher-label">Theme</span>
-            <button class="theme-chip pressable is-active" type="button" data-theme-choice="dark"
-                aria-pressed="true">Dark</button>
-            <button class="theme-chip pressable" type="button" data-theme-choice="light"
-                aria-pressed="false">Light</button>
-        </div>
+    <div class="theme-switcher mx-2 ms-2 me-2" role="group" aria-label="Theme toggle">
+        <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
+            data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
+            <i class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
     </div>
 
     <div class="auth-wrap">
         <div class="auth-card tilt-surface" data-tilt="6">
             <div class="auth-header">
                 <h4>Reset Password</h4>
-                <p class="text-muted mb-0">Set a new password</p>
+                <p class="text-muted mb-0">Enter the 6-digit code from your email and set a new password</p>
             </div>
             <div class="auth-body">
                 <?php if ($error): ?>
@@ -119,11 +134,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <?php endif; ?>
 
-                <?php if ($valid && !$success): ?>
+                <?php if (!$success): ?>
                 <form method="post" action="reset_password.php">
                     <input type="hidden" name="csrf_token"
                         value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-                    <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="text" class="form-control" id="email" name="email"
+                            data-validation="required email" value="<?= htmlspecialchars($email) ?>"
+                            placeholder="Enter your email" required>
+                    </div>
+                    <div id="email_error" class="text-danger validation-error"></div>
+                    <label class="form-label">Reset Code</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                        <input type="text" class="form-control" id="otp" name="otp"
+                            data-validation="required numeric min-length max-length" data-min-length="6"
+                            data-max-length="6" minlength="6" maxlength="6" inputmode="numeric"
+                            autocomplete="one-time-code" value="<?= htmlspecialchars($otp) ?>"
+                            placeholder="Enter the 6-digit code" required>
+                    </div>
+                    <div id="otp_error" class="text-danger validation-error"></div>
                     <label class="form-label">New Password</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
@@ -138,10 +170,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-validation="required confirm-password" data-confirm-password="new_password" required>
                     </div>
                     <div id="confirm_password_error" class="text-danger validation-error"></div>
-                    <button type="submit" class="btn-action pressable" data-tilt="8">Update Password</button>
+                    <button type="submit" class="btn-action pressable" data-tilt="8">Verify Code And Update Password</button>
                 </form>
                 <?php endif; ?>
 
+                <a href="forgot_password.php" class="home-link"><i class="bi bi-arrow-repeat"></i> Request a new code</a>
                 <a href="login.php" class="home-link"><i class="bi bi-arrow-left"></i> Back to Login</a>
             </div>
         </div>

@@ -6,6 +6,19 @@ require_once __DIR__ . "/../includes/logger.php";
 include "../includes/sidebar_helper.php";
 
 $uid = (int)($_SESSION['uid'] ?? 0);
+$role = strtolower(trim((string)($_SESSION['role'] ?? '')));
+$isAdmin = ($role === 'admin');
+
+$homepageDefaults = [
+    'home_hero_eyebrow' => 'Intelligent Workforce Platform',
+    'home_hero_title' => 'Manage your team with precision',
+    'home_hero_summary' => 'Browse a live catalog of services, solutions, and support coverage powered by your latest published data.',
+    'home_services_intro' => 'Browse the current service catalog, grouped by tier and category so visitors can quickly understand what you offer.',
+    'home_solutions_intro' => 'Highlighted active solutions are now pulled directly from your latest published entries.',
+    'home_support_intro' => 'A live operational summary generated from support activity without exposing private ticket details.',
+];
+
+$homepageKeys = array_keys($homepageDefaults);
 
 // Ensure CSRF token
 if (empty($_SESSION['csrf_token'])) {
@@ -14,6 +27,16 @@ if (empty($_SESSION['csrf_token'])) {
 
 $error = '';
 $success = '';
+
+if ($isAdmin) {
+    $conn->query(
+        "CREATE TABLE IF NOT EXISTS site_settings (
+            setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
+            setting_value TEXT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+    );
+}
 
 // Handle actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -144,18 +167,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (strlen($new) < 8) {
                 $error = 'Password must be at least 8 characters.';
             } else {
-                $q = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
+                $q = $conn->prepare("SELECT password_hash, password FROM users WHERE id = ?");
                 $q->bind_param('i', $uid);
                 $q->execute();
                 $user = $q->get_result()->fetch_assoc();
                 $q->close();
 
-                $hash = $user['password_hash'] ?? '';
-                if (!$hash || !password_verify($current, $hash)) {
+                $hash = trim((string)($user['password_hash'] ?? ''));
+                $legacyPassword = (string)($user['password'] ?? '');
+                $isCurrentPasswordValid = false;
+
+                if ($hash !== '') {
+                    $passwordInfo = password_get_info($hash);
+                    if (!empty($passwordInfo['algo'])) {
+                        $isCurrentPasswordValid = password_verify($current, $hash);
+                    }
+                }
+
+                if (!$isCurrentPasswordValid && $legacyPassword !== '') {
+                    $isCurrentPasswordValid = hash_equals($legacyPassword, $current);
+                }
+
+                if (!$isCurrentPasswordValid) {
                     $error = 'Current password is incorrect.';
                 } else {
                     $newHash = password_hash($new, PASSWORD_DEFAULT);
-                    $u = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+                    $u = $conn->prepare("UPDATE users SET password_hash = ?, password = '' WHERE id = ?");
                     $u->bind_param('si', $newHash, $uid);
                     if ($u->execute()) {
                         $success = 'Password changed successfully.';
@@ -164,6 +201,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $error = 'Failed to change password.';
                     }
                     $u->close();
+                }
+            }
+        } elseif ($action === 'update_homepage' && $isAdmin) {
+            $fieldValues = [];
+            foreach ($homepageKeys as $key) {
+                $inputValue = trim((string)($_POST[$key] ?? ''));
+                if ($inputValue === '') {
+                    $inputValue = $homepageDefaults[$key] ?? '';
+                }
+                if (strlen($inputValue) > 240) {
+                    $error = 'Homepage content fields must be 240 characters or less.';
+                    break;
+                }
+                $fieldValues[$key] = $inputValue;
+            }
+
+            if ($error === '') {
+                $stmt = $conn->prepare(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                    VALUES (?, ?)
+                    ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+                );
+
+                if ($stmt) {
+                    foreach ($fieldValues as $key => $value) {
+                        $stmt->bind_param('ss', $key, $value);
+                        if (!$stmt->execute()) {
+                            $error = 'Failed to update homepage content.';
+                            break;
+                        }
+                    }
+                    $stmt->close();
+                } else {
+                    $error = 'Failed to prepare homepage update.';
+                }
+
+                if ($error === '') {
+                    $success = 'Homepage content updated successfully.';
+                    if (function_exists('audit_log')) {
+                        audit_log('homepage_update', 'Homepage content updated', $uid);
+                    }
                 }
             }
         }
@@ -181,6 +259,29 @@ $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
+
+$homepageSettings = $homepageDefaults;
+if ($isAdmin) {
+    $placeholders = implode(",", array_fill(0, count($homepageKeys), "?"));
+    $types = str_repeat("s", count($homepageKeys));
+    $settingsQuery = $conn->prepare(
+        "SELECT setting_key, setting_value
+         FROM site_settings
+         WHERE setting_key IN ($placeholders)"
+    );
+    if ($settingsQuery) {
+        $settingsQuery->bind_param($types, ...$homepageKeys);
+        $settingsQuery->execute();
+        $result = $settingsQuery->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $key = $row['setting_key'] ?? '';
+            if ($key !== '') {
+                $homepageSettings[$key] = (string)($row['setting_value'] ?? '');
+            }
+        }
+        $settingsQuery->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -243,10 +344,23 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
     }
 
     @media (max-width: 768px) {
+        .avatar-wrap {
+            flex-direction: column;
+            gap: 3;
+        }
+
         .profile-avatar-wrapper {
             width: 8.5rem;
             height: 8.5rem;
             margin-top: -3.4rem;
+        }
+
+        .avatar-wrap {
+            display: inline-block;
+        }
+
+        .btn-outline-danger {
+            margin-top: 1rem;
         }
     }
     </style>
@@ -382,6 +496,54 @@ $photoUrl = resolve_avatar_url($user['profile_photo'] ?? '');
                         </div>
                     </form>
                 </div>
+
+                <?php if ($isAdmin): ?>
+                <div class="settings-card mt-4">
+                    <h5 class="mb-2">Homepage Content</h5>
+                    <p class="text-muted mb-3">Update the public homepage copy without touching code.</p>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="update_homepage">
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Hero Eyebrow</label>
+                                <input type="text" name="home_hero_eyebrow" class="form-control" maxlength="240"
+                                    value="<?= htmlspecialchars($homepageSettings['home_hero_eyebrow'] ?? '') ?>">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Hero Title</label>
+                                <input type="text" name="home_hero_title" class="form-control" maxlength="240"
+                                    value="<?= htmlspecialchars($homepageSettings['home_hero_title'] ?? '') ?>">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Hero Summary</label>
+                                <textarea name="home_hero_summary" class="form-control" rows="3"
+                                    maxlength="240"><?= htmlspecialchars($homepageSettings['home_hero_summary'] ?? '') ?></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Services Intro</label>
+                                <textarea name="home_services_intro" class="form-control" rows="2"
+                                    maxlength="240"><?= htmlspecialchars($homepageSettings['home_services_intro'] ?? '') ?></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Solutions Intro</label>
+                                <textarea name="home_solutions_intro" class="form-control" rows="2"
+                                    maxlength="240"><?= htmlspecialchars($homepageSettings['home_solutions_intro'] ?? '') ?></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Support Intro</label>
+                                <textarea name="home_support_intro" class="form-control" rows="2"
+                                    maxlength="240"><?= htmlspecialchars($homepageSettings['home_support_intro'] ?? '') ?></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary-custom">Save Homepage Content</button>
+                        </div>
+                    </form>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

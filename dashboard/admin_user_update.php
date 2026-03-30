@@ -82,7 +82,7 @@ if ($action === 'update') {
     if (!empty($pass) && strlen($pass) >= 6) {
         // Update with password
         $hash = password_hash($pass, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE users SET full_name = ?, email = ?, password_hash = ?, role_id = ?, status = ? WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE users SET full_name = ?, email = ?, password_hash = ?, password = '', role_id = ?, status = ? WHERE id = ?");
         $stmt->bind_param("sssisi", $name, $email, $hash, $role, $status, $userId);
     } else {
         // Update without password
@@ -103,4 +103,3 @@ if ($action === 'update') {
 
 header('Location: admin_user_view.php');
 exit();
-

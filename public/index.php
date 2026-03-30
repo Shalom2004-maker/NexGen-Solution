@@ -1,4 +1,228 @@
-﻿<!DOCTYPE html>
+<?php
+include_once "../includes/db.php";
+
+function home_fetch_all($conn, $query)
+{
+    $rows = [];
+    $result = $conn->query($query);
+
+    if (!$result) {
+        return $rows;
+    }
+
+    while ($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+
+    $result->free();
+
+    return $rows;
+}
+
+function home_escape($value)
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
+}
+
+function home_service_icon($categoryName)
+{
+    $map = [
+        "cloud services" => "bi-cloud-arrow-up",
+        "cybersecurity" => "bi-shield-lock",
+        "data analytics" => "bi-bar-chart-line",
+    ];
+
+    $key = strtolower(trim((string) $categoryName));
+
+    return $map[$key] ?? "bi-kanban";
+}
+
+function home_solution_icon($categoryName)
+{
+    $map = [
+        "cloud services" => "bi-cloud-check",
+        "cybersecurity" => "bi-shield-check",
+        "data analytics" => "bi-graph-up-arrow",
+    ];
+
+    $key = strtolower(trim((string) $categoryName));
+
+    return $map[$key] ?? "bi-diagram-3";
+}
+
+function home_support_icon($status)
+{
+    $map = [
+        "open" => "bi-life-preserver",
+        "in progress" => "bi-arrow-repeat",
+        "resolved" => "bi-patch-check",
+    ];
+
+    $key = strtolower(trim((string) $status));
+
+    return $map[$key] ?? "bi-headset";
+}
+
+function home_service_description($service)
+{
+    $categoryDescription = trim((string) ($service["CategoryDescription"] ?? ""));
+    $tier = trim((string) ($service["ServiceTier"] ?? ""));
+    $category = trim((string) ($service["CategoryName"] ?? ""));
+
+    if ($categoryDescription !== "") {
+        $baseDescription = rtrim($categoryDescription, ". \t\n\r\0\x0B");
+
+        return $tier !== ""
+            ? $baseDescription . " through our " . $tier . " service tier."
+            : $baseDescription . ".";
+    }
+
+    if ($tier !== "" && $category !== "") {
+        return $tier . " delivery for teams investing in " . strtolower($category) . ".";
+    }
+
+    return "Expert implementation and consulting tailored to your team.";
+}
+
+function home_support_description($status)
+{
+    $map = [
+        "open" => "Fresh requests are visible immediately so your team can move from issue to action without delay.",
+        "in progress" => "Active support work stays transparent, coordinated, and easy for clients to follow.",
+        "resolved" => "Completed support workflows feed back into a stronger delivery process and knowledge base.",
+    ];
+
+    $key = strtolower(trim((string) $status));
+
+    return $map[$key] ?? "Responsive support coverage that keeps projects moving confidently.";
+}
+
+function home_rate_label($rate)
+{
+    if ($rate === null || $rate === "") {
+        return "Custom pricing";
+    }
+
+    return "$" . number_format((float) $rate, 2) . " / hr";
+}
+
+function home_date_label($dateValue)
+{
+    if (!$dateValue) {
+        return "Recently added";
+    }
+
+    $timestamp = strtotime($dateValue);
+
+    if ($timestamp === false) {
+        return "Recently added";
+    }
+
+    return date("M j, Y", $timestamp);
+}
+
+$homeSettingKeys = [
+    "home_hero_eyebrow",
+    "home_hero_title",
+    "home_hero_summary",
+    "home_services_intro",
+    "home_solutions_intro",
+    "home_support_intro",
+];
+
+$homeSettingDefaults = [
+    "home_hero_eyebrow" => "Intelligent Workforce Platform",
+    "home_hero_title" => "Manage your team with precision",
+    "home_hero_summary" => "Browse a live catalog of services, solutions, and support coverage powered by your latest published data.",
+    "home_services_intro" => "Browse the current service catalog, grouped by tier and category so visitors can quickly understand what you offer.",
+    "home_solutions_intro" => "Highlighted active solutions are now pulled directly from your latest published entries.",
+    "home_support_intro" => "A live operational summary generated from support activity without exposing private ticket details.",
+];
+
+$homeSettings = [];
+$settingsRows = home_fetch_all(
+    $conn,
+    "SELECT setting_key, setting_value
+    FROM site_settings
+    WHERE setting_key IN ('home_hero_eyebrow', 'home_hero_title', 'home_hero_summary', 'home_services_intro', 'home_solutions_intro', 'home_support_intro')"
+);
+
+foreach ($settingsRows as $row) {
+    $key = (string) ($row["setting_key"] ?? "");
+    if ($key !== "") {
+        $homeSettings[$key] = (string) ($row["setting_value"] ?? "");
+    }
+}
+
+$heroEyebrow = $homeSettings["home_hero_eyebrow"] ?? $homeSettingDefaults["home_hero_eyebrow"];
+$heroTitle = $homeSettings["home_hero_title"] ?? $homeSettingDefaults["home_hero_title"];
+$heroSummary = $homeSettings["home_hero_summary"] ?? $homeSettingDefaults["home_hero_summary"];
+$servicesIntro = $homeSettings["home_services_intro"] ?? $homeSettingDefaults["home_services_intro"];
+$solutionsIntro = $homeSettings["home_solutions_intro"] ?? $homeSettingDefaults["home_solutions_intro"];
+$supportIntro = $homeSettings["home_support_intro"] ?? $homeSettingDefaults["home_support_intro"];
+
+$services = home_fetch_all(
+    $conn,
+    "SELECT
+        s.ServiceID,
+        s.ServiceName,
+        s.ServiceTier,
+        s.HourlyRate,
+        c.CategoryName,
+        c.Description AS CategoryDescription
+    FROM services s
+    LEFT JOIN categories c ON c.CategoryID = s.CategoryID
+    ORDER BY c.CategoryName ASC, s.ServiceName ASC
+    LIMIT 6"
+);
+
+$solutions = home_fetch_all(
+    $conn,
+    "SELECT
+        sol.SolutionID,
+        sol.Title,
+        sol.Description,
+        sol.DateCreated,
+        c.CategoryName
+    FROM solutions sol
+    LEFT JOIN categories c ON c.CategoryID = sol.CategoryID
+    WHERE sol.IsActive = b'1'
+    ORDER BY sol.DateCreated DESC, sol.Title ASC
+    LIMIT 6"
+);
+
+$supportSummary = home_fetch_all(
+    $conn,
+    "SELECT Status, COUNT(*) AS Total
+    FROM support
+    GROUP BY Status
+    ORDER BY FIELD(Status, 'Open', 'In Progress', 'Resolved'), Status
+    LIMIT 3"
+);
+
+$summaryRows = home_fetch_all(
+    $conn,
+    "SELECT
+        (SELECT COUNT(*) FROM services) AS service_total,
+        (SELECT COUNT(*) FROM solutions WHERE IsActive = b'1') AS solution_total,
+        (SELECT COUNT(*) FROM categories) AS category_total,
+        (SELECT COUNT(*) FROM support) AS support_total"
+);
+
+$summary = $summaryRows[0] ?? [];
+$serviceTotal = isset($summary["service_total"]) ? (int) $summary["service_total"] : count($services);
+$solutionTotal = isset($summary["solution_total"]) ? (int) $summary["solution_total"] : count($solutions);
+$categoryTotal = isset($summary["category_total"]) ? (int) $summary["category_total"] : 0;
+$supportTotal = isset($summary["support_total"]) ? (int) $summary["support_total"] : 0;
+
+$heroMetrics = [
+    ["value" => $serviceTotal, "label" => "Service Lines"],
+    ["value" => $solutionTotal, "label" => "Active Solutions"],
+    ["value" => $categoryTotal, "label" => "Categories"],
+    ["value" => $supportTotal, "label" => "Support Records"],
+];
+?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -53,7 +277,7 @@
             </details>
 
             <div class="theme-switcher mx-2 ms-2 me-2" role="group" aria-label="Theme toggle">
-                <button class="theme-chip pressable" type=" button" data-theme-toggle data-icon-light="bi-sun-fill"
+                <button class="theme-chip pressable" type="button" data-theme-toggle data-icon-light="bi-sun-fill"
                     data-icon-dark="bi-moon-fill" aria-label="Toggle theme" aria-pressed="true">
                     <i class="bi bi-moon-fill" aria-hidden="true"></i>
                 </button>
@@ -65,21 +289,38 @@
 
     <section class="hero-section">
         <div class="hero-shell glass-panel tilt-surface" data-tilt="8">
-            <center>
-                <span class="hero-eyebrow">✨ Intelligent Workforce Platform</span>
-                <h1>Manage your team with <span class="highlight">precision</span></h1>
-                <p>The all-in-one platform for task management, payroll processing, and leave tracking. Built for
-                    modern
-                    enterprises that value efficiency.</p>
-            </center>
+            <video class="hero-background-video" autoplay muted loop playsinline preload="metadata"
+                poster="../assets/svgs/teamwork1.avif" aria-hidden="true" disablepictureinpicture>
+                <source src="../assets/logos/3D_abstract_human.mp4" type="video/mp4">
+            </video>
 
-            <div class="d-flex gap-3 mx-auto justify-content-center flex-wrap">
-                <a href="login.php" class="btn-hero pressable" data-tilt="8">
-                    <i class="bi bi-box-arrow-in-right"></i> Get Started
-                </a>
-                <a href="contact.php" class="btn-hero ghost pressable" data-tilt="8">
-                    <i class="bi bi-chat-dots"></i> Talk to Sales
-                </a>
+            <div class="hero-content">
+                <div class="hero-copy">
+                    <span class="hero-eyebrow">
+                        <i class="bi bi-stars" aria-hidden="true"></i>
+                        <?= home_escape($heroEyebrow) ?>
+                    </span>
+                    <h1><?= home_escape($heroTitle) ?></h1>
+                    <p><?= home_escape($heroSummary) ?></p>
+                </div>
+
+                <div class="hero-actions d-flex gap-3 mx-auto justify-content-center flex-wrap">
+                    <a href="login.php" class="btn-hero pressable" data-tilt="8">
+                        <i class="bi bi-box-arrow-in-right"></i> Get Started
+                    </a>
+                    <a href="contact.php" class="btn-hero ghost pressable" data-tilt="8">
+                        <i class="bi bi-chat-dots"></i> Talk to Sales
+                    </a>
+                </div>
+
+                <div class="hero-metrics" role="list" aria-label="Homepage content snapshot">
+                    <?php foreach ($heroMetrics as $metric): ?>
+                    <div class="hero-metric glass-panel" role="listitem">
+                        <strong><?= home_escape($metric["value"]) ?></strong>
+                        <span><?= home_escape($metric["label"]) ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </section>
@@ -120,99 +361,123 @@
     <section id="services" class="features-section">
         <div class="section-title-block">
             <h3>Services</h3>
-            <p>Core services that keep your workforce operations efficient, transparent, and secure.</p>
+            <p><?= home_escape($servicesIntro) ?></p>
         </div>
 
         <div class="features-grid">
+            <?php if (!empty($services)): ?>
+            <?php foreach ($services as $service): ?>
             <article class="feature-card tilt-surface" data-tilt="8">
                 <div class="feature-icon">
-                    <i class="bi bi-kanban"></i>
+                    <i class="bi <?= home_escape(home_service_icon($service["CategoryName"] ?? "")) ?>"></i>
                 </div>
-                <h4>Workflow Automation</h4>
-                <p>Automate recurring HR and operations tasks with configurable workflows and approvals.</p>
-            </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-graph-up-arrow"></i>
+                <h4><?= home_escape($service["ServiceName"] ?? "Service") ?></h4>
+                <p><?= home_escape(home_service_description($service)) ?></p>
+                <div class="feature-meta">
+                    <?php if (!empty($service["CategoryName"])): ?>
+                    <span class="data-chip"><?= home_escape($service["CategoryName"]) ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($service["ServiceTier"])): ?>
+                    <span class="data-chip"><?= home_escape($service["ServiceTier"]) ?></span>
+                    <?php endif; ?>
+                    <span class="data-chip"><?= home_escape(home_rate_label($service["HourlyRate"] ?? null)) ?></span>
                 </div>
-                <h4>Performance Insights</h4>
-                <p>Turn daily activity into actionable dashboards for productivity and team performance tracking.</p>
             </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-fingerprint"></i>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <article class="feature-card feature-card-empty tilt-surface" data-tilt="8">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <h4>Services Coming Soon</h4>
+                    <p>Your service catalog will appear here automatically as soon as records are available.</p>
                 </div>
-                <h4>Access & Security</h4>
-                <p>Protect sensitive records with role-based access control, secure sessions, and audit logs.</p>
+                <div class="feature-meta">
+                    <span class="data-chip">Dynamic-ready</span>
+                </div>
             </article>
+            <?php endif; ?>
         </div>
     </section>
 
     <section id="solutions" class="features-section">
         <div class="section-title-block">
             <h3>Solutions</h3>
-            <p>Flexible deployment options designed for teams of different sizes and operational complexity.</p>
+            <p><?= home_escape($solutionsIntro) ?></p>
         </div>
 
         <div class="features-grid">
+            <?php if (!empty($solutions)): ?>
+            <?php foreach ($solutions as $solution): ?>
             <article class="feature-card tilt-surface" data-tilt="8">
                 <div class="feature-icon">
-                    <i class="bi bi-building"></i>
+                    <i class="bi <?= home_escape(home_solution_icon($solution["CategoryName"] ?? "")) ?>"></i>
                 </div>
-                <h4>Enterprise Suite</h4>
-                <p>Centralized control for multi-department organizations with advanced approvals and governance.</p>
-            </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-diagram-3"></i>
+                <h4><?= home_escape($solution["Title"] ?? "Solution") ?></h4>
+                <p><?= home_escape($solution["Description"] ?? "A published solution summary will appear here.") ?></p>
+                <div class="feature-meta">
+                    <?php if (!empty($solution["CategoryName"])): ?>
+                    <span class="data-chip"><?= home_escape($solution["CategoryName"]) ?></span>
+                    <?php endif; ?>
+                    <span class="data-chip"><?= home_escape(home_date_label($solution["DateCreated"] ?? "")) ?></span>
+                    <span class="data-chip">Active</span>
                 </div>
-                <h4>Team Operations Hub</h4>
-                <p>Coordinate projects, staffing, and schedules in one platform built for growing businesses.</p>
             </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-cloud-check"></i>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <article class="feature-card feature-card-empty tilt-surface" data-tilt="8">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-cloud-check"></i>
+                    </div>
+                    <h4>Solutions Will Publish Here</h4>
+                    <p>Once active solution entries are available, this section will keep itself updated.</p>
                 </div>
-                <h4>Cloud-Ready Platform</h4>
-                <p>Run securely from anywhere with browser-based access and scalable infrastructure.</p>
+                <div class="feature-meta">
+                    <span class="data-chip">Auto-updating</span>
+                </div>
             </article>
+            <?php endif; ?>
         </div>
     </section>
 
     <section id="support" class="features-section">
         <div class="section-title-block">
-            <h3>Support</h3>
-            <p>Reliable assistance and resources to keep your team productive and your platform running smoothly.</p>
+            <h3>Support Snapshot</h3>
+            <p><?= home_escape($supportIntro) ?></p>
         </div>
 
         <div class="features-grid">
+            <?php if (!empty($supportSummary)): ?>
+            <?php foreach ($supportSummary as $supportItem): ?>
             <article class="feature-card tilt-surface" data-tilt="8">
                 <div class="feature-icon">
-                    <i class="bi bi-headset"></i>
+                    <i class="bi <?= home_escape(home_support_icon($supportItem["Status"] ?? "")) ?>"></i>
                 </div>
-                <h4>Dedicated Help Desk</h4>
-                <p>Get prompt assistance for technical issues, user onboarding, and platform guidance.</p>
-            </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-journal-bookmark"></i>
+                <h4><?= home_escape($supportItem["Status"] ?? "Support") ?></h4>
+                <p><?= home_escape(home_support_description($supportItem["Status"] ?? "")) ?></p>
+                <div class="feature-meta">
+                    <span class="data-chip"><?= home_escape($supportItem["Total"] ?? 0) ?> tracked items</span>
+                    <span class="data-chip">Live summary</span>
                 </div>
-                <h4>Knowledge Base</h4>
-                <p>Access tutorials, troubleshooting guides, and best-practice documentation anytime.</p>
             </article>
-
-            <article class="feature-card tilt-surface" data-tilt="8">
-                <div class="feature-icon">
-                    <i class="bi bi-people"></i>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <article class="feature-card feature-card-empty tilt-surface" data-tilt="8">
+                <div>
+                    <div class="feature-icon">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <h4>Support Visibility</h4>
+                    <p>As your support workflow grows, this area can surface live operational highlights for visitors.
+                    </p>
                 </div>
-                <h4>Customer Success</h4>
-                <p>Work with specialists to optimize adoption, streamline processes, and achieve business goals.</p>
+                <div class="feature-meta">
+                    <span class="data-chip">Privacy-safe</span>
+                </div>
             </article>
+            <?php endif; ?>
         </div>
     </section>
 

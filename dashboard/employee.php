@@ -261,9 +261,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                 <!-- Stats Grid -->
                 <?php if ($role === 'Employee') : ?>
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card d-inline-block pr-3">
                         <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
-                        <h6>Pending Tasks</h6>
+                        <h6 class="fs-6">Pending Tasks</h6>
                         <?php
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('todo', 'in_progress') AND assigned_to = ?");
                             if ($stmt) {
@@ -272,18 +272,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 $stmt->bind_result($count);
                                 $stmt->fetch();
                                 $count = (int)($count ?? 0);
-                                echo "<h4>{$count}</h4>";
-                                echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
-                                $stmt->close();
-                            } else {
-                                echo "<p>DB error</p>";
-                            }
-                            ?>
+                                echo "<h3>{$count}</h3>";
+                        echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
+                        $stmt->close();
+                        } else {
+                        echo "<p>DB error</p>";
+                        }
+                        ?>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card d-inline-block pr-3">
                         <div class="stat-badge"><i class="bi bi-ui-checks"></i></div>
-                        <h6>Completed Tasks</h6>
+                        <h6 class="fs-6">Completed Tasks</h6>
                         <?php
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
                             if ($stmt) {
@@ -301,9 +301,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                             ?>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card d-inline-block pr-3">
                         <div class="stat-badge"><i class="bi bi-suitcase-lg-fill"></i></div>
-                        <h6>Leave Requests</h6>
+                        <h6 class="fs-6">Leave Requests</h6>
                         <?php
                             if ($currentEmployeeId > 0) {
                                 $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
@@ -326,9 +326,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                             ?>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card d-inline-block pr-3">
                         <div class="stat-badge"><i class="bi bi-coin"></i></div>
-                        <h6>Salary Slips</h6>
+                        <h6 class="fs-6">Salary Slips</h6>
                         <?php
                             if ($currentEmployeeId > 0) {
                                 $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips WHERE employee_id = ?");
@@ -442,7 +442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                 <?php endif; ?>
 
                 <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
-                <div class="content-grid">
+                <div class="content-grid mt-4">
                     <div class="card-container">
                         <h4><i class="bi bi-people"></i> &nbsp; Newest Employees</h4>
                         <?php

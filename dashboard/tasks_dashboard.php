@@ -338,7 +338,8 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
+            <?php include "../includes/sidebar_helper.php";
+            render_sidebar(); ?>
         </div>
 
         <div class="main-content">
@@ -716,7 +717,8 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                                 <?= htmlspecialchars($project_display) ?>
                             </span>
                             <?php if ($can_update_status) : ?>
-                            <form method="post" action="tasks_update.php" class="d-flex flex-wrap align-items-center gap-2">
+                            <form method="post" action="tasks_update.php"
+                                class="d-flex flex-wrap align-items-center gap-2">
                                 <input type="hidden" name="csrf_token"
                                     value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="set_status">
@@ -744,7 +746,7 @@ $users = $conn->query("SELECT id, full_name FROM users ORDER BY full_name");
                     }
 
                     if (!$has_tasks) {
-                ?>
+                    ?>
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <p>No tasks found</p>

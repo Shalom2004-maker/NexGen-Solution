@@ -110,7 +110,8 @@ $res = $stmt->get_result();
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
+            <?php include "../includes/sidebar_helper.php";
+            render_sidebar(); ?>
         </div>
 
         <div class="main-content">
@@ -122,12 +123,113 @@ $res = $stmt->get_result();
                         </p>
                     </div>
 
-                    <?php if (in_array($role, ['ProjectLeader', 'Admin'], true)) : ?>
-                    <button type="button" class="btn-primary-custom">
-                        <a href="leader_tasks.php" class="text-white text-decoration-none">
-                            <i class=" bi bi-plus-circle"></i> &nbsp; Create Tasks
-                        </a>
-                    </button>
+                    <?php if (in_array($role, ['ProjectLeader'], true)) : ?>
+                        <button type="button" class="btn-primary-custom">
+                            <a href="leader_tasks.php" class="text-white text-decoration-none">
+                                <i class=" bi bi-plus-circle"></i> &nbsp; Create Task
+                            </a>
+                        </button>
+                    <?php endif; ?>
+                    <?php if (in_array($role, ['Admin'], true)) : ?>
+                        <button type="button" class="btn-primary-custom" data-bs-toggle="modal"
+                            data-bs-target="#taskCreateModal">
+                            <i class="bi bi-plus-circle"></i> &nbsp; Create Task
+                        </button>
+                        <!-- Create Task Modal -->
+                        <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header border-bottom">
+                                        <h1 class="modal-title fs-5" id="taskCreateModalLabel">
+                                            <i class="bi bi-plus-circle"></i> &nbsp; Create New Task
+                                        </h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <?php if (!empty($error)): ?>
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($success)): ?>
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <form method="POST" action="">
+                                            <input type="hidden" name="csrf_token"
+                                                value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
+                                            <div class="mb-3">
+                                                <label for="project" class="form-label">Project (Optional)</label>
+                                                <select class="form-select" id="project" name="project">
+                                                    <option value="">Select Project</option>
+                                                    <?php if ($projects): ?>
+                                                        <?php while ($p = $projects->fetch_assoc()): ?>
+                                                            <option value="<?= $p['id'] ?>"
+                                                                <?= (isset($_POST['project']) && (int)$_POST['project'] === (int)$p['id']) ? 'selected' : '' ?>>
+                                                                <?= htmlspecialchars($p['project_name']) ?>
+                                                            </option>
+                                                        <?php endwhile; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="assigned_to" class="form-label">Assign To</label>
+                                                <select class="form-select" id="assigned_to" name="assigned_to">
+                                                    <option value="">Select Assignee</option>
+                                                    <?php if ($users): ?>
+                                                        <?php while ($u = $users->fetch_assoc()): ?>
+                                                            <option value="<?= $u['id'] ?>"
+                                                                <?= (isset($_POST['assigned_to']) && (int)$_POST['assigned_to'] === (int)$u['id']) ? 'selected' : '' ?>>
+                                                                <?= htmlspecialchars($u['full_name']) ?>
+                                                            </option>
+                                                        <?php endwhile; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="title" class="form-label">Task Title <span
+                                                        style="color: #ef4444;">*</span></label>
+                                                <input type="text" class="form-control" id="title" name="title" required
+                                                    value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
+                                                    placeholder="Enter task title">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="deadline" class="form-label">Deadline</label>
+                                                <input type="date" class="form-control" id="deadline" name="deadline"
+                                                    value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="description" class="form-label">Description</label>
+                                                <textarea class="form-control" id="description" name="description" rows="4"
+                                                    placeholder="Enter task description"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                                            </div>
+
+                                            <div class="modal-footer border-top">
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn-primary-custom">
+                                                    <i class="bi bi-check2-circle"></i> &nbsp; Create Task
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
 
                 </div>
@@ -165,86 +267,86 @@ $res = $stmt->get_result();
                         </thead>
                         <tbody>
                             <?php if ($res->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
-                            </tr>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">No tasks found</td>
+                                </tr>
                             <?php else: ?>
-                            <?php while ($t = $res->fetch_assoc()): ?>
-                            <tr>
-                                <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small
-                                        class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
-                                <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
-                                <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
-                                <td>
-                                    <?php
-                                        $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in_progress' ? 'status-in-progress' : 'status-todo');
-                                        $statusLabel = match ($t['status']) {
-                                            'todo' => 'Pending',
-                                            'in_progress' => 'In Progress',
-                                            'done' => 'Completed',
-                                            default => ucfirst(str_replace('_', ' ', (string)$t['status']))
-                                        };
-                                        ?>
-                                    <span
-                                        class="status-badge <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span>
-                                </td>
-                                <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?>
-                                </td>
-                                <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <?php if ((int)$t['assigned_to'] === $uid || $is_admin) : ?>
-                                        <form method="post" action="tasks_update.php" style="display: inline">
-                                            <input type="hidden" name="csrf_token"
-                                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                            <input type="hidden" name="action" value="toggle_status">
-                                            <input type="hidden" name="task_id"
-                                                value="<?= htmlspecialchars($t['id']) ?>">
-                                            <button type="submit" class="btn btn-outline-success btn-sm"
-                                                title="Advance status">
-                                                <i class="bi bi-check2-circle"></i>
-                                            </button>
-                                        </form>
-                                        <?php endif; ?>
-                                        <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
-                                        <a href="tasks_edit.php?id=<?= $t['id'] ?>"
-                                            class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-pen"></i>
-                                        </a>
-                                        <form method="post" action="task_delete.php" style="display: inline"
-                                            onsubmit="return confirm('Delete this task?')">
-                                            <input type="hidden" name="csrf_token"
-                                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="task_id"
-                                                value="<?= htmlspecialchars($t['id']) ?>">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                style="cursor:pointer;">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endwhile; ?>
+                                <?php while ($t = $res->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><strong><?= htmlspecialchars($t['title']) ?></strong><br><small
+                                                class="text-muted"><?= htmlspecialchars($t['description']) ?></small></td>
+                                        <td><?= htmlspecialchars($t['project_name'] ?? 'Unassigned') ?></td>
+                                        <td><?= htmlspecialchars($t['assigned_name'] ?? 'Unassigned') ?></td>
+                                        <td>
+                                            <?php
+                                            $statusClass = $t['status'] === 'done' ? 'status-done' : ($t['status'] === 'in_progress' ? 'status-in-progress' : 'status-todo');
+                                            $statusLabel = match ($t['status']) {
+                                                'todo' => 'Pending',
+                                                'in_progress' => 'In Progress',
+                                                'done' => 'Completed',
+                                                default => ucfirst(str_replace('_', ' ', (string)$t['status']))
+                                            };
+                                            ?>
+                                            <span
+                                                class="status-badge <?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></span>
+                                        </td>
+                                        <td><?= $t['deadline'] ? date('M d, Y', strtotime($t['deadline'])) : 'No deadline' ?>
+                                        </td>
+                                        <td><?= date('M d, Y', strtotime($t['created_at'])) ?></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <?php if ((int)$t['assigned_to'] === $uid || $is_admin) : ?>
+                                                    <form method="post" action="tasks_update.php" style="display: inline">
+                                                        <input type="hidden" name="csrf_token"
+                                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <input type="hidden" name="action" value="toggle_status">
+                                                        <input type="hidden" name="task_id"
+                                                            value="<?= htmlspecialchars($t['id']) ?>">
+                                                        <button type="submit" class="btn btn-outline-success btn-sm"
+                                                            title="Advance status">
+                                                            <i class="bi bi-check2-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                                <?php if (in_array($role, ['ProjectLeader', 'Admin'], true) || $t['created_by'] == $uid): ?>
+                                                    <a href="tasks_edit.php?id=<?= $t['id'] ?>"
+                                                        class="btn btn-outline-primary btn-sm">
+                                                        <i class="bi bi-pen"></i>
+                                                    </a>
+                                                    <form method="post" action="task_delete.php" style="display: inline"
+                                                        onsubmit="return confirm('Delete this task?')">
+                                                        <input type="hidden" name="csrf_token"
+                                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <input type="hidden" name="task_id"
+                                                            value="<?= htmlspecialchars($t['id']) ?>">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                            style="cursor:pointer;">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
                             <?php endif; ?>
                         </tbody>
                     </table>
 
                     <?php if ($total > $limit): ?>
-                    <div class="pagination">
-                        <?php
-                        $pages = ceil($total / $limit);
-                        for ($p = 1; $p <= $pages; $p++):
-                            $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
-                        ?>
-                        <a href="?q=<?= urlencode($q) ?>&filter=<?= urlencode($filter) ?>&page=<?= $p ?>"
-                            <?= $active ?>>
-                            <?= $p ?>
-                        </a>
-                        <?php endfor; ?>
-                    </div>
+                        <div class="pagination">
+                            <?php
+                            $pages = ceil($total / $limit);
+                            for ($p = 1; $p <= $pages; $p++):
+                                $active = $p === $page ? 'style="background-color:#337ccfe2;color:white;"' : '';
+                            ?>
+                                <a href="?q=<?= urlencode($q) ?>&filter=<?= urlencode($filter) ?>&page=<?= $p ?>"
+                                    <?= $active ?>>
+                                    <?= $p ?>
+                                </a>
+                            <?php endfor; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -253,41 +355,46 @@ $res = $stmt->get_result();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const nexgenSidebar = document.getElementById('nexgenSidebar');
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
+            const taskCreateModal = document.getElementById('taskCreateModal');
 
-        if (sidebarToggleBtn && nexgenSidebar) {
-            sidebarToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                nexgenSidebar.classList.toggle('show');
-                if (sidebarOverlay) {
-                    sidebarOverlay.classList.toggle('show');
-                }
-            });
-        }
+            if (taskCreateModal && taskCreateModal.parentElement !== document.body) {
+                document.body.appendChild(taskCreateModal);
+            }
 
-        if (sidebarOverlay && nexgenSidebar) {
-            sidebarOverlay.addEventListener('click', function() {
-                nexgenSidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
-        }
-
-        if (nexgenSidebar) {
-            document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        nexgenSidebar.classList.remove('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.remove('show');
-                        }
+            if (sidebarToggleBtn && nexgenSidebar) {
+                sidebarToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nexgenSidebar.classList.toggle('show');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.toggle('show');
                     }
                 });
-            });
-        }
-    });
+            }
+
+            if (sidebarOverlay && nexgenSidebar) {
+                sidebarOverlay.addEventListener('click', function() {
+                    nexgenSidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+
+            if (nexgenSidebar) {
+                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            nexgenSidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 

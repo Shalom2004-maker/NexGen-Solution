@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 25, 2026 at 05:06 PM
+-- Generation Time: Mar 29, 2026 at 08:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -20,6 +20,51 @@ SET time_zone = "+00:00";
 --
 -- Database: `nexgen_solutions`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `categories`
+--
+
+CREATE TABLE `categories` (
+  `CategoryID` int(11) NOT NULL,
+  `CategoryName` varchar(100) NOT NULL,
+  `Description` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`CategoryID`, `CategoryName`, `Description`) VALUES
+(1, 'Cloud Services', 'Computing and storage solutions'),
+(2, 'Cybersecurity', 'Network and data protection'),
+(3, 'Data Analytics', 'Business intelligence and reporting');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `site_settings`
+--
+
+CREATE TABLE `site_settings` (
+  `setting_key` varchar(64) NOT NULL,
+  `setting_value` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `site_settings`
+--
+
+INSERT INTO `site_settings` (`setting_key`, `setting_value`) VALUES
+('home_hero_eyebrow', 'Intelligent Workforce Platform'),
+('home_hero_title', 'Manage your team with precision'),
+('home_hero_summary', 'Browse a live catalog of services, solutions, and support coverage powered by your latest published data.'),
+('home_services_intro', 'Browse the current service catalog, grouped by tier and category so visitors can quickly understand what you offer.'),
+('home_solutions_intro', 'Highlighted active solutions are now pulled directly from your latest published entries.'),
+('home_support_intro', 'A live operational summary generated from support activity without exposing private ticket details.');
 
 -- --------------------------------------------------------
 
@@ -135,7 +180,8 @@ INSERT INTO `leave_requests` (`id`, `employee_id`, `start_date`, `end_date`, `le
 (9, 1, '2024-05-01', '2024-05-02', 'unpaid', 'Personal', 'hr_approved', 3, 2, '2026-01-03 16:41:45'),
 (10, 1, '2026-01-30', '2026-02-08', 'personal', 'I\'d like to spend the time thinking about myself.', 'pending', NULL, NULL, '2026-01-11 17:05:30'),
 (11, 1, '2026-02-06', '2026-02-08', 'personal', 'It will be Sabbath; I need to need as it is commanded', 'hr_approved', NULL, NULL, '2026-02-04 05:08:18'),
-(12, 123, '2025-01-22', '2025-01-25', 'sick', 'Auto reason', 'leader_approved', 3, NULL, '2026-02-08 13:35:44');
+(12, 123, '2025-01-22', '2025-01-25', 'sick', 'Auto reason', 'leader_approved', 3, NULL, '2026-02-08 13:35:44'),
+(132, 6, '2026-03-28', '2026-03-31', 'personal', 'Rest for a while', 'pending', NULL, NULL, '2026-03-25 16:29:34');
 
 -- --------------------------------------------------------
 
@@ -256,6 +302,78 @@ INSERT INTO `salary_slips` (`id`, `employee_id`, `month`, `year`, `base_salary`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `ServiceID` int(11) NOT NULL,
+  `ServiceName` varchar(150) NOT NULL,
+  `ServiceTier` varchar(50) DEFAULT NULL,
+  `HourlyRate` decimal(10,2) DEFAULT NULL,
+  `CategoryID` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `services`
+--
+
+INSERT INTO `services` (`ServiceID`, `ServiceName`, `ServiceTier`, `HourlyRate`, `CategoryID`) VALUES
+(201, 'Cloud Migration', 'Premium', 150.00, 1),
+(202, 'Security Audit', 'Standard', 200.00, 2),
+(203, 'SQL Optimization', 'Basic', 100.00, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `solutions`
+--
+
+CREATE TABLE `solutions` (
+  `SolutionID` int(11) NOT NULL,
+  `Title` varchar(255) NOT NULL,
+  `Description` text DEFAULT NULL,
+  `CategoryID` int(11) DEFAULT NULL,
+  `DateCreated` date NOT NULL,
+  `IsActive` bit(1) DEFAULT b'1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `solutions`
+--
+
+INSERT INTO `solutions` (`SolutionID`, `Title`, `Description`, `CategoryID`, `DateCreated`, `IsActive`) VALUES
+(101, 'Automated Backups', 'Daily encrypted backups to cloud storage', 1, '2023-10-01', b'1'),
+(102, 'Firewall Config', 'Enterprise-grade perimeter defense setup', 2, '2023-10-05', b'1'),
+(103, 'Real-time Dashboard', 'Live data visualization for sales teams', 3, '2023-10-10', b'1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `support`
+--
+
+CREATE TABLE `support` (
+  `ID` int(11) NOT NULL,
+  `Subject` varchar(255) NOT NULL,
+  `Status` varchar(50) DEFAULT 'Open',
+  `Priority` int(11) DEFAULT 3,
+  `SolutionID` int(11) DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `support`
+--
+
+INSERT INTO `support` (`ID`, `Subject`, `Status`, `Priority`, `SolutionID`, `ServiceID`, `CreatedAt`) VALUES
+(301, 'Backup Failure', 'Open', 1, 101, 201, '2026-03-29 06:01:30'),
+(302, 'Login Issue', 'In Progress', 2, 102, 202, '2026-03-29 06:01:30'),
+(303, 'Report Slow', 'Resolved', 3, 103, 203, '2026-03-29 06:01:30');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tasks`
 --
 
@@ -292,7 +410,8 @@ INSERT INTO `tasks` (`id`, `project_id`, `assigned_to`, `created_by`, `title`, `
 (24, 19, NULL, 3, 'Task 15: Project 15', 'Auto-generated task 15 for Project 15.', 'done', '2026-03-22', '2026-02-08 13:50:04'),
 (25, 20, 8, 3, 'Task 16: Project 16', 'Auto-generated task 16 for Project 16.', 'todo', '2026-03-23', '2026-02-08 13:50:04'),
 (26, 21, NULL, 3, 'Task 17: Project 17', 'Auto-generated task 17 for Project 17.', 'in_progress', '2026-03-24', '2026-02-08 13:50:04'),
-(27, 22, 8, 3, 'Task 18: Project 18', 'Auto-generated task 18 for Project 18.', 'done', '2026-03-25', '2026-02-08 13:50:04');
+(27, 22, 8, 3, 'Task 18: Project 18', 'Auto-generated task 18 for Project 18.', 'done', '2026-03-25', '2026-02-08 13:50:04'),
+(50, 9, 8, 3, 'Task 7: Project 7', 'Auto-generated task 7 for Project 7.', 'done', '2026-03-25', '2026-03-25 16:28:14');
 
 -- --------------------------------------------------------
 
@@ -319,18 +438,32 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `password`, `role_id`, `status`, `profile_photo`, `password_reset_token`, `password_reset_expires_at`, `created_at`) VALUES
-(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni', 'AdminUser', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, '2026-01-03 10:21:13'),
-(2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', 'BenevolentEager', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', '9390de8b102f6e38a2c2a220b9a433bdd7e7e9fd4b534a2ad3d8d8b4c6603d7a', '2026-02-05 15:46:52', '2026-02-04 03:30:00'),
+(1, 'Admin User', 'admin@spycray.com', '$2y$10$2GWFIRJ33YWVIijMKuCSIu8IcD4k6M1u4JNaLw0qfsSVXInmMo8Ni', '', 1, 'active', 'assets/avatars/user_1_3c280c7edaec6d8f.png', NULL, NULL, '2026-01-03 10:21:13'),
+(2, 'Benevolent Eager', 'benevolenteager@gmail.com', '$2y$10$4Y275/M.hfmV7WQ1l7zQdera8ye1FeWEgbUcTKr.aRyKVcbdPlrLO', '', 1, 'active', 'assets/avatars/user_5_17bc450c2e85e8da.jpg', 'c743ca31562730bed2bce5f2146228cd823c1888c20205bb5af7bd66ca49a3ed', '2026-03-27 14:17:26', '2026-02-04 03:30:00'),
 (3, 'Project Leader', 'leader@spycray.com', '$2y$10$8/amw5dJ4dtqOmGI9awKZuAo.UCu4MlB7blwV3YlQq.q3zwvH3JsS', '', 2, 'active', 'assets/avatars/user_3_9559e2d983f826f8.png', NULL, NULL, '2026-01-03 10:21:13'),
 (4, 'HR Manager', 'hr@spycray.com', '$2y$10$uXZYvYDlvekVjyP4P162E.8JZCbeV6oq7pULUrF6hjFK2hVkFi.pe', 'HRManager', 3, 'active', 'assets/avatars/user_2_3bd7f4bb74f90212.png', NULL, NULL, '2026-01-03 10:21:13'),
-(5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', 'Employee', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, '2026-01-05 07:03:32'),
+(5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', '', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, '2026-01-05 07:03:32'),
 (6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, '2026-02-08 08:02:31'),
 (7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, '2026-02-08 08:02:31'),
-(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, '2026-03-25 13:56:54');
+(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, '2026-03-25 13:56:54'),
+(127, 'Phoneapp Infos', 'phoneappinfos@gmail.com', '$2y$10$7qkGjA5qj6hxlU0cUOY2xOjf3Xt8F7in44hDVGsple9.YqAC3VPHC', '', 3, 'active', NULL, 'bcbae2176e1166216be43a7cb2d3ffb4f931a6345c1e83eb601b38a4a0eff129', '2026-03-28 19:11:48', '2026-03-28 15:55:20');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`CategoryID`),
+  ADD UNIQUE KEY `CategoryName` (`CategoryName`);
+
+--
+-- Indexes for table `site_settings`
+--
+ALTER TABLE `site_settings`
+  ADD PRIMARY KEY (`setting_key`);
 
 --
 -- Indexes for table `inquiries`
@@ -384,6 +517,28 @@ ALTER TABLE `salary_slips`
   ADD KEY `generated_by` (`generated_by`);
 
 --
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD PRIMARY KEY (`ServiceID`),
+  ADD KEY `CategoryID` (`CategoryID`);
+
+--
+-- Indexes for table `solutions`
+--
+ALTER TABLE `solutions`
+  ADD PRIMARY KEY (`SolutionID`),
+  ADD KEY `CategoryID` (`CategoryID`);
+
+--
+-- Indexes for table `support`
+--
+ALTER TABLE `support`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `SolutionID` (`SolutionID`),
+  ADD KEY `ServiceID` (`ServiceID`);
+
+--
 -- Indexes for table `tasks`
 --
 ALTER TABLE `tasks`
@@ -405,6 +560,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `CategoryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
@@ -420,7 +581,7 @@ ALTER TABLE `inquiry_table`
 -- AUTO_INCREMENT for table `leave_requests`
 --
 ALTER TABLE `leave_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=132;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT for table `payroll_inputs`
@@ -447,16 +608,51 @@ ALTER TABLE `salary_slips`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `services`
+--
+ALTER TABLE `services`
+  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=204;
+
+--
+-- AUTO_INCREMENT for table `support`
+--
+ALTER TABLE `support`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=304;
+
+--
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `services`
+--
+ALTER TABLE `services`
+  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`CategoryID`) REFERENCES `categories` (`CategoryID`);
+
+--
+-- Constraints for table `solutions`
+--
+ALTER TABLE `solutions`
+  ADD CONSTRAINT `solutions_ibfk_1` FOREIGN KEY (`CategoryID`) REFERENCES `categories` (`CategoryID`);
+
+--
+-- Constraints for table `support`
+--
+ALTER TABLE `support`
+  ADD CONSTRAINT `support_ibfk_1` FOREIGN KEY (`SolutionID`) REFERENCES `solutions` (`SolutionID`),
+  ADD CONSTRAINT `support_ibfk_2` FOREIGN KEY (`ServiceID`) REFERENCES `services` (`ServiceID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

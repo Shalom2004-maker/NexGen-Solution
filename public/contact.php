@@ -102,49 +102,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="bi bi-arrow-left"></i> Back to Home
                     </a>
                 </div>
-                <div class="contact-info-content">
-                    <h1 class="form-title">Get In Touch</h1>
-                    <p class="form-subtitle">Have questions about NexGen? <br> We are here to help.Fill up the form and our
-                        team will get back with Response in 24 hours.</p>
+                <center>
+                    <div class="contact-info-content mt-4">
+                        <h1 class="form-title text-dark">Get In Touch</h1>
+                        <p class="form-subtitle text-dark">Have questions about NexGen? <br> We are here to help.Fill up
+                            the
+                            form
+                            and our team will get back with Response in 24 hours.</p>
 
-                    <ul class="info-details">
-                        <li>
-                            <i class="bi bi-telephone-fill me-3"></i>
-                            <span>Phone: </span> <a href="tel:+123456789">123456789</a>
-                        </li>
-                        <li>
-                            <i class="bi bi-envelope-at-fill me-3"></i>
-                            <span>Email: </span> <a
-                                href="mailto:info@nexgensolutions.com">mailto:nexgensolutions@info.com</a>
-                        </li>
-                        <li>
-                            <i class="bi bi-globe2 me-3"></i>
-                            <span>Website: </span> <a href="https://nexgensolutions.com">nexgensolutions.com</a>
-                        </li>
-                    </ul>
-                    <ul class="social-icons">
-                        <li class="social-icon">
-                            <a class="social-link" href="#">
-                                <i class="bi bi-facebook"></i>
-                            </a>
-                        </li>
-                        <li class="social-icon">
-                            <a class="social-link" href="#">
-                                <i class="bi bi-whatsapp"></i>
-                            </a>
-                        </li>
-                        <li class="social-icon">
-                            <a class="social-link" href="#">
-                                <i class="bi bi-linkedin"></i>
-                            </a>
-                        </li>
-                        <li class="social-icon">
-                            <a class="social-link" href="#">
-                                <i class="bi bi-pinterest"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                        <ul class="info-details ms-4 mt-3">
+                            <li>
+                                <i class="bi bi-telephone-fill me-3"></i>
+                                <span class=" text-dark">Phone: </span> <a href="tel:+123456789"
+                                    class=" text-dark">123456789</a>
+                            </li>
+                            <li>
+                                <i class="bi bi-envelope-at-fill me-3"></i>
+                                <span class=" text-dark">Email: </span> <a href="mailto:info@nexgensolutions.com"
+                                    class=" text-primary">mailto:nexgensolutions@info.com</a>
+                            </li>
+                            <li>
+                                <i class="bi bi-globe2 me-3"></i>
+                                <span class=" text-dark">Website: </span> <a href="https://nexgensolutions.com"
+                                    class=" text-primary">nexgensolutions.com</a>
+                            </li>
+                        </ul>
+                        <ul class="social-icons d-flex justify-content-center mt-4">
+                            <li class="social-icon">
+                                <a class="social-link" href="#">
+                                    <i class="bi bi-facebook"></i>
+                                </a>
+                            </li>
+                            <li class="social-icon">
+                                <a class="social-link" href="#">
+                                    <i class="bi bi-whatsapp"></i>
+                                </a>
+                            </li>
+                            <li class="social-icon">
+                                <a class="social-link" href="#">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                            </li>
+                            <li class="social-icon">
+                                <a class="social-link" href="#">
+                                    <i class="bi bi-pinterest"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </center>
             </div>
 
             <div class="form-container contact-form-panel">
@@ -153,7 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($success): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-check-circle"></i>
-                    <strong>Success!</strong> Your inquiry has been submitted successfully. We will contact you soon.
+                    <strong>Success!</strong> Your inquiry has been submitted successfully. We will contact you
+                    soon.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 <?php endif; ?>
