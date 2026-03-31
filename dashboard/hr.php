@@ -2,8 +2,10 @@
 include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
-?>
+require_once __DIR__ . "/../includes/chart_generator.php";
 
+$chartGen = new ChartGenerator($conn);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,6 +24,9 @@ include "../includes/db.php";
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <!-- CanvasJS for Charts -->
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 </head>
 
 <body class="future-page future-dashboard" data-theme="dark">
@@ -92,34 +97,94 @@ include "../includes/db.php";
                         </a>
                     </div>
                 </div>
+
+                <!-- HR Analytics Charts -->
+                <div class="row mt-4">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Leave Requests Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $leaveData = $chartGen->getLeaveStatusChart();
+                                $chartGen->renderChart('hrLeaveChart', $leaveData, 'Leave Requests by Status', 'doughnut');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Employee Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $deptData = $chartGen->getEmployeeDepartmentChart();
+                                $chartGen->renderChart('hrDeptChart', $deptData, 'Employees by Department', 'pie');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Monthly Leave Trends</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $monthlyData = $chartGen->getMonthlyLeaveChart();
+                                $chartGen->renderChart('hrMonthlyChart', $monthlyData, 'Leave Requests (Last 6 Months)', 'line');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Leave Types Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $leaveTypeData = $chartGen->getLeaveTypesChart();
+                                $chartGen->renderChart('hrLeaveTypeChart', $leaveTypeData, 'Leave Requests by Type', 'pie');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const nexgenSidebar = document.getElementById('nexgenSidebar');
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-    if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', function() {
-            if (nexgenSidebar) {
-                nexgenSidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', function() {
+                    if (nexgenSidebar) {
+                        nexgenSidebar.classList.toggle('show');
+                        sidebarOverlay.classList.toggle('show');
+                    }
+                });
             }
-        });
-    }
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-            if (nexgenSidebar) {
-                nexgenSidebar.classList.remove('show');
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (nexgenSidebar) {
+                        nexgenSidebar.classList.remove('show');
+                    }
+                    sidebarOverlay.classList.remove('show');
+                });
             }
-            sidebarOverlay.classList.remove('show');
-        });
-    }
-    </script>
+            </script>
 </body>
 
 </html>

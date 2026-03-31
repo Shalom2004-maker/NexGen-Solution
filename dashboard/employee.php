@@ -3,6 +3,9 @@
 include "../includes/auth.php";
 allow(["Employee", "HR", "Admin"]);
 include "../includes/db.php";
+require_once __DIR__ . "/../includes/chart_generator.php";
+
+$chartGen = new ChartGenerator($conn);
 
 $role = $_SESSION['role'] ?? '';
 $currentUserId = (int)($_SESSION['uid'] ?? 0);
@@ -144,6 +147,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
+    <!-- CanvasJS for Charts -->
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
     </script>
@@ -158,19 +164,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
     <script src="../js/bootstrap.bundle.min.js"></script>
 
     <style>
-    .avatar-initial {
-        width: 4rem;
-        height: 4rem;
-        border-radius: 50%;
-        background-color: #0d6efd;
-        color: #fff;
-        font-weight: 600;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        text-transform: uppercase;
-        font-size: 1.3rem;
-    }
+        .avatar-initial {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            color: #fff;
+            font-weight: 600;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+        }
     </style>
 
     <!-- CSS -->
@@ -193,78 +199,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                 <div class="page-header">
                     <div>
                         <?php if ($role === 'Employee') : ?>
-                        <h3>Employee Dashboard</h3>
-                        <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's your live
-                            workspace overview.</p>
+                            <h3>Employee Dashboard</h3>
+                            <p>Welcome back, <?= htmlspecialchars($_SESSION['name'] ?? 'Employee') ?>. Here's your live
+                                workspace overview.</p>
                         <?php else : ?>
-                        <h3>Employee Records</h3>
-                        <p>Manage employee profiles and onboarding details.</p>
+                            <h3>Employee Records</h3>
+                            <p>Manage employee profiles and onboarding details.</p>
                         <?php endif; ?>
                     </div>
                     <div class="header-actions">
                         <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
-                        <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
-                            <i class="bi bi-person-plus"></i> &nbsp; Create Employee
-                        </button>
+                            <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
+                                <i class="bi bi-person-plus"></i> &nbsp; Create Employee
+                            </button>
                         <?php endif; ?>
                         <?php if ($role === 'Employee') : ?>
-                        <a class="btn btn-outline-custom" href="profile.php">
-                            <i class="bi bi-person-circle"></i> My Profile
-                        </a>
+                            <a class="btn btn-outline-custom" href="profile.php">
+                                <i class="bi bi-person-circle"></i> My Profile
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
 
                 <?php if (!empty($create_error)) : ?>
-                <div class="alert alert-danger alert-custom"><?= htmlspecialchars($create_error) ?></div>
+                    <div class="alert alert-danger alert-custom"><?= htmlspecialchars($create_error) ?></div>
                 <?php elseif (!empty($create_success)) : ?>
-                <div class="alert alert-success alert-custom"><?= htmlspecialchars($create_success) ?></div>
+                    <div class="alert alert-success alert-custom"><?= htmlspecialchars($create_success) ?></div>
                 <?php endif; ?>
 
                 <?php if ($role === 'Employee') : ?>
-                <div class="quick-actions mb-4">
-                    <h5>Quick Actions</h5>
-                    <div class="action-buttons">
-                        <a class="action-link d-flex" href="tasks_dashboard.php"><i class="bi bi-list-check"></i>
-                            &nbsp; Tasks</a>
-                        <a class="action-link d-flex" href="leave_dashboard.php"><i class="bi bi-calendar2-check"></i>
-                            &nbsp;
-                            Leave</a>
-                        <a class="action-link d-flex" href="salary_dashboard.php"><i class="bi bi-coin"></i> &nbsp;
-                            Salary</a>
+                    <div class="quick-actions mb-4">
+                        <h5>Quick Actions</h5>
+                        <div class="action-buttons">
+                            <a class="action-link d-flex" href="tasks_dashboard.php"><i class="bi bi-list-check"></i>
+                                &nbsp; Tasks</a>
+                            <a class="action-link d-flex" href="leave_dashboard.php"><i class="bi bi-calendar2-check"></i>
+                                &nbsp;
+                                Leave</a>
+                            <a class="action-link d-flex" href="salary_dashboard.php"><i class="bi bi-coin"></i> &nbsp;
+                                Salary</a>
+                        </div>
                     </div>
-                </div>
                 <?php elseif ($role === 'HR') : ?>
-                <div class="quick-actions mt-4 mb-4">
-                    <h5>Quick Actions</h5>
-                    <div class="action-buttons mt-3 gap-3">
-                        <a class="action-link" href="employee.php"><i class="bi bi-people"></i> &nbsp; Employees</a>
-                        <a class="action-link" href="leave_view.php"><i class="bi bi-calendar2-check"></i> &nbsp;
-                            Leave</a>
-                        <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> &nbsp;
-                            Inquiries</a>
-                        <a class="action-link" href="hr_payroll.php"><i class="bi bi-coin"></i> &nbsp; Payroll</a>
+                    <div class="quick-actions mt-4 mb-4">
+                        <h5>Quick Actions</h5>
+                        <div class="action-buttons mt-3 gap-3">
+                            <a class="action-link" href="employee.php"><i class="bi bi-people"></i> &nbsp; Employees</a>
+                            <a class="action-link" href="leave_view.php"><i class="bi bi-calendar2-check"></i> &nbsp;
+                                Leave</a>
+                            <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> &nbsp;
+                                Inquiries</a>
+                            <a class="action-link" href="hr_payroll.php"><i class="bi bi-coin"></i> &nbsp; Payroll</a>
+                        </div>
                     </div>
-                </div>
                 <?php elseif ($role === 'Admin') : ?>
-                <div class="quick-actions">
-                    <h5>Quick Actions</h5>
-                    <div class="action-buttons">
-                        <a class="action-link" href="admin_dashboard.php"><i class="bi bi-columns-gap"></i>
-                            Dashboard</a>
-                        <a class="action-link" href="admin_user_view.php"><i class="bi bi-people"></i> Users</a>
-                        <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> Inquiries</a>
+                    <div class="quick-actions">
+                        <h5>Quick Actions</h5>
+                        <div class="action-buttons">
+                            <a class="action-link" href="admin_dashboard.php"><i class="bi bi-columns-gap"></i>
+                                Dashboard</a>
+                            <a class="action-link" href="admin_user_view.php"><i class="bi bi-people"></i> Users</a>
+                            <a class="action-link" href="inquiries_dashboard.php"><i class="bi bi-inbox"></i> Inquiries</a>
+                        </div>
                     </div>
-                </div>
                 <?php endif; ?>
 
                 <!-- Stats Grid -->
                 <?php if ($role === 'Employee') : ?>
-                <div class="stats-grid">
-                    <div class="stat-card d-inline-block pr-3">
-                        <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
-                        <h6 class="fs-6">Pending Tasks</h6>
-                        <?php
+                    <div class="stats-grid">
+                        <div class="stat-card d-inline-block pr-3">
+                            <div class="stat-badge"><i class="bi bi-stopwatch-fill"></i></div>
+                            <h6 class="fs-6">Pending Tasks</h6>
+                            <?php
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('todo', 'in_progress') AND assigned_to = ?");
                             if ($stmt) {
                                 $stmt->bind_param('i', $currentUserId);
@@ -279,12 +285,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo "<p>DB error</p>";
                             }
                             ?>
-                    </div>
+                        </div>
 
-                    <div class="stat-card d-inline-block pr-3">
-                        <div class="stat-badge"><i class="bi bi-ui-checks"></i></div>
-                        <h6 class="fs-6">Completed Tasks</h6>
-                        <?php
+                        <div class="stat-card d-inline-block pr-3">
+                            <div class="stat-badge"><i class="bi bi-ui-checks"></i></div>
+                            <h6 class="fs-6">Completed Tasks</h6>
+                            <?php
                             $stmt = $conn->prepare("SELECT COUNT(*) FROM tasks WHERE assigned_to = ? AND status = 'done'");
                             if ($stmt) {
                                 $stmt->bind_param('i', $currentUserId);
@@ -299,12 +305,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo "<p>DB error</p>";
                             }
                             ?>
-                    </div>
+                        </div>
 
-                    <div class="stat-card d-inline-block pr-3">
-                        <div class="stat-badge"><i class="bi bi-suitcase-lg-fill"></i></div>
-                        <h6 class="fs-6">Leave Requests</h6>
-                        <?php
+                        <div class="stat-card d-inline-block pr-3">
+                            <div class="stat-badge"><i class="bi bi-suitcase-lg-fill"></i></div>
+                            <h6 class="fs-6">Leave Requests</h6>
+                            <?php
                             if ($currentEmployeeId > 0) {
                                 $stmt = $conn->prepare("SELECT COUNT(*) FROM leave_requests WHERE employee_id = ?");
                                 if ($stmt) {
@@ -324,12 +330,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo "<p>Employee profile not linked yet</p>";
                             }
                             ?>
-                    </div>
+                        </div>
 
-                    <div class="stat-card d-inline-block pr-3">
-                        <div class="stat-badge"><i class="bi bi-coin"></i></div>
-                        <h6 class="fs-6">Salary Slips</h6>
-                        <?php
+                        <div class="stat-card d-inline-block pr-3">
+                            <div class="stat-badge"><i class="bi bi-coin"></i></div>
+                            <h6 class="fs-6">Salary Slips</h6>
+                            <?php
                             if ($currentEmployeeId > 0) {
                                 $stmt = $conn->prepare("SELECT COUNT(*) FROM salary_slips WHERE employee_id = ?");
                                 if ($stmt) {
@@ -349,14 +355,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo "<p>Employee profile not linked yet</p>";
                             }
                             ?>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Content Grid -->
-                <div class="content-grid">
-                    <div class="card-container">
-                        <h4 class="d-flex"><i class="bi bi-list-check"></i> &nbsp; My Recent Tasks</h4>
-                        <?php
+                    <!-- Employee Personal Charts -->
+                    <?php if ($role === 'Employee') : ?>
+                        <div class="row mt-4">
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">My Task Status</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php
+                                        // Get personal task status
+                                        $personalTaskQuery = "SELECT status, COUNT(*) as count FROM tasks WHERE assigned_to = ? GROUP BY status ORDER BY count DESC";
+                                        $personalTaskStmt = $conn->prepare($personalTaskQuery);
+                                        $personalTaskData = array();
+
+                                        if ($personalTaskStmt) {
+                                            $personalTaskStmt->bind_param('i', $currentUserId);
+                                            $personalTaskStmt->execute();
+                                            $personalTaskResult = $personalTaskStmt->get_result();
+
+                                            while ($row = $personalTaskResult->fetch_assoc()) {
+                                                $personalTaskData[] = array(
+                                                    "label" => ucfirst(str_replace('_', ' ', $row['status'])),
+                                                    "y" => (int)$row['count']
+                                                );
+                                            }
+                                            $personalTaskStmt->close();
+                                        }
+
+                                        $chartGen->renderChart('empTaskChart', $personalTaskData, 'My Tasks by Status', 'doughnut');
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">My Leave Status</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php
+                                        if ($currentEmployeeId > 0) {
+                                            // Get personal leave status
+                                            $personalLeaveQuery = "SELECT status, COUNT(*) as count FROM leave_requests WHERE employee_id = ? GROUP BY status ORDER BY count DESC";
+                                            $personalLeaveStmt = $conn->prepare($personalLeaveQuery);
+                                            $personalLeaveData = array();
+
+                                            if ($personalLeaveStmt) {
+                                                $personalLeaveStmt->bind_param('i', $currentEmployeeId);
+                                                $personalLeaveStmt->execute();
+                                                $personalLeaveResult = $personalLeaveStmt->get_result();
+
+                                                while ($row = $personalLeaveResult->fetch_assoc()) {
+                                                    $personalLeaveData[] = array(
+                                                        "label" => ucfirst(str_replace('_', ' ', $row['status'])),
+                                                        "y" => (int)$row['count']
+                                                    );
+                                                }
+                                                $personalLeaveStmt->close();
+                                            }
+
+                                            $chartGen->renderChart('empLeaveChart', $personalLeaveData, 'My Leave Requests', 'pie');
+                                        } else {
+                                            echo '<p class="text-muted">Employee profile not linked yet.</p>';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Content Grid -->
+                    <div class="content-grid">
+                        <div class="card-container">
+                            <h4 class="d-flex"><i class="bi bi-list-check"></i> &nbsp; My Recent Tasks</h4>
+                            <?php
                             $stmt = $conn->prepare("SELECT title, status, created_at FROM tasks WHERE assigned_to = ? ORDER BY created_at DESC LIMIT 5");
                             if ($stmt) {
                                 $stmt->bind_param('i', $currentUserId);
@@ -391,11 +470,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo '<p>DB error</p>';
                             }
                             ?>
-                    </div>
+                        </div>
 
-                    <div class="card-container">
-                        <h4 class="d-flex"><i class="bi bi-calendar-check"></i> &nbsp; My Leave Requests</h4>
-                        <?php
+                        <div class="card-container">
+                            <h4 class="d-flex"><i class="bi bi-calendar-check"></i> &nbsp; My Leave Requests</h4>
+                            <?php
                             if ($currentEmployeeId > 0) {
                                 $stmt = $conn->prepare("SELECT reason, start_date, end_date, status FROM leave_requests WHERE employee_id = ? ORDER BY applied_at DESC LIMIT 5");
                                 if ($stmt) {
@@ -436,16 +515,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 echo '<p class="text-muted">Your employee profile is not linked to a leave record yet.</p>';
                             }
                             ?>
-                    </div>
+                        </div>
 
-                </div>
+                    </div>
                 <?php endif; ?>
 
                 <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
-                <div class="content-grid mt-4">
-                    <div class="card-container">
-                        <h4><i class="bi bi-people"></i> &nbsp; Newest Employees</h4>
-                        <?php
+                    <div class="content-grid mt-4">
+                        <div class="card-container">
+                            <h4><i class="bi bi-people"></i> &nbsp; Newest Employees</h4>
+                            <?php
                             $stmt = $conn->prepare("SELECT u.full_name, u.email, u.profile_photo, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.hire_date DESC LIMIT 12");
                             if ($stmt) {
                                 $stmt->execute();
@@ -496,126 +575,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                             }
                             ?>
                         <?php endif; ?>
+                        </div>
                     </div>
-                </div>
             </div>
 
             <?php if (in_array($role, ['HR', 'Admin'], true)) : ?>
-            <!-- Create Employee Modal -->
-            <div class="modal fade" id="createEmployeeModal" tabindex="-1" aria-labelledby="createEmployeeModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createEmployeeModalLabel">Create New Employee</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="">
-                            <div class="modal-body">
-                                <input type="hidden" name="csrf_token"
-                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                <input type="hidden" name="create_employee" value="1">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Full Name *</label>
-                                        <input type="text" name="full_name" class="form-control" required
-                                            placeholder="e.g. Jane Doe">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Email *</label>
-                                        <input type="email" name="email" class="form-control" required
-                                            placeholder="e.g. jane@company.com">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Password *</label>
-                                        <input type="password" name="password" class="form-control" required
-                                            minlength="6" placeholder="Minimum 6 characters">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Job Title *</label>
-                                        <input type="text" name="job_title" class="form-control" required
-                                            placeholder="e.g. UI Designer">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Department *</label>
-                                        <input type="text" name="department" class="form-control" required
-                                            placeholder="e.g. Design">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Hire Date *</label>
-                                        <input type="date" name="hire_date" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Base Salary *</label>
-                                        <input type="number" name="salary_base" class="form-control" required min="0"
-                                            step="0.01" placeholder="e.g. 55000">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Status</label>
-                                        <select name="status" class="form-select">
-                                            <option value="active" selected>Active</option>
-                                            <option value="resigned">Resigned</option>
-                                        </select>
+                <!-- Create Employee Modal -->
+                <div class="modal fade" id="createEmployeeModal" tabindex="-1" aria-labelledby="createEmployeeModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createEmployeeModalLabel">Create New Employee</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="">
+                                <div class="modal-body">
+                                    <input type="hidden" name="csrf_token"
+                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="create_employee" value="1">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Full Name *</label>
+                                            <input type="text" name="full_name" class="form-control" required
+                                                placeholder="e.g. Jane Doe">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email *</label>
+                                            <input type="email" name="email" class="form-control" required
+                                                placeholder="e.g. jane@company.com">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Password *</label>
+                                            <input type="password" name="password" class="form-control" required
+                                                minlength="6" placeholder="Minimum 6 characters">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Job Title *</label>
+                                            <input type="text" name="job_title" class="form-control" required
+                                                placeholder="e.g. UI Designer">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Department *</label>
+                                            <input type="text" name="department" class="form-control" required
+                                                placeholder="e.g. Design">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Hire Date *</label>
+                                            <input type="date" name="hire_date" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Base Salary *</label>
+                                            <input type="number" name="salary_base" class="form-control" required min="0"
+                                                step="0.01" placeholder="e.g. 55000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Status</label>
+                                            <select name="status" class="form-select">
+                                                <option value="active" selected>Active</option>
+                                                <option value="resigned">Resigned</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn-primary-custom">Create Employee</button>
-                            </div>
-                        </form>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn-primary-custom">Create Employee</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
             <?php endif; ?>
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-                const sidebarOverlay = document.getElementById('sidebarOverlay');
-                const nexgenSidebar = document.getElementById('nexgenSidebar');
+                document.addEventListener('DOMContentLoaded', function() {
+                    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+                    const sidebarOverlay = document.getElementById('sidebarOverlay');
+                    const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-                if (sidebarToggleBtn && nexgenSidebar) {
-                    sidebarToggleBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        nexgenSidebar.classList.toggle('show');
-                        if (sidebarOverlay) {
-                            sidebarOverlay.classList.toggle('show');
-                        }
-                    });
-                }
-
-                if (sidebarOverlay && nexgenSidebar) {
-                    sidebarOverlay.addEventListener('click', function() {
-                        nexgenSidebar.classList.remove('show');
-                        sidebarOverlay.classList.remove('show');
-                    });
-                }
-
-                if (nexgenSidebar) {
-                    document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                        link.addEventListener('click', function() {
-                            if (window.innerWidth <= 768) {
-                                nexgenSidebar.classList.remove('show');
-                                if (sidebarOverlay) {
-                                    sidebarOverlay.classList.remove('show');
-                                }
+                    if (sidebarToggleBtn && nexgenSidebar) {
+                        sidebarToggleBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            nexgenSidebar.classList.toggle('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.toggle('show');
                             }
                         });
-                    });
-                }
-
-                const showCreateModal = <?= !empty($create_error) ? 'true' : 'false' ?>;
-                if (showCreateModal) {
-                    const createModal = document.getElementById('createEmployeeModal');
-                    if (createModal && window.bootstrap) {
-                        const modalInstance = new bootstrap.Modal(createModal);
-                        modalInstance.show();
                     }
-                }
-            });
+
+                    if (sidebarOverlay && nexgenSidebar) {
+                        sidebarOverlay.addEventListener('click', function() {
+                            nexgenSidebar.classList.remove('show');
+                            sidebarOverlay.classList.remove('show');
+                        });
+                    }
+
+                    if (nexgenSidebar) {
+                        document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                            link.addEventListener('click', function() {
+                                if (window.innerWidth <= 768) {
+                                    nexgenSidebar.classList.remove('show');
+                                    if (sidebarOverlay) {
+                                        sidebarOverlay.classList.remove('show');
+                                    }
+                                }
+                            });
+                        });
+                    }
+
+                    const showCreateModal = <?= !empty($create_error) ? 'true' : 'false' ?>;
+                    if (showCreateModal) {
+                        const createModal = document.getElementById('createEmployeeModal');
+                        if (createModal && window.bootstrap) {
+                            const modalInstance = new bootstrap.Modal(createModal);
+                            modalInstance.show();
+                        }
+                    }
+                });
             </script>
 </body>
 

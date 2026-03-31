@@ -2,6 +2,9 @@
 include "../includes/auth.php";
 allow("ProjectLeader");
 include "../includes/db.php";
+require_once __DIR__ . "/../includes/chart_generator.php";
+
+$chartGen = new ChartGenerator($conn);
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +25,9 @@ include "../includes/db.php";
     <!-- Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <!-- CanvasJS for Charts -->
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <link href="../css/colors.css" rel="stylesheet">
     <link href="../css/theme.css" rel="stylesheet">
@@ -131,36 +137,130 @@ include "../includes/db.php";
                         </div>
                     </a>
                 </div>
+
+                <!-- Project Leader Analytics Charts -->
+                <div class="row mt-4">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Task Status Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $taskData = $chartGen->getTaskStatusChart();
+                                $chartGen->renderChart('leaderTaskChart', $taskData, 'Tasks by Status', 'doughnut');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Project Progress</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                // Get project progress data
+                                $projectQuery = "SELECT p.project_name, COUNT(t.id) as total_tasks,
+                                                SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as completed_tasks
+                                                FROM projects p
+                                                LEFT JOIN tasks t ON p.id = t.project_id
+                                                GROUP BY p.id, p.project_name
+                                                HAVING total_tasks > 0
+                                                ORDER BY p.id";
+
+                                $projectResult = $conn->query($projectQuery);
+                                $projectData = array();
+
+                                while($row = $projectResult->fetch_assoc()){
+                                    $progress = $row['total_tasks'] > 0 ? round(($row['completed_tasks'] / $row['total_tasks']) * 100) : 0;
+                                    $projectData[] = array(
+                                        "label" => substr($row['project_name'], 0, 20) . (strlen($row['project_name']) > 20 ? '...' : ''),
+                                        "y" => (int)$progress
+                                    );
+                                }
+
+                                $chartGen->renderChart('leaderProjectChart', $projectData, 'Project Completion %', 'column');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Team Task Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                // Get tasks assigned to team members
+                                $teamQuery = "SELECT u.full_name, COUNT(t.id) as task_count
+                                             FROM users u
+                                             LEFT JOIN tasks t ON u.id = t.assigned_to
+                                             WHERE u.role_id = (SELECT id FROM roles WHERE role_name = 'Employee')
+                                             GROUP BY u.id, u.full_name
+                                             ORDER BY task_count DESC";
+
+                                $teamResult = $conn->query($teamQuery);
+                                $teamData = array();
+
+                                while($row = $teamResult->fetch_assoc()){
+                                    $teamData[] = array(
+                                        "label" => $row['full_name'],
+                                        "y" => (int)$row['task_count']
+                                    );
+                                }
+
+                                $chartGen->renderChart('leaderTeamChart', $teamData, 'Tasks per Team Member', 'bar');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Leave Requests Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $leaveData = $chartGen->getLeaveStatusChart();
+                                $chartGen->renderChart('leaderLeaveChart', $leaveData, 'Leave Requests Status', 'pie');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const nexgenSidebar = document.getElementById('nexgenSidebar');
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-    if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', function() {
-            if (nexgenSidebar) {
-                nexgenSidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', function() {
+                    if (nexgenSidebar) {
+                        nexgenSidebar.classList.toggle('show');
+                        sidebarOverlay.classList.toggle('show');
+                    }
+                });
             }
-        });
-    }
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-            if (nexgenSidebar) {
-                nexgenSidebar.classList.remove('show');
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (nexgenSidebar) {
+                        nexgenSidebar.classList.remove('show');
+                    }
+                    sidebarOverlay.classList.remove('show');
+                });
             }
-            sidebarOverlay.classList.remove('show');
-        });
-    }
-    </script>
+            </script>
 </body>
 
 </html>
-
-

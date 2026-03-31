@@ -251,3 +251,9 @@
 [2026-03-31 05:33:27] ip=::1 user=8 action=password_reset_request msg=Password reset requested for nchaudhary187@rku.ac.in
 [2026-03-31 05:34:47] ip=::1 user=8 action=password_reset msg=Password reset for user 8
 [2026-03-31 07:30:48] ip=::1 user=128 action=leave_request msg=Leave request submitted by user 128
+[2026-03-31 08:05:08] ip=::1 user=1 action=password_reset_mail_failed msg=Password reset OTP email failed for admin@spycray.com: SMTP Error: Could not authenticate.
+[2026-03-31 08:05:08] ip=::1 user=1 action=password_reset_request msg=Password reset requested for admin@spycray.com
+[2026-03-31 08:06:13] ip=::1 user=1 action=password_reset msg=Password reset for user 1
+[2026-03-31 12:54:20] ip=::1 user=2 action=password_reset_mail_failed msg=Password reset OTP email failed for benevolenteager@gmail.com: SMTP Error: Could not connect to SMTP host. Failed to connect to server
+[2026-03-31 12:54:20] ip=::1 user=2 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-03-31 13:46:36] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 7

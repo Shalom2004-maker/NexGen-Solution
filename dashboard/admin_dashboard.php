@@ -3,6 +3,9 @@ include "../includes/auth.php";
 allow("Admin");
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
+require_once __DIR__ . "/../includes/chart_generator.php";
+
+$chartGen = new ChartGenerator($conn);
 
 // Fetch dashboard metrics
 $total_employees = 0;
@@ -82,6 +85,8 @@ $projects = [
     <link href="/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
     <script src="/js/bootstrap.bundle.min.js"></script>
 
+    <!-- CanvasJS for Charts -->
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <!-- CSS -->
 </head>
@@ -94,7 +99,8 @@ $projects = [
 
     <div class="main-wrapper">
         <div id="sidebarContainer">
-            <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
+            <?php include "../includes/sidebar_helper.php";
+            render_sidebar(); ?>
         </div>
 
         <div class="main-content">
@@ -145,6 +151,67 @@ $projects = [
                     </div>
                 </div>
 
+                <!-- Charts Section -->
+                <div class="row mt-4">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Employee Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $deptData = $chartGen->getEmployeeDepartmentChart();
+                                $chartGen->renderChart('deptChart', $deptData, 'Employees by Department', 'pie');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Task Status Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $taskData = $chartGen->getTaskStatusChart();
+                                $chartGen->renderChart('taskChart', $taskData, 'Tasks by Status', 'doughnut');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Leave Requests Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $leaveData = $chartGen->getLeaveStatusChart();
+                                $chartGen->renderChart('leaveChart', $leaveData, 'Leave Requests by Status', 'pie');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Monthly Leave Trends</h5>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                $monthlyData = $chartGen->getMonthlyLeaveChart();
+                                $chartGen->renderChart('monthlyChart', $monthlyData, 'Leave Requests (Last 6 Months)', 'line');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quick Actions -->
                 <div class="section-title mt-4 mb-3">
                     <span>Quick Actions</span>
@@ -182,26 +249,26 @@ $projects = [
                             </div>
 
                             <?php
-                        if ($recent_tasks && $recent_tasks->num_rows > 0):
-                            while ($task = $recent_tasks->fetch_assoc()):
-                                $priority_class = strtolower($task['priority'] ?? 'medium');
-                        ?>
-                            <div class="task-item">
-                                <div class="task-title mb-2"><?= htmlspecialchars($task['title'] ?? 'Untitled Task') ?>
-                                </div>
-                                <div class="task-meta mb-2"><i class="bi bi-calendar3"></i> Today</div>
-                                <span class="task-priority <?= $priority_class ?>">
-                                    <?= htmlspecialchars($task['priority'] ?? 'Medium') ?>
-                                </span>
-                            </div>
-                            <?php
-                            endwhile;
-                        else:
+                            if ($recent_tasks && $recent_tasks->num_rows > 0):
+                                while ($task = $recent_tasks->fetch_assoc()):
+                                    $priority_class = strtolower($task['priority'] ?? 'medium');
                             ?>
-                            <div class="task-item">
-                                <div class="task-title">No recent tasks</div>
-                                <div class="task-meta">Tasks will appear here as they are created</div>
-                            </div>
+                                    <div class="task-item">
+                                        <div class="task-title mb-2"><?= htmlspecialchars($task['title'] ?? 'Untitled Task') ?>
+                                        </div>
+                                        <div class="task-meta mb-2"><i class="bi bi-calendar3"></i> Today</div>
+                                        <span class="task-priority <?= $priority_class ?>">
+                                            <?= htmlspecialchars($task['priority'] ?? 'Medium') ?>
+                                        </span>
+                                    </div>
+                                <?php
+                                endwhile;
+                            else:
+                                ?>
+                                <div class="task-item">
+                                    <div class="task-title">No recent tasks</div>
+                                    <div class="task-meta">Tasks will appear here as they are created</div>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -213,30 +280,30 @@ $projects = [
                         </div>
 
                         <?php
-                    if ($leave_requests && $leave_requests->num_rows > 0):
-                        while ($leave = $leave_requests->fetch_assoc()):
-                    ?>
-                        <div class="leave-card">
-                            <div class="leave-requestor mb-2"><?= htmlspecialchars($leave['full_name']) ?></div>
-                            <div class="leave-dates mb-2">
-                                <i class="bi bi-calendar"></i>
-                                <?= htmlspecialchars($leave['start_date'] ?? 'N/A') ?> -
-                                <?= htmlspecialchars($leave['end_date'] ?? 'N/A') ?>
-                            </div>
-                            <span class="leave-type"><?= htmlspecialchars($leave['leave_type'] ?? 'Annual') ?></span>
-                            <span class="leave-status <?= strtolower($leave['status'] ?? 'pending') ?>">
-                                <?= htmlspecialchars(ucwords(str_replace('_', ' ', $leave['status'] ?? 'pending'))) ?>
-                            </span>
-                        </div>
-                        <?php
-                        endwhile;
-                    else:
+                        if ($leave_requests && $leave_requests->num_rows > 0):
+                            while ($leave = $leave_requests->fetch_assoc()):
                         ?>
-                        <div class="leave-card mb-3">
-                            <div class="leave-requestor">Leave Requests</div>
-                            <h4><i class="bi bi-calendar-check"></i> No Recent Leave Requests</h4>
-                            <p class="text-muted mb-0">There are no leave requests to show right now.</p>
-                        </div>
+                                <div class="leave-card">
+                                    <div class="leave-requestor mb-2"><?= htmlspecialchars($leave['full_name']) ?></div>
+                                    <div class="leave-dates mb-2">
+                                        <i class="bi bi-calendar"></i>
+                                        <?= htmlspecialchars($leave['start_date'] ?? 'N/A') ?> -
+                                        <?= htmlspecialchars($leave['end_date'] ?? 'N/A') ?>
+                                    </div>
+                                    <span class="leave-type"><?= htmlspecialchars($leave['leave_type'] ?? 'Annual') ?></span>
+                                    <span class="leave-status <?= strtolower($leave['status'] ?? 'pending') ?>">
+                                        <?= htmlspecialchars(ucwords(str_replace('_', ' ', $leave['status'] ?? 'pending'))) ?>
+                                    </span>
+                                </div>
+                            <?php
+                            endwhile;
+                        else:
+                            ?>
+                            <div class="leave-card mb-3">
+                                <div class="leave-requestor">Leave Requests</div>
+                                <h4><i class="bi bi-calendar-check"></i> No Recent Leave Requests</h4>
+                                <p class="text-muted mb-0">There are no leave requests to show right now.</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -248,15 +315,15 @@ $projects = [
                 <div class="row">
                     <div class="col-lg-7">
                         <?php foreach ($projects as $project): ?>
-                        <div class="project-item">
-                            <div class="project-name">
-                                <span><?= htmlspecialchars($project['name']) ?></span>
-                                <span><?= $project['progress'] ?>%</span>
+                            <div class="project-item">
+                                <div class="project-name">
+                                    <span><?= htmlspecialchars($project['name']) ?></span>
+                                    <span><?= $project['progress'] ?>%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: <?= $project['progress'] ?>%"></div>
+                                </div>
                             </div>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: <?= $project['progress'] ?>%"></div>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -265,41 +332,41 @@ $projects = [
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const nexgenSidebar = document.getElementById('nexgenSidebar');
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                const nexgenSidebar = document.getElementById('nexgenSidebar');
 
-            if (sidebarToggleBtn && nexgenSidebar) {
-                sidebarToggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    nexgenSidebar.classList.toggle('show');
-                    if (sidebarOverlay) {
-                        sidebarOverlay.classList.toggle('show');
-                    }
-                });
-            }
-
-            if (sidebarOverlay && nexgenSidebar) {
-                sidebarOverlay.addEventListener('click', function() {
-                    nexgenSidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                });
-            }
-
-            if (nexgenSidebar) {
-                document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            nexgenSidebar.classList.remove('show');
-                            if (sidebarOverlay) {
-                                sidebarOverlay.classList.remove('show');
-                            }
+                if (sidebarToggleBtn && nexgenSidebar) {
+                    sidebarToggleBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        nexgenSidebar.classList.toggle('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.toggle('show');
                         }
                     });
-                });
-            }
-        });
+                }
+
+                if (sidebarOverlay && nexgenSidebar) {
+                    sidebarOverlay.addEventListener('click', function() {
+                        nexgenSidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    });
+                }
+
+                if (nexgenSidebar) {
+                    document.querySelectorAll('.nexgen-sidebar-menu a').forEach(link => {
+                        link.addEventListener('click', function() {
+                            if (window.innerWidth <= 768) {
+                                nexgenSidebar.classList.remove('show');
+                                if (sidebarOverlay) {
+                                    sidebarOverlay.classList.remove('show');
+                                }
+                            }
+                        });
+                    });
+                }
+            });
         </script>
 </body>
 
