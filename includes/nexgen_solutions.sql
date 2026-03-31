@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2026 at 03:13 PM
+-- Generation Time: Mar 31, 2026 at 07:31 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -92,7 +92,8 @@ INSERT INTO `employees` (`id`, `user_id`, `job_title`, `department`, `hire_date`
 (8, 10, 'IT Specialist', 'IT', '2024-01-06', 57500.00, 'active'),
 (9, 11, 'QA Analyst', 'Testing', '2024-01-07', 59000.00, 'active'),
 (10, 12, 'Accountant', 'Finance', '2024-01-08', 60500.00, 'active'),
-(0, 126, 'QA Analyst', 'Testing', '2026-03-25', 50000.00, 'active');
+(11, 126, 'QA Analyst', 'Testing', '2026-03-25', 50000.00, 'active'),
+(22, 128, 'UI/ UX Designer', 'Computer Engineering', '2026-03-31', 70000.00, 'active');
 
 -- --------------------------------------------------------
 
@@ -121,7 +122,10 @@ INSERT INTO `inquiries` (`id`, `name`, `email`, `company`, `message`, `status`, 
 (3, 'Tom', 'tom@mail.com', 'Gamma LLC', 'Request a demo', 'new', '2026-01-03 16:08:12', 'General Inquiry'),
 (4, 'Phoneapp Shalom', 'phoneappinfos@gmail.com', 'Beta Corp', 'The Service Request I need is to ask for help with the implementation of my Project regarding the Student Management System\r\n\r\nPreferred Contact Time: 2026-01-14 06:00 PM\r\nInquiry Type: Service Request', 'closed', '2026-01-05 13:18:56', 'Support'),
 (6, 'Benevolent', 'benevolenteager@gmail.com', 'NexGen Solutions', 'The integration of APIs and my project.', 'closed', '2026-02-03 17:57:15', 'HR'),
-(7, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'replied', '2026-02-03 22:12:16', 'Complaint');
+(7, 'Shalom', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'I did not get what I wanted from you as I put my trust I you, Yoooh', 'replied', '2026-02-03 22:12:16', 'Complaint'),
+(10, 'Neha Chaudhary', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'how was  your company performance\n\nPreferred Contact Time: 2026-02-10 10:20 AM\nInquiry Type: General Inquiry', 'new', '2026-03-31 03:59:30', NULL),
+(11, 'Neha Chaudhary', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'how was  your company performance\n\nPreferred Contact Time: 2026-02-10 10:20 AM\nInquiry Type: General Inquiry', 'new', '2026-03-31 04:00:20', NULL),
+(12, 'Shalom Ndahiriwe', 'phoneappinfos@gmail.com', 'NexGen Solutions', 'jhojsjsjjsjsjjsj\n\nPreferred Contact Time: 2026-04-01 04:08 PM\nInquiry Type: Service Request', 'new', '2026-03-31 04:01:38', NULL);
 
 -- --------------------------------------------------------
 
@@ -176,7 +180,8 @@ INSERT INTO `leave_requests` (`id`, `employee_id`, `start_date`, `end_date`, `le
 (10, 1, '2026-01-30', '2026-02-08', 'personal', 'I\'d like to spend the time thinking about myself.', 'pending', NULL, NULL, '2026-01-11 17:05:30'),
 (11, 1, '2026-02-06', '2026-02-08', 'personal', 'It will be Sabbath; I need to need as it is commanded', 'hr_approved', NULL, NULL, '2026-02-04 05:08:18'),
 (12, 123, '2025-01-22', '2025-01-25', 'sick', 'Auto reason', 'leader_approved', 3, NULL, '2026-02-08 13:35:44'),
-(132, 6, '2026-03-28', '2026-03-31', 'personal', 'Rest for a while', 'pending', NULL, NULL, '2026-03-25 16:29:34');
+(132, 6, '2026-03-28', '2026-03-31', 'personal', 'Rest for a while', 'pending', NULL, NULL, '2026-03-25 16:29:34'),
+(133, 22, '2026-04-01', '2026-04-04', 'personal', 'Auto Reason', 'pending', NULL, NULL, '2026-03-31 05:30:48');
 
 -- --------------------------------------------------------
 
@@ -467,8 +472,9 @@ INSERT INTO `users` (`id`, `full_name`, `email`, `password_hash`, `password`, `r
 (5, 'Employee', 'employee@spycray.com', '$2y$10$tfqZlGPYo5J01b80VU/kJOZUugNqXE/xS7tgnaBS0jOy39yNJ2eS2', '', 4, 'active', 'assets/avatars/user_4_b54684fa037577cb.jpg', NULL, NULL, 0, NULL, NULL, '2026-01-05 07:03:32'),
 (6, 'Employee 1001', 'user1001@company.com', '$2y$10$Z6XzIPrqnNTLxZTrLsCsWOQFYRcqvjdD0SNGY1cA1BSAqR2ZJaMva', 'password123', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-02-08 08:02:31'),
 (7, 'Employee 1002', 'user1002@company.com', '$2y$10$CJDfMguX8o9vvz3iyf5vH.u61DKPeuGS0HIFszZcNNy30J9G8ShO2', 'password123', 4, 'disabled', NULL, NULL, NULL, 0, NULL, NULL, '2026-02-08 08:02:31'),
-(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$J9MpZ1nzCSARGzGtOWCRfuU7ieVLrgiX9UDtgagN5kz2Xq2PFrQcC', '', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-25 13:56:54'),
-(127, 'Phoneapp Infos', 'phoneappinfos@gmail.com', '$2y$10$7qkGjA5qj6hxlU0cUOY2xOjf3Xt8F7in44hDVGsple9.YqAC3VPHC', '', 3, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-28 15:55:20');
+(8, 'Neha Chaudhary', 'nchaudhary187@rku.ac.in', '$2y$10$s1ej09fzaweXMeFHs/wUReywMq2z9G4rd5fdadsFYz542VHtEZuAK', '', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-25 13:56:54'),
+(127, 'Phoneapp Infos', 'phoneappinfos@gmail.com', '$2y$10$bRk/ynQRiKMjfCDc9BHHc.IKkX5dE99Ti8rXDNsUUMjBhnU4WoaTm', '', 3, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-28 15:55:20'),
+(128, 'Exhilarate Benevolent Eager', 'shalomndahi@gmail.com', '$2y$10$bcoiqS6rOIvwS.XepJutbeFakb5lcVhaM/zC/LER6FuLdZbB0MXrC', '', 4, 'active', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-31 05:18:43');
 
 --
 -- Indexes for dumped tables
@@ -486,6 +492,12 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `contact_info`
   ADD PRIMARY KEY (`phone`);
+
+--
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `inquiries`
@@ -594,10 +606,16 @@ ALTER TABLE `categories`
   MODIFY `CategoryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
 -- AUTO_INCREMENT for table `inquiries`
 --
 ALTER TABLE `inquiries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `inquiry_table`
@@ -609,7 +627,7 @@ ALTER TABLE `inquiry_table`
 -- AUTO_INCREMENT for table `leave_requests`
 --
 ALTER TABLE `leave_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
 
 --
 -- AUTO_INCREMENT for table `payroll_inputs`
@@ -642,12 +660,6 @@ ALTER TABLE `services`
   MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=204;
 
 --
--- AUTO_INCREMENT for table `solutions`
---
-ALTER TABLE `solutions`
-  MODIFY `SolutionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
-
---
 -- AUTO_INCREMENT for table `support`
 --
 ALTER TABLE `support`
@@ -663,7 +675,7 @@ ALTER TABLE `tasks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 
 --
 -- Constraints for dumped tables

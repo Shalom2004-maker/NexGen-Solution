@@ -273,12 +273,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                 $stmt->fetch();
                                 $count = (int)($count ?? 0);
                                 echo "<h3>{$count}</h3>";
-                        echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
-                        $stmt->close();
-                        } else {
-                        echo "<p>DB error</p>";
-                        }
-                        ?>
+                                echo "<p>" . ($count == 0 ? "Tasks waiting for action" : "Tasks pending") . "</p>";
+                                $stmt->close();
+                            } else {
+                                echo "<p>DB error</p>";
+                            }
+                            ?>
                     </div>
 
                     <div class="stat-card d-inline-block pr-3">
@@ -446,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                     <div class="card-container">
                         <h4><i class="bi bi-people"></i> &nbsp; Newest Employees</h4>
                         <?php
-                            $stmt = $conn->prepare("SELECT u.full_name, u.email, u.profile_photo, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.id DESC LIMIT 12");
+                            $stmt = $conn->prepare("SELECT u.full_name, u.email, u.profile_photo, e.department, e.job_title, e.hire_date FROM employees e JOIN users u ON e.user_id = u.id ORDER BY e.hire_date DESC LIMIT 12");
                             if ($stmt) {
                                 $stmt->execute();
                                 $stmt->bind_result($emp_name, $emp_email, $emp_photo, $emp_department, $emp_job, $emp_hire);
@@ -472,7 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_employee'])) {
                                     echo '    <div class="card-body py-3">';
                                     echo '      <div class="d-flex align-items-center mb-3">';
                                     echo '        <div class="me-3">' . $avatar_html . '</div>';
-                                    echo '        <div>'; 
+                                    echo '        <div>';
                                     echo '          <h6 class="mb-1">' . htmlspecialchars($emp_name ?? 'Unknown') . '</h6>';
                                     echo '          <span class="text-muted small">' . htmlspecialchars($emp_job ?? 'Not set') . '</span>';
                                     echo '        </div>';

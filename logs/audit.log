@@ -247,3 +247,7 @@
 [2026-03-30 19:02:50] ip=::1 user=127 action=password_reset_mail_failed msg=Password reset OTP email failed for phoneappinfos@gmail.com: SMTP Error: Could not authenticate.
 [2026-03-30 19:02:50] ip=::1 user=127 action=password_reset_request msg=Password reset requested for phoneappinfos@gmail.com
 [2026-03-30 19:03:35] ip=::1 user=127 action=password_reset msg=Password reset for user 127
+[2026-03-31 05:33:27] ip=::1 user=8 action=password_reset_mail_failed msg=Password reset OTP email failed for nchaudhary187@rku.ac.in: SMTP Error: Could not authenticate.
+[2026-03-31 05:33:27] ip=::1 user=8 action=password_reset_request msg=Password reset requested for nchaudhary187@rku.ac.in
+[2026-03-31 05:34:47] ip=::1 user=8 action=password_reset msg=Password reset for user 8
+[2026-03-31 07:30:48] ip=::1 user=128 action=leave_request msg=Leave request submitted by user 128
