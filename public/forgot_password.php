@@ -5,6 +5,61 @@ require_once __DIR__ . "/../includes/logger.php";
 require_once __DIR__ . "/../includes/mailer.php";
 require_once __DIR__ . "/../includes/password_reset.php";
 
+function app_public_url($path)
+{
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . '://' . $host . '/public/' . $path;
+}
+
+function send_password_reset_otp_email($to, $fullName, $otpCode, $resetPageUrl)
+{
+    $subject = 'Password Reset Code - NexGen Solution';
+    $body = "
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #007bff; color: white; padding: 10px; text-align: center; }
+            .content { padding: 20px; }
+            .otp { font-size: 24px; font-weight: bold; color: #007bff; text-align: center; margin: 20px 0; }
+            .button { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h2>Password Reset Request</h2>
+            </div>
+            <div class='content'>
+                <p>Hi {$fullName},</p>
+                <p>You requested a password reset for your NexGen Solution account.</p>
+                <p>Your 6-digit reset code is:</p>
+                <div class='otp'>{$otpCode}</div>
+                <p>This code will expire in 3 minutes.</p>
+                <p>If you didn't request this reset, please ignore this email.</p>
+                <p><a href='{$resetPageUrl}' class='button'>Reset Password</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+
+    $result = sendEmail($to, $subject, $body);
+    if ($result === true) {
+        return ['sent' => true];
+    } else {
+        return ['sent' => false, 'error' => $result];
+    }
+}
+
+function app_should_show_dev_reset_link()
+{
+    // Show dev link if running on localhost or if a specific environment variable is set
+    return ($_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') === 0 || getenv('SHOW_DEV_RESET_LINK') === 'true');
+}
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
@@ -221,8 +276,7 @@ if ($passwordResetSchemaReady && $activeEmail !== '' && filter_var($activeEmail,
                 <?php if ($countdownSeconds > 0): ?>
                 <div class="alert alert-warning" role="alert">
                     <i class="bi bi-clock-history"></i>
-                    <span data-reset-countdown="<?= (int) $countdownSeconds ?>"
-                        data-prefix="Current OTP expires in "
+                    <span data-reset-countdown="<?= (int) $countdownSeconds ?>" data-prefix="Current OTP expires in "
                         data-expired-text="The current OTP has expired. Request a new one if you still need access."></span>
                 </div>
                 <?php endif; ?>

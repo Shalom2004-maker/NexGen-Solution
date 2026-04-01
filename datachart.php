@@ -44,24 +44,24 @@ try {
 <head>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <script>
-        window.onload = function() {
+    window.onload = function() {
 
-            var chart = new CanvasJS.Chart("chartContainer", {
-                animationEnabled: true,
-                exportEnabled: true,
-                theme: "light2", // "light1", "light2", "dark1", "dark2"
-                title: {
-                    text: "Employee Distribution by Department"
-                },
-                data: [{
-                    type: "pie", //change type to bar, line, area, pie, etc
-                    indexLabel: "{label}: {y}",
-                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
-                }]
-            });
-            chart.render();
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            exportEnabled: true,
+            theme: "light2", // "light1", "light2", "dark1", "dark2"
+            title: {
+                text: "Employee Distribution by Department"
+            },
+            data: [{
+                type: "pie", //change type to bar, line, area, pie, etc
+                indexLabel: "{label}: {y}",
+                dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+            }]
+        });
+        chart.render();
 
-        }
+    }
     </script>
 </head>
 

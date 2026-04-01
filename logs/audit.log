@@ -257,3 +257,19 @@
 [2026-03-31 12:54:20] ip=::1 user=2 action=password_reset_mail_failed msg=Password reset OTP email failed for benevolenteager@gmail.com: SMTP Error: Could not connect to SMTP host. Failed to connect to server
 [2026-03-31 12:54:20] ip=::1 user=2 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
 [2026-03-31 13:46:36] ip=::1 user=3 action=leader_approve msg=Leader 3 approved leave 7
+[2026-04-01 12:40:28] ip=::1 user=127 action=password_reset_mail_failed msg=Password reset OTP email failed for phoneappinfos@gmail.com: SMTP Error: Could not connect to SMTP host. Failed to connect to server
+[2026-04-01 12:40:28] ip=::1 user=127 action=password_reset_request msg=Password reset requested for phoneappinfos@gmail.com
+[2026-04-01 13:15:20] ip=::1 user=127 action=password_reset_mail_failed msg=Password reset OTP email failed for phoneappinfos@gmail.com: SMTP Error: Could not authenticate.
+[2026-04-01 13:15:20] ip=::1 user=127 action=password_reset_request msg=Password reset requested for phoneappinfos@gmail.com
+[2026-04-01 14:59:08] ip=::1 user=127 action=password_reset_mail_failed msg=Password reset OTP email failed for phoneappinfos@gmail.com: Email failed: SMTP Error: Could not authenticate.
+[2026-04-01 14:59:08] ip=::1 user=127 action=password_reset_request msg=Password reset requested for phoneappinfos@gmail.com
+[2026-04-01 15:03:05] ip=::1 user=128 action=password_reset_mail_failed msg=Password reset OTP email failed for shalomndahi@gmail.com: Email failed: SMTP Error: Could not authenticate.
+[2026-04-01 15:03:05] ip=::1 user=128 action=password_reset_request msg=Password reset requested for shalomndahi@gmail.com
+[2026-04-01 18:57:57] ip=::1 user=127 action=password_reset_mail_failed msg=Password reset OTP email failed for phoneappinfos@gmail.com: PHP mail() function failed - check your PHP mail configuration
+[2026-04-01 18:57:57] ip=::1 user=127 action=password_reset_request msg=Password reset requested for phoneappinfos@gmail.com
+[2026-04-01 20:42:15] ip=::1 user=2 action=password_reset_mail_sent msg=Password reset OTP email sent to benevolenteager@gmail.com
+[2026-04-01 20:42:15] ip=::1 user=2 action=password_reset_request msg=Password reset requested for benevolenteager@gmail.com
+[2026-04-01 20:43:28] ip=::1 user=2 action=password_reset msg=Password reset for user 2
+[2026-04-01 20:56:08] ip=::1 user=128 action=password_reset_mail_sent msg=Password reset OTP email sent to shalomndahi@gmail.com
+[2026-04-01 20:56:08] ip=::1 user=128 action=password_reset_request msg=Password reset requested for shalomndahi@gmail.com
+[2026-04-01 20:56:41] ip=::1 user=128 action=password_reset msg=Password reset for user 128
