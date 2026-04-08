@@ -4,14 +4,18 @@ allow("Admin");
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
 require_once __DIR__ . "/../includes/chart_generator.php";
+require_once __DIR__ . "/../includes/inquiry_helpers.php";
 
 $chartGen = new ChartGenerator($conn);
+ensure_inquiry_reply_support($conn);
 
 // Fetch dashboard metrics
 $total_employees = 0;
 $active_tasks = 0;
 $pending_leaves = 0;
-$performance_rating = 0;
+$open_inquiries = 0;
+$replied_inquiries = 0;
+$closed_inquiries = 0;
 
 // Total Employees
 $emp_result = $conn->query("SELECT COUNT(*) as count FROM users WHERE role_id IN (SELECT id FROM roles WHERE role_name = 'Employee')");
@@ -34,9 +38,6 @@ if ($leave_result) {
     $pending_leaves = $leave_row['count'];
 }
 
-// Performance (Random for now - you can replace with actual calculation)
-$performance_rating = 94;
-
 // Recent Tasks (limit to 4)
 $recent_tasks = $conn->query("SELECT * FROM tasks ORDER BY created_at DESC LIMIT 4");
 
@@ -56,6 +57,35 @@ $projects = [
     ['name' => 'Mobile App v2', 'progress' => 62],
     ['name' => 'API Integration', 'progress' => 45]
 ];
+
+$inquiry_counts_result = $conn->query("SELECT status, COUNT(*) AS count FROM inquiries GROUP BY status");
+if ($inquiry_counts_result) {
+    while ($inquiryRow = $inquiry_counts_result->fetch_assoc()) {
+        if ($inquiryRow['status'] === 'new') {
+            $open_inquiries = (int)$inquiryRow['count'];
+        } elseif ($inquiryRow['status'] === 'replied') {
+            $replied_inquiries = (int)$inquiryRow['count'];
+        } elseif ($inquiryRow['status'] === 'closed') {
+            $closed_inquiries = (int)$inquiryRow['count'];
+        }
+    }
+}
+
+$recent_inquiries = $conn->query("
+    SELECT
+        i.id,
+        i.name,
+        i.email,
+        i.status,
+        i.created_at,
+        i.replied_at,
+        i.reply_message,
+        COALESCE(u.full_name, '') AS replied_by_name
+    FROM inquiries i
+    LEFT JOIN users u ON u.id = i.replied_by
+    ORDER BY COALESCE(i.replied_at, i.created_at) DESC, i.created_at DESC
+    LIMIT 4
+");
 ?>
 
 <!DOCTYPE html>
@@ -143,10 +173,13 @@ $projects = [
 
                     <div class="col-lg-3 col-md-6 col-12 mb-3">
                         <div class="metric-card">
-                            <i class="bi bi-graph-up metric-icon"></i>
-                            <div class="metric-label">Performance</div>
-                            <div class="metric-value"><?= $performance_rating ?>%</div>
-                            <div class="metric-change"><i class="bi bi-arrow-up"></i> 3% vs last month</div>
+                            <i class="bi bi-chat-left-text metric-icon"></i>
+                            <div class="metric-label">Open Inquiries</div>
+                            <div class="metric-value"><?= $open_inquiries ?></div>
+                            <div class="metric-change">
+                                <i class="bi bi-reply"></i> <?= $replied_inquiries ?> replied / <?= $closed_inquiries ?>
+                                closed
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -227,7 +260,7 @@ $projects = [
                     </a>
                     <a href="inquiries_dashboard.php" class="action-btn">
                         <i class="bi bi-chat-left action-icon"></i>
-                        <span class="action-label">Submit Inquiry</span>
+                        <span class="action-label">Manage Inquiries</span>
                     </a>
                     <a href="projects.php" class="action-btn">
                         <i class="bi bi-bar-chart action-icon"></i>
@@ -237,6 +270,56 @@ $projects = [
                         <i class="bi bi-people action-icon"></i>
                         <span class="action-label">View Users</span>
                     </a>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Inquiry Activity</h5>
+                        <a href="inquiries_dashboard.php" class="text-decoration-none">Open Inbox</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <?php if ($recent_inquiries && $recent_inquiries->num_rows > 0): ?>
+                                <?php while ($inquiry = $recent_inquiries->fetch_assoc()): ?>
+                                    <div class="col-lg-6">
+                                        <div class="border rounded-3 p-3 h-100">
+                                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                                <div>
+                                                    <div class="fw-semibold"><?= htmlspecialchars($inquiry['name'] ?? 'Unknown sender') ?></div>
+                                                    <div class="small text-muted"><?= htmlspecialchars($inquiry['email'] ?? '') ?></div>
+                                                </div>
+                                                <span class="badge bg-<?= ($inquiry['status'] ?? '') === 'new' ? 'warning text-dark' : (($inquiry['status'] ?? '') === 'closed' ? 'secondary' : 'success') ?>">
+                                                    <?= htmlspecialchars(ucfirst($inquiry['status'] ?? 'new')) ?>
+                                                </span>
+                                            </div>
+                                            <div class="small text-muted mt-3">
+                                                Received <?= date('M d, Y g:i A', strtotime($inquiry['created_at'])) ?>
+                                            </div>
+                                            <?php if (!empty($inquiry['replied_at'])): ?>
+                                                <div class="small text-success mt-2">
+                                                    Replied <?= date('M d, Y g:i A', strtotime($inquiry['replied_at'])) ?>
+                                                    <?php if (!empty($inquiry['replied_by_name'])): ?>
+                                                        by <?= htmlspecialchars($inquiry['replied_by_name']) ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php if (!empty($inquiry['reply_message'])): ?>
+                                                    <div class="small mt-2 text-muted">
+                                                        <?= htmlspecialchars(inquiry_preview_text($inquiry['reply_message'], 120)) ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <div class="small text-muted mt-2">Waiting for a reply.</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <div class="col-12">
+                                    <div class="text-muted">No inquiry activity to show yet.</div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Recent Tasks and Leave Requests -->

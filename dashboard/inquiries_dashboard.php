@@ -3,21 +3,26 @@ include "../includes/auth.php";
 allow("HR");
 include "../includes/db.php";
 require_once __DIR__ . "/../includes/logger.php";
+require_once __DIR__ . "/../includes/inquiry_helpers.php";
 
-// Ensure CSRF token
+ensure_inquiry_reply_support($conn);
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 
 $uid = (int)($_SESSION['uid'] ?? 0);
+$success = '';
+$error = '';
 
-// Handle inquiry submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = trim((string)($_POST['action'] ?? ''));
     $posted_token = $_POST['csrf_token'] ?? '';
+
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $posted_token)) {
-        $error = 'Invalid request';
-        audit_log('csrf', 'Invalid CSRF token on inquiry create', $uid);
-    } else {
+        $error = 'Invalid request.';
+        audit_log('csrf', 'Invalid CSRF token on inquiries dashboard', $uid);
+    } elseif ($action === 'create') {
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $company = trim($_POST['company'] ?? '');
@@ -25,35 +30,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $subject = trim($_POST['subject'] ?? '');
         $message = trim($_POST['message'] ?? '');
 
-        if (empty($name) || empty($email) || empty($message) || empty($category) || empty($subject)) {
-            $error = 'Please fill in all required fields';
+        if ($name === '' || $email === '' || $message === '' || $category === '' || $subject === '') {
+            $error = 'Please fill in all required fields.';
         } else {
             $stmt = $conn->prepare("INSERT INTO inquiries (name, email, company, message, status, category) VALUES (?, ?, ?, ?, 'new', ?)");
             if ($stmt) {
                 $stmt->bind_param('sssss', $name, $email, $company, $message, $category);
                 if ($stmt->execute()) {
-                    $success = 'Inquiry submitted successfully!';
+                    $success = 'Inquiry submitted successfully.';
                     audit_log('inquiry_create', "New inquiry created by $name - Subject: $subject", $uid);
                     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
                     $_POST = [];
                 } else {
-                    $error = 'Failed to submit inquiry';
-                    audit_log('inquiry_create_failed', "Failed inquiry submission", $uid);
+                    $error = 'Failed to submit inquiry.';
+                    audit_log('inquiry_create_failed', 'Failed inquiry submission', $uid);
                 }
                 $stmt->close();
+            } else {
+                $error = 'Unable to prepare the inquiry request.';
+            }
+        }
+    } elseif ($action === 'reply') {
+        $inquiryId = (int)($_POST['inquiry_id'] ?? 0);
+        $replyMessage = trim($_POST['reply_message'] ?? '');
+
+        if ($inquiryId <= 0) {
+            $error = 'Invalid inquiry selected.';
+        } elseif ($replyMessage === '') {
+            $error = 'Please write a reply before sending.';
+        } else {
+            $stmt = $conn->prepare("SELECT id, name, email, status FROM inquiries WHERE id = ? LIMIT 1");
+            if ($stmt) {
+                $stmt->bind_param('i', $inquiryId);
+                $stmt->execute();
+                $inquiry = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+            } else {
+                $inquiry = null;
+            }
+
+            if (!$inquiry) {
+                $error = 'Inquiry not found.';
+            } else {
+                $replyAuthor = trim((string)($_SESSION['name'] ?? $_SESSION['role'] ?? 'NexGen Solution Team'));
+                $emailStatus = true;
+
+                if (filter_var($inquiry['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
+                    $emailStatus = send_inquiry_reply_email(
+                        (string)$inquiry['email'],
+                        (string)($inquiry['name'] ?? ''),
+                        $replyMessage,
+                        $replyAuthor
+                    );
+                }
+
+                $nextStatus = ($inquiry['status'] ?? '') === 'closed' ? 'closed' : 'replied';
+                $updateStmt = $conn->prepare("
+                    UPDATE inquiries
+                    SET status = ?, reply_message = ?, replied_at = NOW(), replied_by = ?
+                    WHERE id = ?
+                ");
+
+                if ($updateStmt) {
+                    $updateStmt->bind_param('ssii', $nextStatus, $replyMessage, $uid, $inquiryId);
+                    if ($updateStmt->execute()) {
+                        audit_log('inquiry_reply', "Reply saved for inquiry ID: {$inquiryId}", $uid);
+
+                        if ($emailStatus === true) {
+                            $success = 'Reply saved, inquiry marked as replied, and email sent.';
+                        } else {
+                            $success = 'Reply saved and inquiry marked as replied. Email delivery could not be confirmed.';
+                            audit_log('inquiry_reply_mail_failed', "Inquiry ID {$inquiryId} reply mail issue: {$emailStatus}", $uid);
+                        }
+
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
+                        $_POST = [];
+                    } else {
+                        $error = 'Failed to save the reply.';
+                    }
+                    $updateStmt->close();
+                } else {
+                    $error = 'Unable to prepare the reply action.';
+                }
             }
         }
     }
 }
 
-// Fetch inquiry statistics
 $open_count = 0;
 $replied_count = 0;
 $resolved_count = 0;
 
-// Count inquiries by status
-$stats_query = "SELECT status, COUNT(*) as count FROM inquiries GROUP BY status";
-$stats_result = $conn->query($stats_query);
+$stats_result = $conn->query("SELECT status, COUNT(*) AS count FROM inquiries GROUP BY status");
 if ($stats_result) {
     while ($row = $stats_result->fetch_assoc()) {
         if ($row['status'] === 'new') {
@@ -66,7 +134,6 @@ if ($stats_result) {
     }
 }
 
-// Build inquiry list query
 $search = trim($_GET['q'] ?? '');
 $category = trim($_GET['category'] ?? '');
 $status_filter = trim($_GET['status'] ?? 'all');
@@ -77,40 +144,55 @@ $types = '';
 
 if ($search !== '') {
     $like = "%{$search}%";
-    $where .= " AND (name LIKE ? OR email LIKE ? OR company LIKE ? OR message LIKE ?)";
-    $params = array_merge($params, [$like, $like, $like, $like]);
-    $types .= 'ssss';
+    $where .= " AND (i.name LIKE ? OR i.email LIKE ? OR i.company LIKE ? OR i.message LIKE ? OR i.reply_message LIKE ?)";
+    $params = array_merge($params, [$like, $like, $like, $like, $like]);
+    $types .= 'sssss';
 }
 
 if ($category !== '' && $category !== 'all') {
-    $where .= " AND category = ?";
+    $where .= " AND i.category = ?";
     $params[] = $category;
     $types .= 's';
 }
 
 if ($status_filter !== 'all') {
-    $where .= " AND status = ?";
+    $where .= " AND i.status = ?";
     $params[] = $status_filter;
     $types .= 's';
 }
 
-// Pagination
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Count total
-$count_sql = "SELECT COUNT(*) as total FROM inquiries WHERE {$where}";
+$count_sql = "SELECT COUNT(*) AS total FROM inquiries i WHERE {$where}";
 $count_stmt = $conn->prepare($count_sql);
 if ($params) {
     $count_stmt->bind_param($types, ...$params);
 }
 $count_stmt->execute();
-$total = $count_stmt->get_result()->fetch_assoc()['total'];
+$total = (int)($count_stmt->get_result()->fetch_assoc()['total'] ?? 0);
 $count_stmt->close();
 
-// Fetch inquiries
-$sql = "SELECT id, name, email, company, category, message, status, created_at FROM inquiries WHERE {$where} ORDER BY created_at DESC LIMIT ? OFFSET ?";
+$sql = "
+    SELECT
+        i.id,
+        i.name,
+        i.email,
+        i.company,
+        i.category,
+        i.message,
+        i.status,
+        i.created_at,
+        i.reply_message,
+        i.replied_at,
+        COALESCE(u.full_name, '') AS replied_by_name
+    FROM inquiries i
+    LEFT JOIN users u ON u.id = i.replied_by
+    WHERE {$where}
+    ORDER BY COALESCE(i.replied_at, i.created_at) DESC, i.created_at DESC
+    LIMIT ? OFFSET ?
+";
 $inquiry_params = array_merge($params, [$limit, $offset]);
 $inquiry_types = $types . 'ii';
 
@@ -118,9 +200,16 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param($inquiry_types, ...$inquiry_params);
 $stmt->execute();
 $inquiries_result = $stmt->get_result();
+$inquiries = [];
+if ($inquiries_result instanceof mysqli_result) {
+    while ($inquiryRow = $inquiries_result->fetch_assoc()) {
+        $inquiries[] = $inquiryRow;
+    }
+    $inquiries_result->free();
+}
 $stmt->close();
 
-$pages = max(1, ceil($total / $limit));
+$pages = max(1, (int)ceil($total / $limit));
 ?>
 
 <?php include "../includes/sidebar_helper.php"; render_sidebar(); ?>
@@ -136,7 +225,7 @@ $pages = max(1, ceil($total / $limit));
         <div class="page-header">
             <div>
                 <h2>Inquiries</h2>
-                <p>Submit and track your inquiries</p>
+                <p>Submit, track, and reply to incoming inquiries</p>
             </div>
             <div class="header-actions">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inquiryModal">
@@ -144,6 +233,18 @@ $pages = max(1, ceil($total / $limit));
                 </button>
             </div>
         </div>
+
+        <?php if ($error !== ''): ?>
+        <div class="alert alert-danger mb-4" role="alert">
+            <?= htmlspecialchars($error) ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($success !== ''): ?>
+        <div class="alert alert-success mb-4" role="alert">
+            <?= htmlspecialchars($success) ?>
+        </div>
+        <?php endif; ?>
 
         <!-- Metric Cards -->
         <div class="row mb-4 g-3">
@@ -193,7 +294,7 @@ $pages = max(1, ceil($total / $limit));
             <div class="card-body">
                 <form method="get" class="mb-0">
                     <div class="row g-2 mb-3">
-                        <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
+                        <div class="col-12 col-lg-5 d-flex align-items-center justify-content-center">
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="bi bi-search"></i>
@@ -202,9 +303,17 @@ $pages = max(1, ceil($total / $limit));
                                     class="form-control" placeholder="Search inquiries...">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 d-flex gap-2 justify-content-start align-items-center">
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <select name="status" class="form-select">
+                                <option value="all" <?= $status_filter === 'all' ? 'selected' : '' ?>>All statuses</option>
+                                <option value="new" <?= $status_filter === 'new' ? 'selected' : '' ?>>New</option>
+                                <option value="replied" <?= $status_filter === 'replied' ? 'selected' : '' ?>>Replied</option>
+                                <option value="closed" <?= $status_filter === 'closed' ? 'selected' : '' ?>>Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 d-flex gap-2 justify-content-start align-items-center">
                             <button class="btn btn-outline-secondary" type="submit">Search</button>
-                            <?php if ($search): ?>
+                            <?php if ($search || ($category !== '' && $category !== 'all') || $status_filter !== 'all'): ?>
                             <a href="inquiries_dashboard.php" class="btn btn-outline-secondary">Reset</a>
                             <?php endif; ?>
                         </div>
@@ -214,16 +323,16 @@ $pages = max(1, ceil($total / $limit));
                     <div class="d-flex flex-wrap gap-2">
                         <a href="inquiries_dashboard.php"
                             class="filter-btn text-decoration-none <?= empty($category) || $category === 'all' ? 'active' : '' ?>">All</a>
-                        <a href="?category=HR&q=<?= urlencode($search) ?>"
+                        <a href="?category=HR&q=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>"
                             class="filter-btn text-decoration-none <?= $category === 'HR' ? 'active' : '' ?>">HR</a>
-                        <a href="?category=IT%20Support&q=<?= urlencode($search) ?>"
+                        <a href="?category=IT%20Support&q=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>"
                             class="filter-btn text-decoration-none <?= $category === 'IT Support' ? 'active' : '' ?>">IT
                             Support</a>
-                        <a href="?category=Payroll&q=<?= urlencode($search) ?>"
+                        <a href="?category=Payroll&q=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>"
                             class="filter-btn text-decoration-none <?= $category === 'Payroll' ? 'active' : '' ?>">Payroll</a>
-                        <a href="?category=General&q=<?= urlencode($search) ?>"
+                        <a href="?category=General&q=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>"
                             class="filter-btn text-decoration-none <?= $category === 'General' ? 'active' : '' ?>">General</a>
-                        <a href="?category=Complaint&q=<?= urlencode($search) ?>"
+                        <a href="?category=Complaint&q=<?= urlencode($search) ?>&status=<?= urlencode($status_filter) ?>"
                             class="filter-btn text-decoration-none <?= $category === 'Complaint' ? 'active' : '' ?>">Complaint</a>
                     </div>
                 </form>
@@ -236,32 +345,59 @@ $pages = max(1, ceil($total / $limit));
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
+                        <th>Contact</th>
                         <th class="d-none d-md-table-cell">Category</th>
                         <th class="d-none d-md-table-cell">Status</th>
-                        <th>Created</th>
-                        <th>Action</th>
+                        <th class="d-none d-lg-table-cell">Activity</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-light">
-                    <?php if ($inquiries_result->num_rows > 0): ?>
-                    <?php while ($row = $inquiries_result->fetch_assoc()): ?>
+                    <?php if (!empty($inquiries)): ?>
+                    <?php foreach ($inquiries as $row): ?>
                     <tr>
                         <td><?= htmlspecialchars($row['id']) ?></td>
-                        <td><?= htmlspecialchars($row['name']) ?></td>
-                        <td><?= htmlspecialchars($row['email']) ?></td>
+                        <td>
+                            <div class="fw-semibold"><?= htmlspecialchars($row['name']) ?></div>
+                            <div class="small text-muted"><?= htmlspecialchars($row['email']) ?></div>
+                            <?php if (!empty($row['company'])): ?>
+                            <div class="small text-muted"><?= htmlspecialchars($row['company']) ?></div>
+                            <?php endif; ?>
+                        </td>
                         <td class="d-none d-md-table-cell">
                             <span
-                                class="badge bg-info opacity-75 text-dark"><?= htmlspecialchars($row['category']) ?></span>
+                                class="badge bg-info opacity-75 text-dark"><?= htmlspecialchars($row['category'] ?: 'General') ?></span>
                         </td>
                         <td class="d-none d-md-table-cell">
                             <span class="status-badge status-<?= htmlspecialchars($row['status']) ?>">
                                 <?= ucfirst(htmlspecialchars($row['status'])) ?>
                             </span>
+                            <?php if (!empty($row['replied_at'])): ?>
+                            <div class="small text-muted mt-1">
+                                Replied <?= date('M d, Y g:i A', strtotime($row['replied_at'])) ?>
+                            </div>
+                            <?php if (!empty($row['replied_by_name'])): ?>
+                            <div class="small text-muted">by <?= htmlspecialchars($row['replied_by_name']) ?></div>
+                            <?php endif; ?>
+                            <?php else: ?>
+                            <div class="small text-muted mt-1">Awaiting response</div>
+                            <?php endif; ?>
                         </td>
-                        <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
-                        <td class="d-flex justify-content-center align-items-center gap-2">
+                        <td class="d-none d-lg-table-cell">
+                            <div class="small fw-semibold">Received <?= date('M d, Y', strtotime($row['created_at'])) ?></div>
+                            <div class="small text-muted mt-1"><?= htmlspecialchars(inquiry_preview_text($row['message'], 95)) ?></div>
+                            <?php if (!empty($row['reply_message'])): ?>
+                            <div class="small text-success mt-2">Reply: <?= htmlspecialchars(inquiry_preview_text($row['reply_message'], 95)) ?></div>
+                            <?php else: ?>
+                            <div class="small text-muted mt-2">No saved reply yet</div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#replyModal<?= (int)$row['id'] ?>">
+                                <i class="bi bi-reply"></i>
+                            </button>
                             <a href="inquiries_edit.php?id=<?= urlencode($row['id']) ?>"
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-pen"></i>
@@ -278,10 +414,10 @@ $pages = max(1, ceil($total / $limit));
                             </form>
                         </td>
                     </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                     <?php else: ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="6">
                             <div class="empty-state p-3 text-align-center">
                                 <center>
                                     <div class=" empty-icon">
@@ -304,11 +440,11 @@ $pages = max(1, ceil($total / $limit));
                 <?php if ($page > 1): ?>
                 <li class="page-item">
                     <a class="page-link"
-                        href="?page=1&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>">First</a>
+                        href="?page=1&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>&status=<?= urlencode($status_filter) ?>">First</a>
                 </li>
                 <li class="page-item">
                     <a class="page-link"
-                        href="?page=<?= $page - 1 ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>">Previous</a>
+                        href="?page=<?= $page - 1 ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>&status=<?= urlencode($status_filter) ?>">Previous</a>
                 </li>
                 <?php endif; ?>
 
@@ -316,7 +452,7 @@ $pages = max(1, ceil($total / $limit));
                 <?php if ($p === 1 || $p === $pages || abs($p - $page) <= 1): ?>
                 <li class="page-item <?= $p === $page ? 'active' : '' ?>">
                     <a class="page-link"
-                        href="?page=<?= $p ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>"><?= $p ?></a>
+                        href="?page=<?= $p ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>&status=<?= urlencode($status_filter) ?>"><?= $p ?></a>
                 </li>
                 <?php elseif ($p === 2 || $p === $pages - 1): ?>
                 <li class="page-item disabled">
@@ -328,11 +464,11 @@ $pages = max(1, ceil($total / $limit));
                 <?php if ($page < $pages): ?>
                 <li class="page-item">
                     <a class="page-link"
-                        href="?page=<?= $page + 1 ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>">Next</a>
+                        href="?page=<?= $page + 1 ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>&status=<?= urlencode($status_filter) ?>">Next</a>
                 </li>
                 <li class="page-item">
                     <a class="page-link"
-                        href="?page=<?= $pages ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>">Last</a>
+                        href="?page=<?= $pages ?>&q=<?= urlencode($search) ?>&category=<?= urlencode($category) ?>&status=<?= urlencode($status_filter) ?>">Last</a>
                 </li>
                 <?php endif; ?>
             </ul>
@@ -340,6 +476,62 @@ $pages = max(1, ceil($total / $limit));
         <?php endif; ?>
     </div>
 </div>
+
+<?php foreach ($inquiries as $row): ?>
+<div class="modal fade" id="replyModal<?= (int)$row['id'] ?>" tabindex="-1"
+    aria-labelledby="replyModalLabel<?= (int)$row['id'] ?>" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="replyModalLabel<?= (int)$row['id'] ?>">
+                    <?= !empty($row['reply_message']) ? 'Update Inquiry Reply' : 'Reply To Inquiry' ?>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="action" value="reply">
+                    <input type="hidden" name="inquiry_id" value="<?= (int)$row['id'] ?>">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Sender</label>
+                            <input type="text" class="form-control"
+                                value="<?= htmlspecialchars(($row['name'] ?? '') . ' <' . ($row['email'] ?? '') . '>') ?>"
+                                readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Current Status</label>
+                            <input type="text" class="form-control"
+                                value="<?= htmlspecialchars(ucfirst((string)($row['status'] ?? 'new'))) ?>" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Original Message</label>
+                            <textarea class="form-control" rows="5" readonly><?= htmlspecialchars($row['message'] ?? '') ?></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Reply Message *</label>
+                            <textarea name="reply_message" class="form-control" rows="6"
+                                placeholder="Write the response that should be saved and emailed to the enquirer."
+                                required><?= htmlspecialchars($row['reply_message'] ?? '') ?></textarea>
+                            <div class="form-text">
+                                Saving this form records the reply, updates the inquiry as replied, and attempts to
+                                send the message to the inquiry email address.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer mt-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Send Reply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endforeach; ?>
 
 <!-- New Inquiry Modal -->
 <div class="modal fade" id="inquiryModal" tabindex="-1" aria-labelledby="inquiryModalLabel" aria-hidden="true">
@@ -350,18 +542,6 @@ $pages = max(1, ceil($total / $limit));
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <?php if (isset($error) && !empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <?= htmlspecialchars($error) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <?php endif; ?>
-                <?php if (isset($success) && !empty($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?= htmlspecialchars($success) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <?php endif; ?>
                 <form method="post" action="">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <input type="hidden" name="action" value="create">

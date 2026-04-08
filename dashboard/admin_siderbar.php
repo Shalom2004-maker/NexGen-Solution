@@ -73,17 +73,17 @@
     </div>
 
     <div class="nexgen-sidebar-footer">
-        <div class="nexgen-sidebar-footer-content mb-3 mx-auto">
+        <div class="nexgen-sidebar-footer-content">
             <?php $avatarUrl = function_exists('sidebar_avatar_url') ? sidebar_avatar_url() : ''; ?>
             <div class="nexgen-sidebar-footer-avatar">
                 <?php if ($avatarUrl): ?>
                 <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Profile photo"
-                    style="width: 110%; margin-top: -0.5rem; height: 90%; object-fit: cover; border-radius: 50%; margin-left: 0.5rem">
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 <?php else: ?>
                 <?= substr($_SESSION['name'] ?? 'User', 0, 1) ?>
                 <?php endif; ?>
             </div>
-            <div class="nexgen-sidebar-footer-info mx-2">
+            <div class="nexgen-sidebar-footer-info">
                 <b><?= htmlspecialchars($_SESSION['name'] ?? 'User') ?></b>
                 <small><?= htmlspecialchars($_SESSION['role'] ?? '') ?></small>
             </div>

@@ -361,6 +361,8 @@ body.future-dashboard .nexgen-sidebar {
   background: hsl(var(--sidebar-background));
   box-shadow: 16px 0 32px hsl(var(--shadow-color) / 0.12);
   transition: transform 0.24s ease;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 body.future-dashboard .nexgen-sidebar-header {
@@ -373,6 +375,7 @@ body.future-dashboard .nexgen-sidebar-header {
   align-items: center;
   column-gap: 0.7rem;
   row-gap: 0.15rem;
+  min-width: 0;
 }
 
 body.future-dashboard .nexgen-sidebar-header h3 {
@@ -418,7 +421,12 @@ body.future-dashboard .sidebar-theme .theme-chip i {
 body.future-dashboard .nexgen-sidebar-menu {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.35rem 0.1rem 0.45rem;
+  min-width: 0;
+  min-height: 0;
+  overscroll-behavior-x: none;
+  scrollbar-gutter: stable;
 }
 
 body.future-dashboard .nexgen-sidebar-menu h5 {
@@ -436,12 +444,15 @@ body.future-dashboard .nexgen-sidebar-menu a {
   gap: 0.45rem;
   margin: 0.25rem 0;
   padding: 0.62rem 0.72rem;
+  width: 100%;
+  max-width: 100%;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   color: hsl(var(--sidebar-foreground));
   text-decoration: none;
   background: transparent;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  box-sizing: border-box;
 }
 
 body.future-dashboard .nexgen-sidebar-menu a:hover,
@@ -463,13 +474,16 @@ body.future-dashboard .nexgen-sidebar-footer {
   margin-top: auto;
   border-top: 1px solid hsl(var(--sidebar-border));
   padding-top: 0.72rem;
+  min-width: 0;
 }
 
 body.future-dashboard .nexgen-sidebar-footer-content {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  width: 100%;
   margin-bottom: 0.72rem;
+  min-width: 0;
 }
 
 body.future-dashboard .nexgen-sidebar-footer-avatar {
@@ -489,20 +503,33 @@ body.future-dashboard .nexgen-sidebar-footer-info b {
   display: block;
   font-size: 0.86rem;
   color: hsl(var(--sidebar-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 body.future-dashboard .nexgen-sidebar-footer-info small {
   display: block;
   color: hsl(var(--sidebar-foreground) / 0.7);
   font-size: 0.74rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.future-dashboard .nexgen-sidebar-footer-info {
+  flex: 1;
+  min-width: 0;
 }
 
 body.future-dashboard .nexgen-logout-btn {
   width: 100%;
+  max-width: 100%;
   border: 1px solid hsl(var(--destructive) / 0.45);
   border-radius: var(--radius-md);
   color: hsl(var(--destructive));
   background: hsl(var(--destructive) / 0.12);
+  box-sizing: border-box;
 }
 
 body.future-dashboard .nexgen-logout-btn:hover,

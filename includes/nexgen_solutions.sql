@@ -107,6 +107,9 @@ CREATE TABLE `inquiries` (
   `email` varchar(100) DEFAULT NULL,
   `company` varchar(100) DEFAULT NULL,
   `message` text DEFAULT NULL,
+  `reply_message` text DEFAULT NULL,
+  `replied_at` datetime DEFAULT NULL,
+  `replied_by` int(11) DEFAULT NULL,
   `status` enum('new','replied','closed') DEFAULT 'new',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `category` varchar(70) DEFAULT NULL

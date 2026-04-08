@@ -1,4 +1,4 @@
-<?php
+n<?php
 include "../includes/auth.php";
 allow("Admin");
 include "../includes/db.php";
